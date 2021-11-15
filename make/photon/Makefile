@@ -1,5 +1,5 @@
 # Makefile for a harbor project
-#
+TRIVYFLAG=true#
 # Targets:
 #
 # build: 	build harbor photon images

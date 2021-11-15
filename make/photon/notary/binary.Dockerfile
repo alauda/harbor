@@ -1,4 +1,4 @@
-FROM golang:1.13.8
+FROM harbor-b.alauda.cn/devops/golang:1.15-custom
 
 ARG NOTARY_VERSION
 ARG MIGRATE_VERSION
