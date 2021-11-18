@@ -1,6 +1,19 @@
-FROM harbor-b.alauda.cn/ops/photon:4.0
+FROM centos:8.4.2105
+RUN yum install -y dnf-plugins-core &&yum config-manager --set-enabled powertools &&\
+    dnf install --enablerepo powertools texinfo -y&&\
+    yum -y install gcc make platform-python-devel bzip2 wget perl texinfo
 
-RUN tdnf install -y sudo rpm >> /dev/null \
+RUN wget https://ftp.osuosl.org/pub/rpm/releases/rpm-4.17.x/rpm-4.17.0.tar.bz2 &&\
+    tar -jxf rpm-4.17.0.tar.bz2 && cd rpm-4.17 && ./configure --prefix=/opt/rpm && make &&\
+    make install && install
+
+FROM photon:3.0
+COPY --from=0 /opt/rpm/lib opt/rpm/lib
+RUN tdnf install -y sudo >> /dev/null \
     && tdnf clean all \
     && groupadd -r -g 10000 scanner \
-    && useradd --no-log-init -m -r -g 10000 -u 10000 scanner
+    && useradd --no-log-init -m -r -g 10000 -u 10000 scanner \
+    && rpm -e rpm \
+    && echo "/opt/rpm/lib" >>/etc/ld.so.conf \
+    && ldconf
+COPY --from=0 /opt/rpm/bin/rpm /usr/bin/rpm
