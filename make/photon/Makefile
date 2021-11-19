@@ -17,7 +17,7 @@ CURL=$(shell which curl)
 
 # docker parameters
 DOCKERCMD=$(shell which docker)
-DOCKERBUILD=$(DOCKERCMD) build
+DOCKERBUILD=$(DOCKERCMD) build --network=host
 DOCKERRMIMAGE=$(DOCKERCMD) rmi
 DOCKERIMASES=$(DOCKERCMD) images
 BASEIMAGENAMESPACE=goharbor
