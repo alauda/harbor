@@ -24,7 +24,7 @@ git clone -b $VERSION --single-branch https://github.com/quay/clair.git $TEMP
 
 echo 'build the clair binary bases on the golang:1.13.8'
 cp Dockerfile.binary $TEMP
-docker build -f $TEMP/Dockerfile.binary -t clair-golang $TEMP
+docker build --network=host -f $TEMP/Dockerfile.binary -t clair-golang $TEMP
 
 echo 'copy the clair binary to local...'
 ID=$(docker create clair-golang)

@@ -1,5 +1,5 @@
 # Makefile for Harbor project
-COMPILEBUILDPATH=/go/src#
+COMPILEBUILDPATH=/go/src
 # Targets:
 #
 # all:			prepare env, compile binaries, build images and install images
@@ -76,10 +76,10 @@ REGISTRYSERVER=
 REGISTRYPROJECTNAME=goharbor
 DEVFLAG=true
 NOTARYFLAG=false
-CLAIRFLAG=false
-TRIVYFLAG=false
+CLAIRFLAG=true
+TRIVYFLAG=true
 HTTPPROXY=
-BUILDBIN=false
+BUILDBIN=true
 NPM_REGISTRY=https://registry.npmjs.org
 # enable/disable chart repo supporting
 CHARTFLAG=false
@@ -88,12 +88,12 @@ GEN_TLS=
 
 # version prepare
 # for docker image tag
-VERSIONTAG=dev
+VERSIONTAG=alauda-v2.0.1-${BUILD_NUMBER}-amd64
 # for base docker image tag
-BASEIMAGETAG=dev
+BASEIMAGETAG=v2.0.1
 BASEIMAGENAMESPACE=goharbor
 # for harbor package name
-PKGVERSIONTAG=dev
+PKGVERSIONTAG=alauda-v2.0.1-${BUILD_NUMBER}-amd64
 
 PREPARE_VERSION_NAME=versions
 
@@ -150,14 +150,14 @@ GOINSTALL=$(GOCMD) install
 GOTEST=$(GOCMD) test
 GODEP=$(GOTEST) -i
 GOFMT=gofmt -w
-GOBUILDIMAGE=golang:1.13.8
+GOBUILDIMAGE=harbor-b.alauda.cn/devops/golang:1.15-custom
 GOBUILDPATHINCONTAINER=/harbor
 
 # go build
 PKG_PATH=github.com/goharbor/harbor/src/pkg
 GITCOMMIT := $(shell git rev-parse --short=8 HEAD)
 RELEASEVERSION := $(shell cat VERSION)
-GOFLAGS=
+GOFLAGS="-buildmode=pie"
 GOTAGS=$(if $(GOBUILDTAGS),-tags "$(GOBUILDTAGS)",)
 GOLDFLAGS=$(if $(GOBUILDLDFLAGS),--ldflags "-w -s $(GOBUILDLDFLAGS)",)
 CORE_LDFLAGS=-X $(PKG_PATH)/version.GitCommit=$(GITCOMMIT) -X $(PKG_PATH)/version.ReleaseVersion=$(RELEASEVERSION)
@@ -220,14 +220,14 @@ MAKEFILEPATH_PHOTON=$(MAKEPATH)/photon
 DOCKERFILEPATH_COMMON=$(MAKEPATH)/common
 
 # docker image name
-DOCKER_IMAGE_NAME_PREPARE=goharbor/prepare
-DOCKERIMAGENAME_PORTAL=goharbor/harbor-portal
-DOCKERIMAGENAME_CORE=goharbor/harbor-core
-DOCKERIMAGENAME_JOBSERVICE=goharbor/harbor-jobservice
-DOCKERIMAGENAME_LOG=goharbor/harbor-log
-DOCKERIMAGENAME_DB=goharbor/harbor-db
-DOCKERIMAGENAME_CHART_SERVER=goharbor/chartmuseum-photon
-DOCKERIMAGENAME_REGCTL=goharbor/harbor-registryctl
+DOCKER_IMAGE_NAME_PREPARE=harbor-b.alauda.cn/devops/goharbor-prepare
+DOCKERIMAGENAME_PORTAL=harbor-b.alauda.cn/devops/goharbor-harbor-portal
+DOCKERIMAGENAME_CORE=harbor-b.alauda.cn/devops/goharbor-harbor-core
+DOCKERIMAGENAME_JOBSERVICE=harbor-b.alauda.cn/devops/goharbor-harbor-jobservice
+DOCKERIMAGENAME_LOG=harbor-b.alauda.cn/devops/goharbor-harbor-log
+DOCKERIMAGENAME_DB=harbor-b.alauda.cn/devops/goharbor-harbor-db
+DOCKERIMAGENAME_CHART_SERVER=harbor-b.alauda.cn/devops/goharbor-chartmuseum-photon
+DOCKERIMAGENAME_REGCTL=harbor-b.alauda.cn/devops/goharbor-harbor-registryctl
 
 # docker-compose files
 DOCKERCOMPOSEFILEPATH=$(MAKEPATH)
@@ -300,7 +300,7 @@ ifeq ($(CHARTFLAG), true)
 	DOCKERSAVE_PARA+= $(DOCKERIMAGENAME_CHART_SERVER):$(VERSIONTAG)
 endif
 
-SWAGGER_IMAGENAME=goharbor/swagger
+SWAGGER_IMAGENAME=harbor-b.alauda.cn/devops/goharbor-swagger
 SWAGGER_VERSION=v0.21.0
 SWAGGER=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(COMPILEBUILDPATH):$(COMPILEBUILDPATH) -w $(COMPILEBUILDPATH) ${SWAGGER_IMAGENAME}:${SWAGGER_VERSION}
 SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(COMPILEBUILDPATH)/tools/swagger/templates --exclude-main
@@ -352,7 +352,7 @@ compile_notary_migrate_patch:
 	@$(DOCKERCMD) run --rm -v $(COMPILEBUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_MIGRATEPATCH) $(GOBUILDIMAGE) $(GOIMAGEBUILD_COMMON) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_NOTARY)/$(MIGRATEPATCHBINARYNAME)
 	@echo "Done."
 
-compile: check_environment versions_prepare compile_core compile_jobservice compile_registryctl compile_notary_migrate_patch
+compile: versions_prepare compile_core compile_jobservice compile_registryctl compile_notary_migrate_patch
 
 update_prepare_version:
 	@echo "substitute the prepare version tag in prepare file..."
@@ -376,21 +376,21 @@ build:
 	 -e CLAIRVERSION=$(CLAIRVERSION) -e CLAIRADAPTERVERSION=$(CLAIRADAPTERVERSION) -e VERSIONTAG=$(VERSIONTAG) \
 	 -e BUILDBIN=$(BUILDBIN) \
 	 -e CHARTMUSEUMVERSION=$(CHARTMUSEUMVERSION) -e DOCKERIMAGENAME_CHART_SERVER=$(DOCKERIMAGENAME_CHART_SERVER) \
-	 -e NPM_REGISTRY=$(NPM_REGISTRY) -e BASEIMAGETAG=$(BASEIMAGETAG) -e BASEIMAGENAMESPACE=$(BASEIMAGENAMESPACE) \
+	 -e NPM_REGISTRY=$(NPM_REGISTRY) -e NOTARYFLAG=true -e CHARTFLAG=true -e CLAIRFLAG=true -e BASEIMAGETAG=$(BASEIMAGETAG) -e BASEIMAGENAMESPACE=$(BASEIMAGENAMESPACE) \
 	 -e CLAIRURL=$(CLAIRURL) -e CHARTURL=$(CHARTURL) -e NORARYURL=$(NORARYURL) -e REGISTRYURL=$(REGISTRYURL) -e CLAIR_ADAPTER_DOWNLOAD_URL=$(CLAIR_ADAPTER_DOWNLOAD_URL) \
 	 -e TRIVY_DOWNLOAD_URL=$(TRIVY_DOWNLOAD_URL) -e TRIVY_ADAPTER_DOWNLOAD_URL=$(TRIVY_ADAPTER_DOWNLOAD_URL)
 
 build_base_docker:
 	@for name in chartserver clair clair-adapter trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl; do \
 		echo $$name ; \
-		$(DOCKERBUILD) --pull -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t $(BASEIMAGENAMESPACE)/harbor-$$name-base:$(BASEIMAGETAG) . && \
-		$(PUSHSCRIPTPATH)/$(PUSHSCRIPTNAME) $(BASEIMAGENAMESPACE)/harbor-$$name-base:$(BASEIMAGETAG) $(REGISTRYUSER) $(REGISTRYPASSWORD) || exit 1; \
+		$(DOCKERBUILD)  -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) . && \
+		docker push harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) || exit 1; \
 	done
 
 pull_base_docker:
 	@for name in chartserver clair clair-adapter trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl; do \
 		echo $$name ; \
-		$(DOCKERPULL) $(BASEIMAGENAMESPACE)/harbor-$$name-base:$(BASEIMAGETAG) ; \
+		$(DOCKERPULL) harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) ; \
 	done
 
 install: compile build prepare start

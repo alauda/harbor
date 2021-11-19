@@ -1,5 +1,5 @@
 # Makefile for a harbor project
-TRIVYFLAG=true#
+TRIVYFLAG=true
 # Targets:
 #
 # build: 	build harbor photon images
@@ -33,67 +33,67 @@ DOCKERFILEPATH=$(MAKEPATH)/photon
 
 DOCKERFILEPATH_PREPARE=$(DOCKERFILEPATH)/prepare
 DOCKERFILENAME_PREPARE=Dockerfile
-DOCKERIMAGENAME_PREPARE=goharbor/prepare
+DOCKERIMAGENAME_PREPARE=harbor-b.alauda.cn/devops/goharbor-prepare
 
 DOCKERFILEPATH_PORTAL=$(DOCKERFILEPATH)/portal
 DOCKERFILENAME_PORTAL=Dockerfile
-DOCKERIMAGENAME_PORTAL=goharbor/harbor-portal
+DOCKERIMAGENAME_PORTAL=harbor-b.alauda.cn/devops/goharbor-harbor-portal
 
 DOCKERFILEPATH_CORE=$(DOCKERFILEPATH)/core
 DOCKERFILENAME_CORE=Dockerfile
-DOCKERIMAGENAME_CORE=goharbor/harbor-core
+DOCKERIMAGENAME_CORE=harbor-b.alauda.cn/devops/goharbor-harbor-core
 
 DOCKERFILEPATH_JOBSERVICE=$(DOCKERFILEPATH)/jobservice
 DOCKERFILENAME_JOBSERVICE=Dockerfile
-DOCKERIMAGENAME_JOBSERVICE=goharbor/harbor-jobservice
+DOCKERIMAGENAME_JOBSERVICE=harbor-b.alauda.cn/devops/goharbor-harbor-jobservice
 
 DOCKERFILEPATH_LOG=$(DOCKERFILEPATH)/log
 DOCKERFILENAME_LOG=Dockerfile
-DOCKERIMAGENAME_LOG=goharbor/harbor-log
+DOCKERIMAGENAME_LOG=harbor-b.alauda.cn/devops/goharbor-harbor-log
 
 DOCKERFILEPATH_DB=$(DOCKERFILEPATH)/db
 DOCKERFILENAME_DB=Dockerfile
-DOCKERIMAGENAME_DB=goharbor/harbor-db
+DOCKERIMAGENAME_DB=harbor-b.alauda.cn/devops/goharbor-harbor-db
 
 DOCKERFILEPATH_POSTGRESQL=$(DOCKERFILEPATH)/postgresql
 DOCKERFILENAME_POSTGRESQL=Dockerfile
-DOCKERIMAGENAME_POSTGRESQL=goharbor/postgresql-photon
+DOCKERIMAGENAME_POSTGRESQL=harbor-b.alauda.cn/devops/goharbor-postgresql-photon
 
 DOCKERFILEPATH_CLAIR=$(DOCKERFILEPATH)/clair
 DOCKERFILENAME_CLAIR=Dockerfile
-DOCKERIMAGENAME_CLAIR=goharbor/clair-photon
+DOCKERIMAGENAME_CLAIR=harbor-b.alauda.cn/devops/goharbor-clair-photon
 
 DOCKERFILEPATH_CLAIR_ADAPTER=$(DOCKERFILEPATH)/clair-adapter
 DOCKERFILENAME_CLAIR_ADAPTER=Dockerfile
-DOCKERIMAGENAME_CLAIR_ADAPTER=goharbor/clair-adapter-photon
+DOCKERIMAGENAME_CLAIR_ADAPTER=harbor-b.alauda.cn/devops/goharbor-clair-adapter-photon
 
 DOCKERFILEPATH_TRIVY_ADAPTER=$(DOCKERFILEPATH)/trivy-adapter
 DOCKERFILENAME_TRIVY_ADAPTER=Dockerfile
-DOCKERIMAGENAME_TRIVY_ADAPTER=goharbor/trivy-adapter-photon
+DOCKERIMAGENAME_TRIVY_ADAPTER=harbor-b.alauda.cn/devops/goharbor-trivy-adapter-photon
 
 DOCKERFILEPATH_NGINX=$(DOCKERFILEPATH)/nginx
 DOCKERFILENAME_NGINX=Dockerfile
-DOCKERIMAGENAME_NGINX=goharbor/nginx-photon
+DOCKERIMAGENAME_NGINX=harbor-b.alauda.cn/devops/goharbor-nginx-photon
 
 DOCKERFILEPATH_REG=$(DOCKERFILEPATH)/registry
 DOCKERFILENAME_REG=Dockerfile
-DOCKERIMAGENAME_REG=goharbor/registry-photon
+DOCKERIMAGENAME_REG=harbor-b.alauda.cn/devops/goharbor-registry-photon
 
 DOCKERFILEPATH_REGISTRYCTL=$(DOCKERFILEPATH)/registryctl
 DOCKERFILENAME_REGISTRYCTL=Dockerfile
-DOCKERIMAGENAME_REGISTRYCTL=goharbor/harbor-registryctl
+DOCKERIMAGENAME_REGISTRYCTL=harbor-b.alauda.cn/devops/goharbor-harbor-registryctl
 
 DOCKERFILEPATH_NOTARY=$(DOCKERFILEPATH)/notary
 DOCKERFILEPATH_NOTARYSERVER=$(DOCKERFILEPATH)/notary-server
 DOCKERFILENAME_NOTARYSIGNER=Dockerfile
-DOCKERIMAGENAME_NOTARYSIGNER=goharbor/notary-signer-photon
+DOCKERIMAGENAME_NOTARYSIGNER=harbor-b.alauda.cn/devops/goharbor-notary-signer-photon
 DOCKERFILEPATH_NOTARYSIGNER=$(DOCKERFILEPATH)/notary-signer
 DOCKERFILENAME_NOTARYSERVER=Dockerfile
-DOCKERIMAGENAME_NOTARYSERVER=goharbor/notary-server-photon
+DOCKERIMAGENAME_NOTARYSERVER=harbor-b.alauda.cn/devops/goharbor-notary-server-photon
 
 DOCKERFILEPATH_REDIS=$(DOCKERFILEPATH)/redis
 DOCKERFILENAME_REDIS=Dockerfile
-DOCKERIMAGENAME_REDIS=goharbor/redis-photon
+DOCKERIMAGENAME_REDIS=harbor-b.alauda.cn/devops/goharbor-redis-photon
 
 # for chart server (chartmuseum)
 DOCKERFILEPATH_CHART_SERVER=$(DOCKERFILEPATH)/chartserver
@@ -253,7 +253,7 @@ define _get_binary
 	$(CURL) --connect-timeout 30 -f -k -L $1 -o $2 || exit 1
 endef
 
-build: _build_prepare _build_db _build_portal _build_core _build_jobservice _build_log _build_nginx _build_registry _build_registryctl _build_notary _build_clair _build_clair_adapter _build_trivy_adapter _build_redis _build_chart_server
+build: _build_db _build_portal _build_core _build_jobservice _build_nginx _build_registry _build_registryctl _build_notary _build_clair _build_clair_adapter _build_trivy_adapter _build_chart_server
 
 cleanimage:
 	@echo "cleaning image for photon..."
