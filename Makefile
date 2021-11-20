@@ -90,7 +90,7 @@ GEN_TLS=
 # for docker image tag
 VERSIONTAG=alauda-v2.0.1-${BUILD_NUMBER}-amd64
 # for base docker image tag
-BASEIMAGETAG=v2.0.1
+BASEIMAGETAG=v2.0.1-${BUILD_NUMBER}
 BASEIMAGENAMESPACE=goharbor
 # for harbor package name
 PKGVERSIONTAG=alauda-v2.0.1-${BUILD_NUMBER}-amd64
