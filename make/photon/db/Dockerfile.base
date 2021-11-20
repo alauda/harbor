@@ -5,15 +5,11 @@ RUN yum install -y dnf-plugins-core && yum config-manager --set-enabled powertoo
 RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
     && tar -xf ncurses-6.3.tar.gz && cd ncurses-6.3 \
     && ./configure --prefix=/opt/ncurses && make && make install && cd ..
-RUN wget https://github.com/lz4/lz4/archive/refs/tags/v1.9.3.tar.gz \
-    && tar -xf v1.9.3.tar.gz && cd lz4-1.9.3 \
-    && make && make install && mkdir -p /opt/lz4/bin && cp -R ./lib /opt/lz4 && cp lz4 /opt/lz4/bin && cd ..
 
 FROM harbor-b.alauda.cn/ops/photon:3.0
 ENV PGDATA /var/lib/postgresql/data
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/lz4/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:$PATH
 COPY --from=0 /opt/ncurses /opt/ncurses
-COPY --from=0 /opt/lz4 /opt/lz4
 RUN tdnf install -y shadow gzip postgresql rpm >> /dev/null\
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
@@ -28,7 +24,7 @@ RUN tdnf install -y shadow gzip postgresql rpm >> /dev/null\
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
     && tdnf clean all \
     && cp /usr/bin/curl /opt/curl/bin/curl \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 lz4 --nodeps \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && ldconfig
 RUN tdnf erase -y toybox && tdnf install -y util-linux net-tools
