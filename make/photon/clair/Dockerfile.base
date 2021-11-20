@@ -11,7 +11,7 @@ FROM harbor-b.alauda.cn/ops/photon:3.0
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:$PATH
 COPY --from=0 /opt/ncurses /opt/ncurses
 
-RUN tdnf install -y git shadow rpm xz >>/dev/null\
+RUN tdnf install -y git shadow rpm xz python-xml >>/dev/null\
     && tdnf clean all \
     && mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
