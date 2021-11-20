@@ -1,3 +1,3 @@
 FROM harbor-b.alauda.cn/ops/photon:3.0
 
-RUN tdnf install -y redis sudo && tdnf clean all
+RUN tdnf install -y redis && tdnf clean all
