@@ -1,6 +1,6 @@
 FROM harbor-b.alauda.cn/ops/photon:3.0
 
-RUN tdnf install -y git shadow rpm xz python-xml >>/dev/null\
+RUN tdnf install -y git shadow rpm xz >>/dev/null\
     && tdnf clean all \
     && rpm -e zstd-libs --nodeps \
     && groupadd -r -g 10000 clair \
