@@ -15,6 +15,6 @@ RUN tdnf install -y redis && tdnf clean all \
     && mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin/curl \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 --nodeps \
+    && rpm -e curl curl-libs ncurses-libs zstd-libs krb5 --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && ldconfig
