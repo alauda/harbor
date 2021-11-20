@@ -1,8 +1,15 @@
+FROM centos:8.4.2105
+RUN yum install -y dnf-plugins-core && yum config-manager --set-enabled powertools \
+    && dnf install --enablerepo powertools texinfo -y \
+    && yum -y install gcc make platform-python-devel bzip2 wget perl texinfo
+RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
+    && tar -xf ncurses-6.3.tar.gz && cd ncurses-6.3 \
+    && ./configure --prefix=/opt/ncurses && make && make install
+
 FROM harbor-b.alauda.cn/ops/photon:3.0
-
 ENV PGDATA /var/lib/postgresql/data
-
-RUN tdnf install -y shadow gzip postgresql >> /dev/null\
+COPY --from=0 /opt/ncurses /opt/ncurses
+RUN tdnf install -y shadow gzip postgresql rpm >> /dev/null\
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
     && mkdir -p /docker-entrypoint-initdb.d \
@@ -12,6 +19,11 @@ RUN tdnf install -y shadow gzip postgresql >> /dev/null\
     && mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA" \
     && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
-    && tdnf clean all
-
+    && tdnf clean all \
+    && cp /usr/bin/curl /opt/curl/bin/curl \
+    && export PATH=/opt/ncurses/bin:$PATH \
+    && export PATH=/opt/curl/bin:$PATH \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 --nodeps \
+    && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
+    && ldconfig
 RUN tdnf erase -y toybox && tdnf install -y util-linux net-tools
