@@ -381,7 +381,7 @@ build:
 	 -e TRIVY_DOWNLOAD_URL=$(TRIVY_DOWNLOAD_URL) -e TRIVY_ADAPTER_DOWNLOAD_URL=$(TRIVY_ADAPTER_DOWNLOAD_URL)
 
 build_base_docker:
-	@for name in chartserver clair clair-adapter trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl; do \
+	@for name in chartserver clair-adapter trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl; do \
 		echo $$name ; \
 		$(DOCKERBUILD)  -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) . && \
 		docker push harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) || exit 1; \
