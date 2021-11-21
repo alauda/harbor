@@ -26,7 +26,7 @@ RUN tdnf install -y shadow gzip postgresql=10.5-1.ph3 rpm=4.14.2-4.ph3 >> /dev/n
     && chmod 2777 /opt/openssl/bin \
     && cp /usr/bin/curl /opt/curl/bin/curl \
     && cp /usr/bin/openssl /opt/openssl/bin/openssl \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 --nodeps \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 rpm --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA" \
