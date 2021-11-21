@@ -7,23 +7,28 @@ RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
     && ./configure --prefix=/opt/ncurses && make && make install && cd ..
 
 FROM harbor-b.alauda.cn/ops/photon:3.0
+
 ENV PGDATA /var/lib/postgresql/data
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:$PATH
 COPY --from=0 /opt/ncurses /opt/ncurses
-RUN tdnf install -y shadow gzip postgresql=10.5-1.ph3 rpm >> /dev/null\
+
+RUN tdnf install -y shadow gzip postgresql=10.5-1.ph3 rpm=4.14.2-4.ph3 >> /dev/null\
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
     && mkdir -p /docker-entrypoint-initdb.d \
     && mkdir -p /run/postgresql \
     && mkdir -p /opt/curl/bin \
+    && mkdir -p /opt/openssl/bin \
     && chown -R postgres:postgres /run/postgresql \
     && chmod 2777 /run/postgresql \
     && chmod 2777 /opt/curl/bin \
+    && chmod 2777 /opt/openssl/bin \
     && mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA" \
     && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
     && tdnf clean all \
     && cp /usr/bin/curl /opt/curl/bin \
+    && cp /usr/bin/openssl /opt/openssl/bin \
     && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && ldconfig
