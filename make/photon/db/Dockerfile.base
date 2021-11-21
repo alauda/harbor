@@ -23,7 +23,7 @@ RUN tdnf install -y shadow gzip postgresql=10.5-1.ph3 rpm >> /dev/null\
     && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
     && tdnf clean all \
-    && cp /usr/bin/curl /opt/curl/bin/curl \
+    && cp /usr/bin/curl /opt/curl/bin \
     && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && ldconfig
