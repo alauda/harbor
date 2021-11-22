@@ -20,9 +20,9 @@ RUN tdnf install -y git shadow rpm xz >> /dev/null\
     && cp /usr/bin/openssl /opt/openssl/bin \
     && groupadd -r -g 10000 clair \
     && useradd --no-log-init -m -g 10000 -u 10000 clair \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 rpm --nodeps \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 expat expat-libs sqlite-libs rpm --nodeps \
     && tdnf install -y rpm=4.14.2-4.ph3 python-xml=2.7.15-3.ph3 python2-libs=2.7.15-3.ph3 \
     && tdnf clean all \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 openssl --nodeps \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 openssl sqlite-libs expat expat-libs --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && ldconfig
