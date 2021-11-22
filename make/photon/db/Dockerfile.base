@@ -13,7 +13,6 @@ ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:$PATH
 COPY --from=0 /opt/ncurses /opt/ncurses
 
 RUN tdnf install -y shadow gzip util-linux net-tools \
-    && tdnf erase -y toybox \
     && tdnf install -y postgresql=10.5-1.ph3 rpm=4.14.2-4.ph3 \
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
