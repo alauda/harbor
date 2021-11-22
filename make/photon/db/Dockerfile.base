@@ -19,7 +19,7 @@ RUN mkdir -p /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin/curl \
     && cp /usr/bin/openssl /opt/openssl/bin/openssl \
     && tdnf install -y shadow gzip \
-    && tdnf erase -y toybox
+    && tdnf erase -y toybox \
     && tdnf install -y util-linux net-tools postgresql=10.5-1.ph3 rpm=4.14.2-4.ph3 \
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
