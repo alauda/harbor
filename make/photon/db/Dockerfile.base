@@ -1,4 +1,4 @@
-FROM centos:8.4.2105
+FROM centos:8.4.2105 AS tools
 RUN yum install -y dnf-plugins-core && yum config-manager --set-enabled powertools \
     && dnf install --enablerepo powertools texinfo -y \
     && yum -y install gcc make platform-python-devel bzip2 wget perl texinfo
@@ -6,11 +6,11 @@ RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
     && tar -xf ncurses-6.3.tar.gz && cd ncurses-6.3 \
     && ./configure --prefix=/opt/ncurses --with-shared --enable-widec && make && make install && cd ..
 
-FROM harbor-b.alauda.cn/ops/photon:3.0
+FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:$PATH
-COPY --from=0 /opt/ncurses /opt/ncurses
+COPY --from=tools /opt/ncurses /opt/ncurses
 
 RUN mkdir -p /opt/curl/bin \
     mkdir -p /opt/openssl/bin \
@@ -34,3 +34,6 @@ RUN mkdir -p /opt/curl/bin \
     && rpm -e curl-libs ncurses ncurses-libs zstd-libs krb5 sed rpm --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && ldconfig
+
+FROM scratch
+COPY --from=source / /

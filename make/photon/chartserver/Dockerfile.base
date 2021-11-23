@@ -1,6 +1,9 @@
-FROM harbor-b.alauda.cn/ops/photon:3.0
+FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 RUN tdnf install -y shadow >>/dev/null\
     && tdnf clean all \
     && groupadd -r -g 10000 chart \
     && useradd --no-log-init -m -g 10000 -u 10000 chart
+
+FROM scratch
+COPY --from=source / /
