@@ -9,7 +9,7 @@ RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
-ENV PATH /opt/curl/bin:/opt/openssl/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:$PATH
 COPY --from=tools /opt/ncurses /opt/ncurses
 
 RUN mkdir -p /opt/curl/bin \
@@ -18,7 +18,7 @@ RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/openssl/bin \
     && cp /usr/bin/curl /opt/curl/bin/curl \
     && cp /usr/bin/openssl /opt/openssl/bin/openssl \
-    && tdnf install -y shadow gzip postgresql rpm \
+    && tdnf install -y shadow gzip postgresql=10.5-1.ph3 rpm=4.14.3-1.ph3 \
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
     && mkdir -p /docker-entrypoint-initdb.d \
@@ -34,3 +34,6 @@ RUN mkdir -p /opt/curl/bin \
     && ldconfig
 
 RUN tdnf erase -y toybox && tdnf install -y util-linux net-tools
+
+FROM scratch
+COPY --from=source / /
