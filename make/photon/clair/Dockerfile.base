@@ -22,7 +22,7 @@ RUN mkdir -p /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin \
     && cp /usr/bin/openssl /opt/openssl/bin \
     && tdnf install -y git shadow rpm xz python-xml python2-libs \
-    && tdnf upgrade -y python3 python3-libs
+    && tdnf upgrade -y python3 python3-libs \
     && groupadd -r -g 10000 clair \
     && useradd --no-log-init -m -g 10000 -u 10000 clair \
     && tdnf clean all \
