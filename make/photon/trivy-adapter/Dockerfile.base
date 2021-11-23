@@ -1,10 +1,10 @@
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
+FROM scratch
+COPY --from=source / /
+
 RUN tdnf install -y rpm >> /dev/null \
     && tdnf clean all \
     && rpm -e zstd-libs --nodeps \
     && groupadd -r -g 10000 scanner \
     && useradd --no-log-init -m -r -g 10000 -u 10000 scanner
-
-FROM scratch
-COPY --from=source / /

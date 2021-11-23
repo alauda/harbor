@@ -1,9 +1,9 @@
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
+FROM scratch
+COPY --from=source / /
+
 RUN tdnf install tzdata -y >> /dev/null \
     && tdnf clean all \
     && groupadd -r -g 10000 harbor && useradd --no-log-init -r -m -g 10000 -u 10000 harbor \
     && mkdir /harbor/
-
-FROM scratch
-COPY --from=source / /
