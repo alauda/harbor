@@ -1,9 +1,9 @@
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
-FROM scratch
-COPY --from=source / /
-
 RUN tdnf install -y shadow \
     && tdnf clean all \
     && groupadd -r -g 10000 notary \
     && useradd --no-log-init -r -g 10000 -u 10000 notary
+
+FROM scratch
+COPY --from=source / /

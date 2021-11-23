@@ -1,7 +1,4 @@
-FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
-
-FROM scratch
-COPY --from=source / /
+FROM harbor-b.alauda.cn/ops/photon:3.0
 
 RUN mkdir /clair-adapter/ \
     && groupadd -r -g 10000 clair-adapter \
