@@ -5,11 +5,19 @@ RUN yum install -y dnf-plugins-core && yum config-manager --set-enabled powertoo
 RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
     && tar -xf ncurses-6.3.tar.gz && cd ncurses-6.3 \
     && ./configure --prefix=/opt/ncurses --with-shared --enable-widec && make && make install && cd ..
+RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
+    && tar -xf Python-3.9.9.tgz && cd Python-3.9.9 \
+    && ./configure --prefix=/opt/python/3.9.9 --enable-shared && make && make install && cd ..
+RUN wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz \
+    && tar -xf Python-2.7.18.tgz && cd Python-2.7.18 \
+    && ./configure --prefix=/opt/python/2.7.18 --enable-shared && make && make install && cd ..
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/python/3.9.9/bin:/opt/python/2.7.18/bin:$PATH
 COPY --from=tools /opt/ncurses /opt/ncurses
+COPY --from=tools /opt/python/3.9.9 /opt/python/3.9.9
+COPY --from=tools /opt/python/2.7.18 /opt/python/2.7.18
 
 RUN mkdir -p /opt/curl/bin \
     && mkdir -p /opt/openssl/bin \
@@ -23,8 +31,10 @@ RUN mkdir -p /opt/curl/bin \
     && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 expat expat-libs sqlite-libs rpm --nodeps \
     && tdnf install -y rpm=4.14.2-4.ph3 python-xml=2.7.17-6.ph3 python2-libs=2.7.17-6.ph3 \
     && tdnf clean all \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 openssl sqlite-libs expat expat-libs --nodeps \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 openssl sqlite-libs expat expat-libs python3-libs python3 python2 python2-libs --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
+    && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
+    && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
     && ldconfig
 
 FROM scratch
