@@ -45,8 +45,9 @@ RUN mkdir -p /opt/curl/bin \
     && echo "/opt/libsolv/lib" >>/etc/ld.so.conf \
     && echo "/opt/libarchive/lib64" >>/etc/ld.so.conf \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
-    && python3 -m pip install --upgrade pip \
-    && python3 -m pip install urllib3 \
+    && cd /opt/python/3.9.9/bin/
+    && ./python3 -m pip install --upgrade pip \
+    && ./python3 -m pip install urllib3 \
     && ldconfig
 
 FROM scratch
