@@ -45,10 +45,9 @@ RUN mkdir -p /opt/curl/bin \
     && echo "/opt/libsolv/lib" >>/etc/ld.so.conf \
     && echo "/opt/libarchive/lib64" >>/etc/ld.so.conf \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
-    && cd /opt/python/3.9.9/bin/
-    && ./python3 -m pip install --upgrade pip \
-    && ./python3 -m pip install urllib3 \
-    && ldconfig
+    && ldconfig \
+    && python3 -m pip install --upgrade pip \
+    && python3 -m pip install urllib3
 
 FROM scratch
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
