@@ -29,11 +29,13 @@ RUN mkdir -p /opt/curl/bin \
     && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
     && tdnf clean all \
-    && rpm -e curl-libs zstd-libs krb5 rpm --nodeps \
+    && rpm -e curl curl-libs zstd-libs krb5 rpm --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && ldconfig
 
 RUN tdnf erase -y toybox && tdnf install -y util-linux net-tools
 
 FROM scratch
+ENV PGDATA /var/lib/postgresql/data
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:$PATH
 COPY --from=source / /

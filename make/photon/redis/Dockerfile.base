@@ -20,4 +20,5 @@ RUN tdnf install -y redis rpm && tdnf clean all \
     && ldconfig
 
 FROM scratch
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:$PATH
 COPY --from=source / /

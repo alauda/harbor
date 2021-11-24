@@ -33,4 +33,5 @@ RUN mkdir -p /opt/curl/bin \
     && ldconfig
 
 FROM scratch
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/python/2.7.18/bin:$PATH
 COPY --from=source / /
