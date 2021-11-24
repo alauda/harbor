@@ -13,7 +13,7 @@ RUN wget https://www.libarchive.org/downloads/libarchive-3.5.2.tar.gz \
     && ./configure --prefix=/opt/libarchive --enable-shared && make && make install && cd ..
 RUN wget https://github.com/openSUSE/libsolv/archive/refs/tags/0.7.20.tar.gz \
     && tar -xf 0.7.20.tar.gz && cd libsolv-0.7.20 \
-    && cmake -DCMAKE_INSTALL_PREFIX=/opt/libsolv && make && cd ..
+    && cmake -DCMAKE_INSTALL_PREFIX=/opt/libsolv && make && make install && cd ..
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
@@ -39,7 +39,7 @@ RUN mkdir -p /opt/curl/bin \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
     && echo "/opt/libsolv/lib" >>/etc/ld.so.conf \
-    && echo "/opt/libarchive/lib" >>/etc/ld.so.conf \
+    && echo "/opt/libarchive/lib64" >>/etc/ld.so.conf \
     && ldconfig
 
 FROM scratch
