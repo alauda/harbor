@@ -27,7 +27,7 @@ RUN mkdir -p /opt/curl/bin \
     && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 expat expat-libs sqlite-libs rpm --nodeps \
     && tdnf install -y rpm=4.14.2-4.ph3 python-xml=2.7.17-6.ph3 python2-libs=2.7.17-6.ph3 \
     && tdnf clean all \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 openssl sqlite-libs expat expat-libs python2 python2-libs --nodeps \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 openssl sqlite-libs expat expat-libs --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
     && ldconfig
