@@ -1,0 +1,57 @@
+FROM centos:8.4.2105 AS tools
+RUN yum install -y python36-devel dnf-plugins-core && yum config-manager --set-enabled powertools \
+    && dnf install --enablerepo powertools texinfo -y \
+    && yum -y install gcc make zlib zlib-devel gcc-c++ cmake libffi-devel openssl-devel platform-python-devel bzip2 wget perl texinfo
+RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
+    && tar -xf ncurses-6.3.tar.gz && cd ncurses-6.3 \
+    && ./configure --prefix=/opt/ncurses --with-shared --enable-widec && make && make install && cd ..
+RUN wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz \
+    && tar -xf Python-2.7.18.tgz && cd Python-2.7.18 \
+    && ./configure --prefix=/opt/python/2.7.18 --enable-shared && make && make install && cd ..
+RUN wget https://www.libarchive.org/downloads/libarchive-3.5.2.tar.gz \
+    && tar -xf libarchive-3.5.2.tar.gz && cd libarchive-3.5.2 \
+    && ./configure --prefix=/opt/libarchive --enable-shared && make && make install && cd ..
+RUN wget https://github.com/openSUSE/libsolv/archive/refs/tags/0.7.20.tar.gz \
+    && tar -xf 0.7.20.tar.gz && cd libsolv-0.7.20 \
+    && cmake -DCMAKE_INSTALL_PREFIX=/opt/libsolv && make && make install && cd ..
+RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
+    && tar -xf Python-3.9.9.tgz && cd Python-3.9.9 \
+    && ./configure --prefix=/opt/python/3.9.9 --enable-shared --enable-optimizations && make && make install && cd ..
+
+FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
+
+ENV PGDATA /var/lib/postgresql/data
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
+COPY --from=tools /opt/ncurses /opt/ncurses
+COPY --from=tools /opt/python/2.7.18 /opt/python/2.7.18
+COPY --from=tools /opt/libsolv /opt/libsolv
+COPY --from=tools /opt/libarchive /opt/libarchive
+COPY --from=tools /opt/python/3.9.9 /opt/python/3.9.9
+
+RUN mkdir -p /opt/curl/bin \
+    && mkdir -p /opt/openssl/bin \
+    && chmod 2777 /opt/curl/bin \
+    && chmod 2777 /opt/openssl/bin \
+    && cp /usr/bin/curl /opt/curl/bin/curl \
+    && cp /usr/bin/openssl /opt/openssl/bin/openssl \
+    && tdnf install -y shadow gzip ruby \
+    && tdnf erase -y toybox \
+    && tdnf install -y sed util-linux net-tools postgresql=10.5-1.ph3 rpm=4.14.2-4.ph3 \
+    && groupadd -r postgres --gid=999 \
+    && useradd -m -r -g postgres --uid=999 postgres \
+    && mkdir -p /docker-entrypoint-initdb.d \
+    && mkdir -p /run/postgresql \
+    && chown -R postgres:postgres /run/postgresql \
+    && chmod 2777 /run/postgresql \
+    && mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA" \
+    && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
+    && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
+    && tdnf clean all \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 openssl sqlite-libs expat expat-libs python2 python2-libs python3 python3-libs libsolv libarchive sed rpm --nodeps \
+    && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
+    && ldconfig
+
+FROM scratch
+ENV PGDATA /var/lib/postgresql/data
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
+COPY --from=source / /
