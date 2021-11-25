@@ -13,7 +13,7 @@ ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:$PATH
 COPY --from=tools /opt/ncurses /opt/ncurses
 
 RUN mkdir -p /opt/curl/bin \
-    mkdir -p /opt/openssl/bin \
+    && mkdir -p /opt/openssl/bin \
     && chmod 2777 /opt/curl/bin \
     && chmod 2777 /opt/openssl/bin \
     && cp /usr/bin/curl /opt/curl/bin/curl \
