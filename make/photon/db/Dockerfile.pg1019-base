@@ -30,9 +30,9 @@ RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/openssl/bin \
     && cp /usr/bin/curl /opt/curl/bin/curl \
     && cp /usr/bin/openssl /opt/openssl/bin/openssl \
-    && tdnf install -y shadow gzip ruby systemd \
+    && tdnf install -y shadow gzip \
     && tdnf erase -y toybox \
-    && tdnf install -y sed util-linux net-tools postgresql=10.5-1.ph3 rpm=4.14.2-4.ph3 \
+    && tdnf install -y sed util-linux net-tools postgresql=10.19-1.ph3 rpm=4.14.2-4.ph3 \
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
     && mkdir -p /docker-entrypoint-initdb.d \
