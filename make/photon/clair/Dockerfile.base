@@ -43,6 +43,7 @@ RUN mkdir -p /opt/curl/bin \
     && groupadd -r -g 10000 clair \
     && useradd --no-log-init -m -g 10000 -u 10000 clair \
     && tdnf install -y python-xml \
+    && tdnf upgrade lua glibc libsolv -y \
     && tdnf clean all \
     && echo "/opt/rpm/lib" >>/etc/ld.so.conf \
     && ldconfig \
