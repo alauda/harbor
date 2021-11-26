@@ -1,5 +1,5 @@
 FROM centos:8.4.2105 AS tools
-RUN yum install -y lua libgcrypt-devel file file-devel python36-devel popt popt-devel dnf-plugins-core && yum config-manager --set-enabled powertools \
+RUN yum install -y lua libgcrypt-devel file python36-devel popt popt-devel dnf-plugins-core && yum config-manager --set-enabled powertools \
     && dnf install --enablerepo powertools texinfo -y \
     && yum -y install gcc make zlib zlib-devel gcc-c++ cmake libffi-devel openssl-devel platform-python-devel bzip2 wget perl texinfo
 
