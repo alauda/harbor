@@ -20,7 +20,7 @@ RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
 COPY --from=tools /opt/ncurses /opt/ncurses
 COPY --from=tools /opt/python/2.7.18 /opt/python/2.7.18
 COPY --from=tools /opt/libsolv /opt/libsolv
@@ -28,18 +28,15 @@ COPY --from=tools /opt/libarchive /opt/libarchive
 COPY --from=tools /opt/python/3.9.9 /opt/python/3.9.9
 
 RUN mkdir -p /opt/curl/bin \
-    && mkdir -p /opt/openssl/bin \
     && chmod 2777 /opt/curl/bin \
-    && chmod 2777 /opt/openssl/bin \
     && cp /usr/bin/curl /opt/curl/bin \
-    && cp /usr/bin/openssl /opt/openssl/bin \
     && tdnf install -y git shadow rpm xz \
     && groupadd -r -g 10000 clair \
     && useradd --no-log-init -m -g 10000 -u 10000 clair \
     && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 expat expat-libs sqlite-libs rpm --nodeps \
     && tdnf install -y rpm=4.14.2-4.ph3 python-xml=2.7.17-6.ph3 python2-libs=2.7.17-6.ph3 \
     && tdnf clean all \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 openssl sqlite-libs expat expat-libs python2 python2-libs python3 python3-libs libsolv libarchive --nodeps \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 sqlite-libs expat expat-libs python2 python2-libs python3 python3-libs libsolv libarchive --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
     && echo "/opt/libsolv/lib" >>/etc/ld.so.conf \
@@ -52,5 +49,5 @@ RUN mkdir -p /opt/curl/bin \
     && rm -f /usr/lib/bash/unlink
 
 FROM scratch
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
 COPY --from=source / /
