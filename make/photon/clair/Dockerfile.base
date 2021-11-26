@@ -40,7 +40,7 @@ COPY --from=tools /opt/rpm /opt/rpm
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin \
-    && tdnf install -y git shadow xz \
+    && tdnf install -y git shadow xz python-xml \
     && groupadd -r -g 10000 clair \
     && useradd --no-log-init -m -g 10000 -u 10000 clair \
     && tdnf install -y python-xml \
@@ -48,7 +48,6 @@ RUN mkdir -p /opt/curl/bin \
     && tdnf clean all \
     && echo "/opt/rpm/lib" >>/etc/ld.so.conf \
     && ldconfig \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 sqlite-libs expat expat-libs python2 python2-libs python3 python3-libs libarchive --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
     && echo "/opt/libarchive/lib" >>/etc/ld.so.conf \
