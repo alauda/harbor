@@ -21,7 +21,7 @@ RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
 
 RUN wget https://ftp.osuosl.org/pub/rpm/releases/rpm-4.16.x/rpm-4.16.1.2.tar.bz2 \
     && tar -xf rpm-4.16.1.2.tar.bz2 && cd rpm-4.16.1.2 \
-    && ./config --prefix=/opt/rpm --with-shared --enable-bdb=no && make && make install && cd ..
+    && ./configure --prefix=/opt/rpm --with-shared --enable-bdb=no && make && make install && cd ..
 
 RUN wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz \
     && tar -xf openssl-1.1.1l.tar.gz && cd openssl-1.1.1l \
