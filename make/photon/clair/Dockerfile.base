@@ -48,7 +48,8 @@ RUN mkdir -p /opt/curl/bin \
     && ldconfig \
     && cd /opt/python/2.7.18/lib/python2.7/distutils/command/ && find . -name "*.exe" -exec rm {} \; \
     && python3 -m pip install --upgrade pip \
-    && python3 -m pip install urllib3
+    && python3 -m pip install urllib3 \
+    && rm -f /usr/lib/bash/unlink
 
 FROM scratch
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH

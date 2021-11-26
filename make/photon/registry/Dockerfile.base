@@ -1,7 +1,8 @@
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 RUN mkdir -p /etc/registry \
-    && groupadd -r -g 10000 harbor && useradd --no-log-init -m -g 10000 -u 10000 harbor
+    && groupadd -r -g 10000 harbor && useradd --no-log-init -m -g 10000 -u 10000 harbor \
+    && rm -f /usr/lib/bash/unlink
 
 FROM scratch
 COPY --from=source / /

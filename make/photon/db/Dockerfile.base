@@ -48,6 +48,7 @@ RUN mkdir -p /opt/curl/bin \
     && echo "/opt/libsolv/lib" >>/etc/ld.so.conf \
     && echo "/opt/libarchive/lib64" >>/etc/ld.so.conf \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
+    && rm -f /usr/lib/bash/unlink \
     && ldconfig
 
 FROM scratch

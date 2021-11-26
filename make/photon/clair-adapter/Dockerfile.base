@@ -2,7 +2,8 @@ FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 RUN mkdir /clair-adapter/ \
     && groupadd -r -g 10000 clair-adapter \
-    && useradd --no-log-init -m -r -g 10000 -u 10000 clair-adapter
+    && useradd --no-log-init -m -r -g 10000 -u 10000 clair-adapter \
+    && rm -f /usr/lib/bash/unlink
 
 FROM scratch
 COPY --from=source / /

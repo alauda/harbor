@@ -3,7 +3,8 @@ FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 RUN tdnf install -y shadow \
     && tdnf clean all \
     && groupadd -r -g 10000 notary \
-    && useradd --no-log-init -r -g 10000 -u 10000 notary
+    && useradd --no-log-init -r -g 10000 -u 10000 notary \
+    && rm -f /usr/lib/bash/unlink
 
 FROM scratch
 COPY --from=source / /

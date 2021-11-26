@@ -4,7 +4,8 @@ RUN tdnf install -y rpm >> /dev/null \
     && tdnf clean all \
     && rpm -e zstd-libs --nodeps \
     && groupadd -r -g 10000 scanner \
-    && useradd --no-log-init -m -r -g 10000 -u 10000 scanner
+    && useradd --no-log-init -m -r -g 10000 -u 10000 scanner \
+    && rm -f /usr/lib/bash/unlink
 
 FROM scratch
 COPY --from=source / /
