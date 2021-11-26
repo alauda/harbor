@@ -1,5 +1,5 @@
 FROM centos:8.4.2105 AS tools
-RUN yum install -y python36-devel dnf-plugins-core && yum config-manager --set-enabled powertools \
+RUN yum install -y lua python36-devel dnf-plugins-core && yum config-manager --set-enabled powertools \
     && dnf install --enablerepo powertools texinfo -y \
     && yum -y install gcc make zlib zlib-devel gcc-c++ cmake libffi-devel openssl-devel platform-python-devel bzip2 wget perl texinfo
 
@@ -19,29 +19,34 @@ RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
     && tar -xf Python-3.9.9.tgz && cd Python-3.9.9 \
     && ./configure --prefix=/opt/python/3.9.9 --enable-shared --enable-optimizations && make && make install && cd ..
 
-RUN wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz &&\
-    tar -xf openssl-1.1.1l.tar.gz && cd openssl-1.1.1l &&\
-    ./config --prefix=/opt/openssl && make && make install&& cd ..
+RUN wget wget https://ftp.osuosl.org/pub/rpm/releases/rpm-4.16.x/rpm-4.16.1.2.tar.bz2 \
+    && tar -xf rpm-4.16.1.2.tar.bz2 && cd rpm-4.16.1.2 \
+    && ./config --prefix=/opt/rpm --with-shared --enable-bdb=no && make && make install && cd ..
+
+RUN wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz \
+    && tar -xf openssl-1.1.1l.tar.gz && cd openssl-1.1.1l \
+    && ./config --prefix=/opt/openssl && make && make install && cd ..
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/rpm/bin:$PATH
 COPY --from=tools /opt/ncurses /opt/ncurses
 COPY --from=tools /opt/python/2.7.18 /opt/python/2.7.18
 COPY --from=tools /opt/libarchive /opt/libarchive
 COPY --from=tools /opt/python/3.9.9 /opt/python/3.9.9
-COPY --from=tools /opt/openssl /opt/openssl
+COPY --from=tools /opt/rpm /opt/rpm
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin \
-    && tdnf install -y git shadow rpm xz \
+    && tdnf install -y git shadow xz \
     && groupadd -r -g 10000 clair \
     && useradd --no-log-init -m -g 10000 -u 10000 clair \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 expat expat-libs sqlite-libs rpm --nodeps \
-    && tdnf install -y rpm=4.14.2-4.ph3 python-xml=2.7.17-6.ph3 python2-libs=2.7.17-6.ph3 \
+    && tdnf install -y python-xml \
     && tdnf clean all \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 sqlite-libs expat expat-libs python2 python2-libs python3 python3-libs libarchive openssl --nodeps \
+    && echo "/opt/rpm/lib" >>/etc/ld.so.conf \
+    && ldconfig \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 sqlite-libs expat expat-libs python2 python2-libs python3 python3-libs libarchive --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
     && echo "/opt/libarchive/lib" >>/etc/ld.so.conf \
@@ -54,5 +59,5 @@ RUN mkdir -p /opt/curl/bin \
     && rm -f /usr/lib/bash/unlink
 
 FROM scratch
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:$PATH
 COPY --from=source / /
