@@ -1,7 +1,7 @@
 FROM centos:8.4.2105 AS tools
 RUN yum install -y dnf-plugins-core && yum config-manager --set-enabled powertools \
-    && dnf install --enablerepo powertools texinfo libgcrypt-devel.x86_64 -y \
-    && yum -y install file file-devel libarchive-devel python36-devel popt popt-devel gcc make zlib zlib-devel gcc-c++ cmake libffi-devel openssl-devel platform-python-devel bzip2 wget perl texinfo
+    && dnf install --enablerepo powertools texinfo -y \
+    && yum -y install file file-devel libarchive-devel libgcrypt-devel python36-devel popt popt-devel gcc make zlib zlib-devel gcc-c++ cmake libffi-devel openssl-devel platform-python-devel bzip2 wget perl texinfo
 
 RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
     && tar -xf ncurses-6.3.tar.gz && cd ncurses-6.3 \
@@ -9,7 +9,8 @@ RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
 
 RUN wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz \
     && tar -xf Python-2.7.18.tgz && cd Python-2.7.18 \
-    && ./configure --prefix=/opt/python/2.7.18 --enable-shared && make && make install && cd ..
+    && ./configure --prefix=/opt/python/2.7.18 --enable-shared && make && make install \
+    && find /opt/python/2.7.18/lib/python2.7/distutils/command/ -name "*.exe" -exec rm {} \; && cd ..
 
 RUN wget https://www.libarchive.org/downloads/libarchive-3.5.2.tar.gz \
     && tar -xf libarchive-3.5.2.tar.gz && cd libarchive-3.5.2 \
@@ -19,8 +20,8 @@ RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
     && tar -xf Python-3.9.9.tgz && cd Python-3.9.9 \
     && ./configure --prefix=/opt/python/3.9.9 --enable-shared --enable-optimizations && make && make install && cd ..
 
-RUN wget https://ftp.osuosl.org/pub/rpm/releases/rpm-4.16.x/rpm-4.16.1.2.tar.bz2 \
-    && tar -xf rpm-4.16.1.2.tar.bz2 && cd rpm-4.16.1.2 \
+RUN wget https://ftp.osuosl.org/pub/rpm/releases/rpm-4.17.x/rpm-4.17.0.tar.bz2 \
+    && tar -xf rpm-4.17.0.tar.bz2 && cd rpm-4.17.0 \
     && ./configure --prefix=/opt/rpm --with-shared --enable-bdb=no  --without-lua \
     && make && make install && cd ..
 
@@ -53,7 +54,6 @@ RUN mkdir -p /opt/curl/bin \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
     && ldconfig \
-    && cd /opt/python/2.7.18/lib/python2.7/distutils/command/ && find . -name "*.exe" -exec rm {} \; \
     && python3 -m pip install --upgrade pip \
     && python3 -m pip install urllib3 \
     && rm -f /usr/lib/bash/unlink
