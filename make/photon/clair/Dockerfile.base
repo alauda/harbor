@@ -45,7 +45,7 @@ RUN mkdir -p /opt/curl/bin \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
     && echo "/opt/libarchive/lib" >>/etc/ld.so.conf \
-    && echo "/opt/openssl/lib" >>/etc/ld.so.conf && \
+    && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && cd /opt/python/2.7.18/lib/python2.7/distutils/command/ && find . -name "*.exe" -exec rm {} \; \
