@@ -2,30 +2,35 @@ FROM centos:8.4.2105 AS tools
 RUN yum install -y python36-devel dnf-plugins-core && yum config-manager --set-enabled powertools \
     && dnf install --enablerepo powertools texinfo -y \
     && yum -y install gcc make zlib zlib-devel gcc-c++ cmake libffi-devel openssl-devel platform-python-devel bzip2 wget perl texinfo
+
 RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
     && tar -xf ncurses-6.3.tar.gz && cd ncurses-6.3 \
     && ./configure --prefix=/opt/ncurses --with-shared --enable-widec && make && make install && cd ..
+
 RUN wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz \
     && tar -xf Python-2.7.18.tgz && cd Python-2.7.18 \
     && ./configure --prefix=/opt/python/2.7.18 --enable-shared && make && make install && cd ..
+
 RUN wget https://www.libarchive.org/downloads/libarchive-3.5.2.tar.gz \
     && tar -xf libarchive-3.5.2.tar.gz && cd libarchive-3.5.2 \
     && ./configure --prefix=/opt/libarchive --enable-shared && make && make install && cd ..
-RUN wget https://github.com/openSUSE/libsolv/archive/refs/tags/0.7.20.tar.gz \
-    && tar -xf 0.7.20.tar.gz && cd libsolv-0.7.20 \
-    && cmake -DCMAKE_INSTALL_PREFIX=/opt/libsolv && make && make install && cd ..
+
 RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
     && tar -xf Python-3.9.9.tgz && cd Python-3.9.9 \
     && ./configure --prefix=/opt/python/3.9.9 --enable-shared --enable-optimizations && make && make install && cd ..
 
+RUN wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz &&\
+    tar -xf openssl-1.1.1l.tar.gz && cd openssl-1.1.1l &&\
+    ./config --prefix=/opt/openssl && make && make install&& cd ..
+
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
 COPY --from=tools /opt/ncurses /opt/ncurses
 COPY --from=tools /opt/python/2.7.18 /opt/python/2.7.18
-COPY --from=tools /opt/libsolv /opt/libsolv
 COPY --from=tools /opt/libarchive /opt/libarchive
 COPY --from=tools /opt/python/3.9.9 /opt/python/3.9.9
+COPY --from=tools /opt/openssl /opt/openssl
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
@@ -36,11 +41,11 @@ RUN mkdir -p /opt/curl/bin \
     && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 expat expat-libs sqlite-libs rpm --nodeps \
     && tdnf install -y rpm=4.14.2-4.ph3 python-xml=2.7.17-6.ph3 python2-libs=2.7.17-6.ph3 \
     && tdnf clean all \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 sqlite-libs expat expat-libs python2 python2-libs python3 python3-libs libsolv libarchive --nodeps \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 sqlite-libs expat expat-libs python2 python2-libs python3 python3-libs libarchive openssl --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
-    && echo "/opt/libsolv/lib64" >>/etc/ld.so.conf \
     && echo "/opt/libarchive/lib" >>/etc/ld.so.conf \
+    && echo "/opt/openssl/lib" >>/etc/ld.so.conf && \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && cd /opt/python/2.7.18/lib/python2.7/distutils/command/ && find . -name "*.exe" -exec rm {} \; \
@@ -49,5 +54,5 @@ RUN mkdir -p /opt/curl/bin \
     && rm -f /usr/lib/bash/unlink
 
 FROM scratch
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
 COPY --from=source / /

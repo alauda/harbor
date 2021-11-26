@@ -8,21 +8,22 @@ RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
 RUN wget https://www.libarchive.org/downloads/libarchive-3.5.2.tar.gz \
     && tar -xf libarchive-3.5.2.tar.gz && cd libarchive-3.5.2 \
     && ./configure --prefix=/opt/libarchive --enable-shared && make && make install && cd ..
-RUN wget https://github.com/openSUSE/libsolv/archive/refs/tags/0.7.20.tar.gz \
-    && tar -xf 0.7.20.tar.gz && cd libsolv-0.7.20 \
-    && cmake -DCMAKE_INSTALL_PREFIX=/opt/libsolv && make && make install && cd ..
+
 RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
     && tar -xf Python-3.9.9.tgz && cd Python-3.9.9 \
     && ./configure --prefix=/opt/python/3.9.9 --enable-shared --enable-optimizations && make && make install && cd ..
+RUN wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz &&\
+    tar -xf openssl-1.1.1l.tar.gz && cd openssl-1.1.1l &&\
+    ./config --prefix=/opt/openssl && make && make install&& cd ..
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
 COPY --from=tools /opt/ncurses /opt/ncurses
-COPY --from=tools /opt/libsolv /opt/libsolv
 COPY --from=tools /opt/libarchive /opt/libarchive
 COPY --from=tools /opt/python/3.9.9 /opt/python/3.9.9
+COPY --from=tools /opt/openssl /opt/openssl
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
@@ -40,15 +41,15 @@ RUN mkdir -p /opt/curl/bin \
     && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
     && tdnf clean all \
-    && rpm -e curl-libs ncurses ncurses-libs zstd-libs krb5 sqlite-libs expat expat-libs python3 python3-libs libsolv libarchive sed rpm --nodeps \
+    && rpm -e curl-libs ncurses ncurses-libs zstd-libs krb5 sqlite-libs expat expat-libs python3 python3-libs libarchive sed rpm openssl --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
-    && echo "/opt/libsolv/lib64" >>/etc/ld.so.conf \
     && echo "/opt/libarchive/lib" >>/etc/ld.so.conf \
+    && echo "/opt/openssl/lib" >>/etc/ld.so.conf && \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
     && rm -f /usr/lib/bash/unlink \
     && ldconfig
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
 COPY --from=source / /
