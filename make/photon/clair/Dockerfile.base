@@ -19,12 +19,12 @@ RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
     && tar -xf Python-3.9.9.tgz && cd Python-3.9.9 \
     && ./configure --prefix=/opt/python/3.9.9 --enable-shared --enable-optimizations && make && make install && cd ..
 
-RUN wget wget https://ftp.osuosl.org/pub/rpm/releases/rpm-4.16.x/rpm-4.16.1.2.tar.bz2 \
+RUN wget https://ftp.osuosl.org/pub/rpm/releases/rpm-4.16.x/rpm-4.16.1.2.tar.bz2 \
     && tar -xf rpm-4.16.1.2.tar.bz2 && cd rpm-4.16.1.2 \
     && ./config --prefix=/opt/rpm --with-shared --enable-bdb=no && make && make install && cd ..
 
 RUN wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz \
-    && tar -zvxf openssl-1.1.1l.tar.gz && cd openssl-1.1.1l \
+    && tar -xf openssl-1.1.1l.tar.gz && cd openssl-1.1.1l \
     && ./config --prefix=/opt/openssl && make && make install && cd ..
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
