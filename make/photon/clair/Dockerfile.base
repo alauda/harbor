@@ -22,7 +22,7 @@ RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
 
 RUN wget https://ftp.osuosl.org/pub/rpm/releases/rpm-4.17.x/rpm-4.17.0.tar.bz2 \
     && tar -xf rpm-4.17.0.tar.bz2 && cd rpm-4.17.0 \
-    && ./configure --prefix=/opt/rpm --with-shared --enable-bdb=no  --without-lua \
+    && ./configure --prefix=/opt/rpm --with-shared --enable-sqlite=no  --without-lua \
     && make && make install && cd ..
 
 RUN wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz \
