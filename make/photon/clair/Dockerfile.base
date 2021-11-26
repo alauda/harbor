@@ -41,7 +41,8 @@ COPY --from=tools /opt/rpm /opt/rpm
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin \
-    && tdnf install -y git shadow xz python-xml \
+    && tdnf install -y git shadow xz \
+    && tdnf install -y python-xml \
     && groupadd -r -g 10000 clair \
     && useradd --no-log-init -m -g 10000 -u 10000 clair \
     && tdnf upgrade lua glibc libsolv -y \
