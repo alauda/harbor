@@ -1,5 +1,5 @@
 FROM centos:8.4.2105 AS tools
-RUN yum install -y lua libgcrypt-devel python36-devel popt popt-devel dnf-plugins-core && yum config-manager --set-enabled powertools \
+RUN yum install -y python36-devel file file-devel popt popt-devel dnf-plugins-core && yum config-manager --set-enabled powertools \
     && dnf install --enablerepo powertools texinfo -y \
     && yum -y install gcc make zlib zlib-devel gcc-c++ cmake libffi-devel openssl-devel platform-python-devel bzip2 wget perl texinfo
 
@@ -21,7 +21,7 @@ RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
 
 RUN wget https://ftp.osuosl.org/pub/rpm/releases/rpm-4.16.x/rpm-4.16.1.2.tar.bz2 \
     && tar -xf rpm-4.16.1.2.tar.bz2 && cd rpm-4.16.1.2 \
-    && ./configure --prefix=/opt/rpm --with-shared --enable-bdb=no CPPFLAGS="-I/usr/include/nspr -I/usr/include/nss3 -I/usr/include/linux" \
+    && ./configure --prefix=/opt/rpm --with-shared --enable-bdb=no  --without-lua \
      && make && make install && cd ..
 
 RUN wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz \
