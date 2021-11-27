@@ -1,8 +1,7 @@
 FROM centos:8.4.2105 AS tools
 RUN yum install -y dnf-plugins-core && yum config-manager --set-enabled powertools \
     && dnf install --enablerepo powertools texinfo -y \
-    && yum -y install file file-devel libarchive-devel libgcrypt-devel python36-devel popt popt-devel gcc make zlib zlib-devel gcc-c++ cmake libffi-devel openssl-devel platform-python-devel bzip2 wget perl texinfo
-
+    && yum -y install gcc make platform-python-devel bzip2 wget perl texinfo
 RUN wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.3.tar.gz \
     && tar -xf ncurses-6.3.tar.gz && cd ncurses-6.3 \
     && ./configure --prefix=/opt/ncurses --with-shared --enable-widec && make && make install && cd ..
@@ -20,39 +19,25 @@ RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
     && tar -xf Python-3.9.9.tgz && cd Python-3.9.9 \
     && ./configure --prefix=/opt/python/3.9.9 --enable-shared --enable-optimizations && make && make install && cd ..
 
-RUN wget https://ftp.osuosl.org/pub/rpm/releases/rpm-4.16.x/rpm-4.16.1.3.tar.bz2 \
-    && tar -xf rpm-4.16.1.3.tar.bz2 && cd rpm-4.16.1.3 \
-    && ./configure --prefix=/opt/rpm --with-shared --enable-bdb=no  --without-lua \
-    && make && make install && cd ..
-
-RUN wget https://www.openssl.org/source/openssl-1.1.1l.tar.gz \
-    && tar -xf openssl-1.1.1l.tar.gz && cd openssl-1.1.1l \
-    && ./config --prefix=/opt/openssl && make && make install && cd ..
-
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/rpm/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:$PATH
 COPY --from=tools /opt/ncurses /opt/ncurses
 COPY --from=tools /opt/python/2.7.18 /opt/python/2.7.18
 COPY --from=tools /opt/libarchive /opt/libarchive
 COPY --from=tools /opt/python/3.9.9 /opt/python/3.9.9
-COPY --from=tools /opt/rpm /opt/rpm
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin \
-    && tdnf install -y git shadow xz \
-    && tdnf install -y python-xml \
+    && tdnf install -y git shadow xz rpm \
     && groupadd -r -g 10000 clair \
     && useradd --no-log-init -m -g 10000 -u 10000 clair \
-    && tdnf upgrade lua glibc libsolv -y \
+    && tdnf upgrade libsolv -y \
     && tdnf clean all \
-    && echo "/opt/rpm/lib" >>/etc/ld.so.conf \
-    && ldconfig \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
     && echo "/opt/libarchive/lib" >>/etc/ld.so.conf \
-    && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && python3 -m pip install --upgrade pip \
