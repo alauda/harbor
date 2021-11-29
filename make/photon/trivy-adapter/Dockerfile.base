@@ -1,11 +1,17 @@
+FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS tools
+
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
+
+COPY --from=tools /opt/bash/lib /opt/bash/lib
 
 RUN tdnf install -y rpm >> /dev/null \
     && tdnf clean all \
     && rpm -e zstd-libs --nodeps \
     && groupadd -r -g 10000 scanner \
     && useradd --no-log-init -m -r -g 10000 -u 10000 scanner \
-    && rm -f /usr/lib/bash/unlink
+    && echo "/opt/bash/lib" >>/etc/ld.so.conf \
+    && ldconfig \
+    && rm -rf /usr/lib/bash
 
 FROM scratch
 COPY --from=source / /

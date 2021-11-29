@@ -1,4 +1,8 @@
+FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS tools
+
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
+
+COPY --from=tools /opt/bash/lib /opt/bash/lib
 
 RUN tdnf install -y nginx >> /dev/null \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
@@ -6,7 +10,9 @@ RUN tdnf install -y nginx >> /dev/null \
     && groupadd -r -g 10000 nginx && useradd --no-log-init -r -g 10000 -u 10000 nginx \
     && chown -R nginx:nginx /etc/nginx \
     && tdnf clean all \
-    && rm -f /usr/lib/bash/unlink
+    && echo "/opt/bash/lib" >>/etc/ld.so.conf \
+    && ldconfig \
+    && rm -rf /usr/lib/bash
 
 FROM scratch
 COPY --from=source / /

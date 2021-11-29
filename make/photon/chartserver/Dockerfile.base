@@ -1,10 +1,17 @@
+FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS tools
+
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
+
+COPY --from=tools /opt/bash/lib /opt/bash/lib
 
 RUN tdnf install -y shadow >>/dev/null\
     && tdnf clean all \
     && groupadd -r -g 10000 chart \
     && rm -f /usr/lib/bash/unlink \
-    && useradd --no-log-init -m -g 10000 -u 10000 chart
+    && useradd --no-log-init -m -g 10000 -u 10000 chart \
+    && echo "/opt/bash/lib" >>/etc/ld.so.conf \
+    && ldconfig \
+    && rm -rf /usr/lib/bash
 
 FROM scratch
 COPY --from=source / /

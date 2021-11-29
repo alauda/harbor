@@ -7,6 +7,7 @@ COPY --from=tools /opt/ncurses /opt/ncurses
 COPY --from=tools /opt/python/2.7.18 /opt/python/2.7.18
 COPY --from=tools /opt/libarchive /opt/libarchive
 COPY --from=tools /opt/python/3.9.9 /opt/python/3.9.9
+COPY --from=tools /opt/bash/lib /opt/bash/lib
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
@@ -23,7 +24,8 @@ RUN mkdir -p /opt/curl/bin \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && python3 -m pip install --upgrade pip \
-    && python3 -m pip install urllib3
+    && python3 -m pip install urllib3 \
+    && rm -rf /usr/lib/bash
 
 FROM scratch
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:$PATH
