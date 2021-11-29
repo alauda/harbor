@@ -6,6 +6,7 @@ ENV PGDATA /var/lib/postgresql/data
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
 COPY --from=toolbox /opt/ncurses /opt/ncurses
 COPY --from=toolbox /opt/openssl /opt/openssl
+COPY --from=toolbox /opt/bash/lib /usr/lib/bash/lib
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
@@ -27,6 +28,7 @@ RUN mkdir -p /opt/curl/bin \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig
+
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
