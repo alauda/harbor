@@ -27,9 +27,7 @@ RUN mkdir -p /opt/curl/bin \
     && rpm -e curl-libs ncurses-libs zstd-libs krb5 expat-libs rpm --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
-    && echo "/opt/bash/lib" >>/etc/ld.so.conf \
-    && ldconfig \
-    && rm -rf /usr/lib/bash
+    && ldconfig
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
