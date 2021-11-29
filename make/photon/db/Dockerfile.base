@@ -12,7 +12,7 @@ RUN mkdir -p /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin/curl \
     && tdnf install -y shadow gzip ruby systemd rpm \
     && tdnf erase -y toybox \
-    && tdnf install -y sed util-linux net-tools postgresql=10.19-1.ph3 \
+    && tdnf install -y net-tools postgresql=10.19-1.ph3 \
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
     && mkdir -p /docker-entrypoint-initdb.d \
@@ -23,7 +23,7 @@ RUN mkdir -p /opt/curl/bin \
     && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
     && tdnf clean all \
-    && rpm -e curl-libs ncurses-libs zstd-libs krb5 expat-libs sed bash rpm --nodeps \
+    && rpm -e curl-libs ncurses-libs zstd-libs krb5 expat-libs pm --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig
