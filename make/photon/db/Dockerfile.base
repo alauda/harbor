@@ -1,27 +1,18 @@
-FROM centos:8.4.2105 AS tools
-
-RUN yum install -y dnf-plugins-core && yum config-manager --set-enabled powertools \
-    && dnf install --enablerepo powertools texinfo -y \
-    && yum -y install gcc make platform-python-devel bzip2 wget perl texinfo perl-ExtUtils-Embed readline-devel zlib-devel pam-devel libxml2-devel libxslt-devel openldap-devel gcc-c++ openssl-devel cmake
-
-RUN wget https://ftp.postgresql.org/pub/source/v10.19/postgresql-10.19.tar.gz \
-    && tar -xf postgresql-10.19.tar.gz && cd postgresql-10.19 \
-    && ./configure --prefix=/opt/postgresql/10.19\
-    && make && make install
+FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS toolbox
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
-ENV PGHOME /opt/postgresql
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$PGHOME/lib
-ENV PATH $PATH:$PGHOME/bin/:/opt/curl/bin
-
-COPY --from=tools /opt/postgresql/10.19 /opt/postgresql
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:$PATH
+COPY --from=toolbox /opt/ncurses /opt/ncurses
+COPY --from=toolbox /opt/openssl /opt/openssl
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin/curl \
-    && tdnf install -y shadow gzip \
+    && tdnf install -y shadow gzip ruby systemd rpm \
+    && tdnf erase -y toybox \
+    && tdnf install -y sed util-linux net-tools postgresql=10.19-1.ph3 \
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
     && mkdir -p /docker-entrypoint-initdb.d \
@@ -29,17 +20,15 @@ RUN mkdir -p /opt/curl/bin \
     && chown -R postgres:postgres /run/postgresql \
     && chmod 2777 /run/postgresql \
     && mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA" \
-    && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /opt/postgresql/share/postgresql.conf.sample \
-    && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /opt/postgresql/share/postgresql.conf.sample \
-    && rm -f /usr/lib/bash/unlink \
-    && tdnf clean all
-
-RUN tdnf erase -y toybox && tdnf install -y util-linux net-tools
+    && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
+    && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
+    && tdnf clean all \
+    && rpm -e curl-libs ncurses-libs zstd-libs krb5 expat-libs sed bash rpm --nodeps \
+    && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
+    && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
+    && ldconfig
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
-ENV PGHOME /opt/postgresql
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$PGHOME/lib
-ENV PATH $PATH:$PGHOME/bin/:/opt/curl/bin
-
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:$PATH
 COPY --from=source / /
