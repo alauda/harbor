@@ -1,12 +1,12 @@
-FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS tools
+FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS toolbox
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:$PATH
-COPY --from=tools /opt/ncurses /opt/ncurses
-COPY --from=tools /opt/openssl /opt/openssl
-COPY --from=tools /opt/bash/lib /opt/bash/lib
+COPY --from=toolbox /opt/ncurses /opt/ncurses
+COPY --from=toolbox /opt/openssl /opt/openssl
+COPY --from=toolbox /opt/bash/lib /opt/bash/lib
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
@@ -29,9 +29,7 @@ RUN mkdir -p /opt/curl/bin \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig
 
-RUN echo "/opt/bash/lib" >>/etc/ld.so.conf \
-    && ldconfig \
-    && rm -rf /usr/lib/bash
+RUN rm -rf /usr/lib/bash
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
