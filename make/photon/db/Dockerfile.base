@@ -1,4 +1,4 @@
-FROM harbor-b.alauda.cn/ops/toolbox:1.0 AS toolbox
+FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS toolbox
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
@@ -9,7 +9,7 @@ COPY --from=toolbox /opt/openssl /opt/openssl
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
-    && cp /usr/bin/curl /opt/curl/bin/curl \
+    && mv /usr/bin/curl /opt/curl/bin/curl \
     && tdnf install -y shadow gzip ruby systemd rpm \
     && tdnf erase -y toybox \
     && tdnf install -y net-tools postgresql=10.19-1.ph3 \
