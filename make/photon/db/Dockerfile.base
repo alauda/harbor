@@ -7,7 +7,10 @@ ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
 COPY --from=toolbox /opt/ncurses /opt/ncurses
 COPY --from=toolbox /opt/openssl /opt/openssl
 
-RUN tdnf install -y shadow gzip ruby systemd rpm \
+RUN mkdir -p /opt/curl/bin \
+    && chmod 2777 /opt/curl/bin \
+    && cp /usr/bin/curl /opt/curl/bin/curl \
+    && tdnf install -y shadow gzip ruby systemd rpm \
     && tdnf erase -y toybox \
     && tdnf install -y net-tools postgresql=10.19-1.ph3 \
     && groupadd -r postgres --gid=999 \
@@ -20,16 +23,15 @@ RUN tdnf install -y shadow gzip ruby systemd rpm \
     && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
     && tdnf clean all \
-    && rpm -e curl curl-libs ncurses-libs zstd-libs krb5 expat-libs rpm --nodeps \
+    && rpm -e curl-libs ncurses-libs zstd-libs krb5 expat-libs rpm --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
-    && ldconfig \
-    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA
+    && ldconfig
+
 
 FROM scratch AS tmp
 COPY --from=source / /
 COPY --from=toolbox /opt/bash/lib /usr/lib/bash/lib
-COPY --from=toolbox /opt/curl /opt/curl
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
