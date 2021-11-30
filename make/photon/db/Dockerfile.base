@@ -27,7 +27,6 @@ RUN tdnf install -y shadow gzip ruby systemd rpm \
     && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA
 
 FROM scratch AS tmp
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
 COPY --from=source / /
 COPY --from=toolbox /opt/bash/lib /usr/lib/bash/lib
 COPY --from=toolbox /opt/curl /opt/curl
