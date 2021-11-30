@@ -3,14 +3,11 @@ FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS toolbox
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
 COPY --from=toolbox /opt/ncurses /opt/ncurses
 COPY --from=toolbox /opt/openssl /opt/openssl
 
-RUN mkdir -p /opt/curl/bin \
-    && chmod 2777 /opt/curl/bin \
-    && cp /usr/bin/curl /opt/curl/bin/curl \
-    && tdnf install -y shadow gzip ruby systemd rpm \
+RUN tdnf install -y shadow gzip ruby systemd rpm \
     && tdnf erase -y toybox \
     && tdnf install -y net-tools postgresql=10.19-1.ph3 \
     && groupadd -r postgres --gid=999 \
@@ -30,7 +27,7 @@ RUN mkdir -p /opt/curl/bin \
 
 
 FROM scratch AS tmp
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
 COPY --from=source / /
 COPY --from=toolbox /opt/bash/lib /usr/lib/bash/lib
 RUN rm -f /usr/bash/bin/curl-config \
@@ -43,5 +40,5 @@ RUN rm -f /usr/bash/bin/curl-config \
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
 COPY --from=tmp / /
