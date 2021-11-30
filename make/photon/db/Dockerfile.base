@@ -26,6 +26,7 @@ RUN tdnf install -y shadow gzip ruby systemd rpm \
     && ldconfig
 
 FROM scratch AS tmp
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
 COPY --from=source / /
 COPY --from=toolbox /opt/bash/lib /usr/lib/bash/lib
 COPY --from=toolbox /opt/curl /opt/curl
