@@ -1,4 +1,4 @@
-FROM harbor-b.alauda.cn/ops/toolbox:1.0 AS tools
+FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS tools
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
