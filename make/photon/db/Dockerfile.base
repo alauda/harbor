@@ -26,8 +26,12 @@ RUN mkdir -p /opt/curl/bin \
     && rpm -e curl-libs ncurses-libs zstd-libs krb5 expat-libs rpm --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
-    && ldconfig
-
+    && ldconfig \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/AddTrustExternalCARoot.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/AddTrustExternalCARoot \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA_R3.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA_R3 \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA
 
 FROM scratch AS tmp
 COPY --from=source / /
