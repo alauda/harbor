@@ -32,7 +32,6 @@ RUN mkdir -p /opt/curl/bin \
 FROM scratch AS tmp
 COPY --from=source / /
 COPY --from=toolbox /opt/bash/lib /usr/lib/bash/lib
-COPY --from=toolbox /opt/curl/bin /opt/curl/bin
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
