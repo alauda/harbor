@@ -1,4 +1,4 @@
-FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS toolbox
+FROM harbor-b.alauda.cn/ops/toolbox:1.0 AS toolbox
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
@@ -6,11 +6,9 @@ ENV PGDATA /var/lib/postgresql/data
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
 COPY --from=toolbox /opt/ncurses /opt/ncurses
 COPY --from=toolbox /opt/openssl /opt/openssl
+COPY --from=toolbox /opt/curl /opt/curl
 
-RUN mkdir -p /opt/curl/bin \
-    && chmod 2777 /opt/curl/bin \
-    && cp /usr/bin/curl /opt/curl/bin/curl \
-    && tdnf install -y shadow gzip ruby systemd rpm \
+RUN tdnf install -y shadow gzip ruby systemd rpm \
     && tdnf erase -y toybox \
     && tdnf install -y net-tools postgresql=10.19-1.ph3 \
     && groupadd -r postgres --gid=999 \
@@ -23,11 +21,15 @@ RUN mkdir -p /opt/curl/bin \
     && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
     && tdnf clean all \
-    && rpm -e curl-libs ncurses-libs zstd-libs krb5 expat-libs rpm --nodeps \
+    && rpm -e curl curl-libs ncurses-libs zstd-libs krb5 expat-libs rpm --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
-    && ldconfig
-
+    && ldconfig \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/AddTrustExternalCARoot.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/AddTrustExternalCARoot \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA_R3.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA_R3 \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA
 
 FROM scratch AS tmp
 COPY --from=source / /
