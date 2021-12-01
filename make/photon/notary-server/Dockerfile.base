@@ -10,7 +10,7 @@ RUN tdnf install -y shadow \
     && useradd --no-log-init -r -g 10000 -u 10000 notary \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && ldconfig \
-    && rm -rf /usr/lib/bash
+    && rm -rf /usr/lib/bash && rm -rf /usr/share/doc/bash
 
 FROM scratch
 COPY --from=source / /

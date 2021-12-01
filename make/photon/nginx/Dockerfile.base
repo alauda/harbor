@@ -11,7 +11,7 @@ RUN tdnf install nginx -y >> /dev/null\
     && ln -sf /dev/stderr /var/log/nginx/error.log \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && ldconfig \
-    && rm -rf /usr/lib/bash
+    && rm -rf /usr/lib/bash && rm -rf /usr/share/doc/bash
 
 FROM scratch
 COPY --from=source / /
