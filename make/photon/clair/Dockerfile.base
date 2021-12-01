@@ -13,6 +13,7 @@ COPY --from=tools /opt/libarchive /opt/libarchive
 COPY --from=tools /opt/python/3.9.9 /opt/python/3.9.9
 COPY --from=tools /opt/bash/lib /opt/bash/lib
 COPY --from=tools /opt/gmp /opt/gmp
+COPY --from=tools /opt/openssl /opt/openssl
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
@@ -28,11 +29,12 @@ RUN mkdir -p /opt/curl/bin \
     && echo "/opt/libarchive/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
     && echo "/opt/gmp/lib" >>/etc/ld.so.conf \
+    && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && python3 -m pip install --upgrade pip \
     && python3 -m pip install urllib3 \
     && rm -rf /usr/lib/bash && rm -rf /usr/share/doc/bash
 
 FROM scratch
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
 COPY --from=source / /

@@ -3,6 +3,7 @@ FROM harbor-b.alauda.cn/ops/toolbox:1.0 AS tools
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 COPY --from=tools /opt/bash/lib /opt/bash/lib
+COPY --from=tools /opt/openssl /opt/openssl
 
 RUN tdnf install -y nginx >> /dev/null \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
@@ -11,8 +12,10 @@ RUN tdnf install -y nginx >> /dev/null \
     && chown -R nginx:nginx /etc/nginx \
     && tdnf clean all \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
+    && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && rm -rf /usr/lib/bash && rm -rf /usr/share/doc/bash
 
 FROM scratch
+ENV PATH /opt/openssl/bin:$PATH
 COPY --from=source / /
