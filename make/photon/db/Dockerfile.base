@@ -7,10 +7,6 @@ ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
 COPY --from=toolbox /opt/ncurses /opt/ncurses
 COPY --from=toolbox /opt/openssl /opt/openssl
 
-RUN mkdir -p /opt/tmp \
-    && tdnf install -y lua cyrus-sasl --downloadonly --downloaddir=/opt/tmp \
-    && tdnf install -y cyrus-sasl --downloadonly --downloaddir=/opt/tmp
-
 RUN mkdir -p /opt/curl/bin \
     && mkdir -p /opt/tmp \
     && chmod 2777 /opt/curl/bin \
