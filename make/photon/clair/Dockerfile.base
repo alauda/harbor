@@ -1,5 +1,9 @@
 FROM harbor-b.alauda.cn/ops/toolbox:1.0 AS tools
 
+RUN wget https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz && unxz gmp-6.2.1.tar.xz \
+    && tar -xf gmp-6.2.1.tar && cd gmp-6.2.1 \
+    && ./configure --prefix=/opt/gmp && make && make install && cd ..
+
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:$PATH
@@ -8,6 +12,7 @@ COPY --from=tools /opt/python/2.7.18 /opt/python/2.7.18
 COPY --from=tools /opt/libarchive /opt/libarchive
 COPY --from=tools /opt/python/3.9.9 /opt/python/3.9.9
 COPY --from=tools /opt/bash/lib /opt/bash/lib
+COPY --from=tools /opt/gmp /opt/gmp
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
@@ -16,12 +21,13 @@ RUN mkdir -p /opt/curl/bin \
     && groupadd -r -g 10000 clair \
     && useradd --no-log-init -m -g 10000 -u 10000 clair \
     && tdnf upgrade libsolv -y \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 expat expat-libs sqlite-libs --nodeps \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 expat expat-libs sqlite-libs gmp --nodeps \
     && tdnf clean all \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
     && echo "/opt/libarchive/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/3.9.9/lib" >>/etc/ld.so.conf \
+    && echo "/opt/gmp/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && python3 -m pip install --upgrade pip \
     && python3 -m pip install urllib3 \
