@@ -11,7 +11,6 @@ RUN mkdir -p /opt/curl/bin \
     && mkdir -p /opt/tmp \
     && chmod 2777 /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin/curl \
-    && tdnf install -y lua=5.4.3-2.ph4 cyrus-sasl=2.1.27-6.ph4 --downloadonly --downloaddir=/opt/tmp \
     && tdnf install -y shadow gzip ruby systemd rpm \
     && tdnf erase -y toybox \
     && tdnf install -y net-tools postgresql=10.19-1.ph3 \
@@ -25,7 +24,6 @@ RUN mkdir -p /opt/curl/bin \
     && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
     && tdnf clean all \
-    && rpm -i /opt/tmp/lua-5.4.3-2.ph4.x86_64.rpm /opt/tmp/cyrus-sasl-2.1.27-6.ph4.x86_64.rpm --nodeps \
     && rpm -e curl-libs ncurses-libs zstd-libs krb5 expat-libs rpm --nodeps \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
