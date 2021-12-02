@@ -4,6 +4,11 @@ RUN wget https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-2.
     && tar -xf cyrus-sasl-2.1.27.tar.gz && cd cyrus-sasl-2.1.27 \
     && ./configure --prefix=/opt/cyrus-sasl --with-shared && make && make install && cd ..
 
+FROM harbor-b.alauda.cn/ops/photon:3.0 AS package
+RUN mkdir -p /opt/tmp && chmod 2777 /opt/tmp \
+    && tdnf install -y lua=5.4.3-2.ph4 cyrus-sasl=2.1.27-6.ph4 --downloadonly --downloaddir=/opt/tmp \
+    && tdnf clean all
+
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
@@ -37,6 +42,7 @@ ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:/usr/bin:
 COPY --from=source / /
 COPY --from=toolbox /opt/bash/lib /usr/lib/bash/lib
 COPY --from=toolbox /opt/cyrus-sasl /opt/cyrus-sasl
+COPY --from=package /opt/tmp /opt/tmp
 RUN rm -f /usr/bin/curl-config && rm -f /usr/bin/curl \
     && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA \
     && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/AddTrustExternalCARoot.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/AddTrustExternalCARoot \
@@ -44,7 +50,8 @@ RUN rm -f /usr/bin/curl-config && rm -f /usr/bin/curl \
     && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA_R3.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA_R3 \
     && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA \
     && echo "/opt/cyrus-sasl/lib" >> /etc/ld.so.conf \
-    && ldconfig
+    && ldconfig \
+    && rpm -i /opt/tmp/lua-5.4.3-2.ph4.x86_64.rpm /opt/tmp/cyrus-sasl-2.1.27-6.ph4.x86_64.rpm --nodeps
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
