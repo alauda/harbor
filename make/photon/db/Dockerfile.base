@@ -5,7 +5,8 @@ ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
 COPY --from=toolbox /opt/ncurses /opt/ncurses
 COPY --from=toolbox /opt/openssl /opt/openssl
 RUN mkdir -p /opt/tmp && chmod 2777 /opt/tmp \
-    && tdnf install -y lua=5.4.3-2.ph4 cyrus-sasl=2.1.27-6.ph4 --downloadonly --downloaddir=/opt/tmp
+    && tdnf install -y lua=5.4.3-2.ph4 cyrus-sasl=2.1.27-6.ph4 --downloadonly --downloaddir=/opt/tmp \
+    && tdnf clean all
 
 FROM scratch AS source
 
