@@ -15,7 +15,7 @@ RUN tdnf install -y rpm >> /dev/null \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
-    && rm -rf /usr/lib/bash
+    && rm -rf /usr/lib/bash && rm -f /usr/bin/tset
 
 FROM scratch
 ENV PATH /opt/openssl/bin:/opt/ncurses/bin:$PATH
