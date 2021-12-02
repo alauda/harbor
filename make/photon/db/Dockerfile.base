@@ -8,7 +8,9 @@ COPY --from=toolbox /opt/ncurses /opt/ncurses
 COPY --from=toolbox /opt/openssl /opt/openssl
 
 RUN mkdir -p /opt/curl/bin \
+    && mkdir -p /opt/tmp \
     && chmod 2777 /opt/curl/bin \
+    && chmod 2777 /opt/tmp \
     && cp /usr/bin/curl /opt/curl/bin/curl \
     && tdnf install -y shadow gzip ruby systemd rpm \
     && tdnf erase -y toybox \
