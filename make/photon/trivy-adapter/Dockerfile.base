@@ -8,7 +8,7 @@ COPY --from=toolbox /opt/ncurses /opt/ncurses
 
 RUN tdnf install -y rpm >> /dev/null \
     && tdnf clean all \
-    && rpm -e zstd-libs --nodeps \
+    && rpm -e zstd-libs ncurses-libs --nodeps \
     && groupadd -r -g 10000 scanner \
     && useradd --no-log-init -m -r -g 10000 -u 10000 scanner \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
