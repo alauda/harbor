@@ -11,7 +11,7 @@ RUN tdnf install -y nginx rpm >> /dev/null \
     && groupadd -r -g 10000 nginx && useradd --no-log-init -r -g 10000 -u 10000 nginx \
     && chown -R nginx:nginx /etc/nginx \
     && tdnf clean all \
-    && rpm -e krb5 curl-libs zstd rpm --nodeps \
+    && rpm -e krb5 curl-libs zstd-libs rpm --nodeps \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
