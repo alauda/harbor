@@ -1,18 +1,11 @@
 FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS toolbox
 
-FROM harbor-b.alauda.cn/ops/photon:3.0 AS temp
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
-COPY --from=toolbox /opt/ncurses /opt/ncurses
-COPY --from=toolbox /opt/openssl /opt/openssl
-RUN mkdir -p /opt/tmp && chmod 2777 /opt/tmp \
-    && tdnf install -y lua=5.4.3-2.ph4 cyrus-sasl=2.1.27-6.ph4 --downloadonly --downloaddir=/opt/tmp \
-    && tdnf clean all
-
-FROM scratch AS source
+FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
-COPY --from=temp / /
+COPY --from=toolbox /opt/ncurses /opt/ncurses
+COPY --from=toolbox /opt/openssl /opt/openssl
 
 RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
@@ -20,9 +13,7 @@ RUN mkdir -p /opt/curl/bin \
     && tdnf install -y shadow gzip ruby systemd rpm \
     && tdnf erase -y toybox \
     && tdnf install -y net-tools postgresql=10.19-1.ph3 \
-    && tdnf clean all
-
-RUN groupadd -r postgres --gid=999 \
+    && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
     && mkdir -p /docker-entrypoint-initdb.d \
     && mkdir -p /run/postgresql \
