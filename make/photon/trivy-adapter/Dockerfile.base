@@ -4,6 +4,7 @@ FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 COPY --from=tools /opt/bash/lib /opt/bash/lib
 COPY --from=tools /opt/openssl /opt/openssl
+COPY --from=toolbox /opt/ncurses /opt/ncurses
 
 RUN tdnf install -y rpm >> /dev/null \
     && tdnf clean all \
@@ -11,10 +12,11 @@ RUN tdnf install -y rpm >> /dev/null \
     && groupadd -r -g 10000 scanner \
     && useradd --no-log-init -m -r -g 10000 -u 10000 scanner \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
+    && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && rm -rf /usr/lib/bash
 
 FROM scratch
-ENV PATH /opt/openssl/bin:$PATH
+ENV PATH /opt/openssl/bin:/opt/ncurses/bin:$PATH
 COPY --from=source / /
