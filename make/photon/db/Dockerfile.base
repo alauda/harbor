@@ -6,7 +6,7 @@ RUN wget https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-2.
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS package
 RUN mkdir -p /opt/tmp && chmod 2777 /opt/tmp \
-    && tdnf install -y lua=5.4.3-2.ph4 cyrus-sasl=2.1.27-6.ph4 --downloadonly --downloaddir=/opt/tmp \
+    && tdnf install -y lua=5.4.3-2.ph4 --downloadonly --downloaddir=/opt/tmp \
     && tdnf clean all
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
@@ -51,7 +51,8 @@ RUN rm -f /usr/bin/curl-config && rm -f /usr/bin/curl \
     && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA \
     && echo "/opt/cyrus-sasl/lib" >> /etc/ld.so.conf \
     && ldconfig \
-    && rpm -i /opt/tmp/lua-5.4.3-2.ph4.x86_64.rpm /opt/tmp/cyrus-sasl-2.1.27-6.ph4.x86_64.rpm --nodeps
+    && rpm -i /opt/tmp/lua-5.4.3-2.ph4.x86_64.rpm --nodeps \
+    && rpm -e cyrus-sasl rpm --nodeps
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
