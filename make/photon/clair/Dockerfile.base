@@ -34,43 +34,6 @@ RUN mkdir -p /opt/curl/bin \
     && python3 -m pip install --upgrade pip \
     && python3 -m pip install urllib3 \
     && rm -rf /usr/lib/bash \
-    && mv /opt/python/3.9.9/lib/python3.9/test/keycert4.pem /opt/python/3.9.9/lib/python3.9/test/keycert4pem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/badcert.pem /opt/python/3.9.9/lib/python3.9/test/badcertpem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/idnsans.pem /opt/python/3.9.9/lib/python3.9/test/idnsanspem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/keycert3.pem /opt/python/3.9.9/lib/python3.9/test/keycert3pem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/keycert.passwd.pem /opt/python/3.9.9/lib/python3.9/test/keycert.passwdpem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/selfsigned_pythontestdotnet.pem /opt/python/3.9.9/lib/python3.9/test/selfsigned_pythontestdotnetpem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/ssl_cert.pem /opt/python/3.9.9/lib/python3.9/test/ssl_certpem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/badkey.pem /opt/python/3.9.9/lib/python3.9/test/badkeypem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/keycertecc.pem /opt/python/3.9.9/lib/python3.9/test/keycerteccpem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/allsans.pem /opt/python/3.9.9/lib/python3.9/test/allsanspem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/talos-2019-0758.pem /opt/python/3.9.9/lib/python3.9/test/talos-2019-0758pem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/nosan.pem /opt/python/3.9.9/lib/python3.9/test/nosanpem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/keycert2.pem /opt/python/3.9.9/lib/python3.9/test/keycert2pem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/keycert.pem /opt/python/3.9.9/lib/python3.9/test/keycertpem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/nullbytecert.pem /opt/python/3.9.9/lib/python3.9/test/nullbytecertpem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/pycacert.pem /opt/python/3.9.9/lib/python3.9/test/pycacertpem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/nokia.pem /opt/python/3.9.9/lib/python3.9/test/nokiapem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/ssl_key.pem /opt/python/3.9.9/lib/python3.9/test/ssl_keypem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/pycakey.pem /opt/python/3.9.9/lib/python3.9/test/pycakeypem \
-    && mv /opt/python/3.9.9/lib/python3.9/test/ssl_key.passwd.pem /opt/python/3.9.9/lib/python3.9/test/ssl_key.passwdpem \
-    && mv /opt/python/3.9.9/lib/python3.9/site-packages/pip/_vendor/certifi/cacert.pem /opt/python/3.9.9/lib/python3.9/site-packages/pip/_vendor/certifi/cacertpem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/keycert4.pem /opt/python/2.7.18/lib/python2.7/test/keycert4pem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/badcert.pem /opt/python/2.7.18/lib/python2.7/test/badcertpem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/keycert3.pem /opt/python/2.7.18/lib/python2.7/test/keycert3pem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/keycert.passwd.pem /opt/python/2.7.18/lib/python2.7/test/keycert.passwdpem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/selfsigned_pythontestdotnet.pem /opt/python/2.7.18/lib/python2.7/test/selfsigned_pythontestdotnetpem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/ssl_cert.pem /opt/python/2.7.18/lib/python2.7/test/ssl_certpem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/badkey.pem /opt/python/2.7.18/lib/python2.7/test/badkeypem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/allsans.pem /opt/python/2.7.18/lib/python2.7/test/allsanspem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/talos-2019-0758.pem /opt/python/2.7.18/lib/python2.7/test/talos-2019-0758pem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/keycert2.pem /opt/python/2.7.18/lib/python2.7/test/keycert2pem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/keycert.pem /opt/python/2.7.18/lib/python2.7/test/keycertpem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/nullbytecert.pem /opt/python/2.7.18/lib/python2.7/test/nullbytecertpem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/pycacert.pem /opt/python/2.7.18/lib/python2.7/test/pycacertpem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/nokia.pem /opt/python/2.7.18/lib/python2.7/test/nokiapem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/ssl_key.pem /opt/python/2.7.18/lib/python2.7/test/ssl_keypem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/ssl_key.passwd.pem /opt/python/2.7.18/lib/python2.7/test/ssl_key.passwdpem \
     && rm -f /usr/lib/libdb-5.3.so
 
 FROM scratch
