@@ -11,7 +11,8 @@ RUN tdnf install tzdata -y >> /dev/null \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
-    && rm -rf /usr/lib/bash
+    && rm -rf /usr/lib/bash \
+    && rm -f /usr/lib/libdb-5.3.so
 
 FROM scratch
 ENV PATH /opt/openssl/bin:$PATH

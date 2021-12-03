@@ -52,7 +52,8 @@ RUN mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/Dig
     && ldconfig \
     && rm -f /usr/bin/lua && rm -f /usr/bin/luac \
     && rm -f /usr/bin/curl-config && rm -f /usr/bin/curl \
-    && rm -f /usr/lib/libsasl2.so.3.0.0  && rm -f usr/lib/liblua.so.5.3.4
+    && rm -f /usr/lib/libsasl2.so.3.0.0  && rm -f usr/lib/liblua.so.5.3.4 \
+    && rm -f /usr/lib/libdb-5.3.so
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data

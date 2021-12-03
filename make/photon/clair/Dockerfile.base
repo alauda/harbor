@@ -70,7 +70,8 @@ RUN mkdir -p /opt/curl/bin \
     && mv /opt/python/2.7.18/lib/python2.7/test/pycacert.pem /opt/python/2.7.18/lib/python2.7/test/pycacertpem \
     && mv /opt/python/2.7.18/lib/python2.7/test/nokia.pem /opt/python/2.7.18/lib/python2.7/test/nokiapem \
     && mv /opt/python/2.7.18/lib/python2.7/test/ssl_key.pem /opt/python/2.7.18/lib/python2.7/test/ssl_keypem \
-    && mv /opt/python/2.7.18/lib/python2.7/test/ssl_key.passwd.pem /opt/python/2.7.18/lib/python2.7/test/ssl_key.passwdpem
+    && mv /opt/python/2.7.18/lib/python2.7/test/ssl_key.passwd.pem /opt/python/2.7.18/lib/python2.7/test/ssl_key.passwdpem \
+    && rm -f /usr/lib/libdb-5.3.so
 
 FROM scratch
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
