@@ -12,6 +12,7 @@ RUN mkdir /clair-adapter/ \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && rm -rf /usr/lib/bash \
+    && rm -rf /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo \
     && rm -f /usr/lib/libdb-5.3.so
 
 FROM scratch

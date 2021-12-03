@@ -15,6 +15,7 @@ RUN tdnf install nginx rpm -y >> /dev/null\
     && ldconfig \
     && rpm -e krb5 curl-libs zstd-libs rpm --nodeps \
     && rm -rf /usr/lib/bash \
+    && rm -rf /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo \
     && rm -f /usr/lib/libdb-5.3.so
 
 FROM scratch

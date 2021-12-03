@@ -11,6 +11,7 @@ RUN groupadd -r -g 10000 harbor && useradd --no-log-init -m -g 10000 -u 10000 ha
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && rm -rf /usr/lib/bash \
+    && rm -rf /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo \
     && rm -f /usr/lib/libdb-5.3.so
 
 FROM scratch
