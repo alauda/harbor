@@ -9,7 +9,7 @@ RUN tdnf install -y shadow >>/dev/null\
     && tdnf clean all \
     && groupadd -r -g 10000 chart \
     && rm -rf /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo \
-    && rm -rf /usr/lib/bash && rm -f /usr/lib/libdb-5.3.so && rm -f /usr/lib/bash/unlink \
+    && rm -rf /usr/lib/bash && rm -f /usr/lib/bash/unlink \
     && useradd --no-log-init -m -g 10000 -u 10000 chart \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
