@@ -11,8 +11,9 @@ RUN mkdir -p /etc/registry \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
     && rm -rf /usr/lib/bash \
-    && rm -rf /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo \
-    && rm -f /usr/lib/libdb-5.3.so
+    && rm -f /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/sv/LC_MESSAGES/procps-ng.mo \
+    && rm -f /usr/lib/libdb-5.3.so \
+    && rm -rf /usr/share/doc/bash
 
 FROM scratch
 ENV PATH /opt/openssl/bin:$PATH

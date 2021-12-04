@@ -34,8 +34,9 @@ RUN mkdir -p /opt/curl/bin \
     && python3 -m pip install --upgrade pip ipaddress \
     && python3 -m pip install urllib3 \
     && rm -rf /usr/lib/bash \
-    && rm -rf /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo \
-    && rm -f /usr/lib/libdb-5.3.so
+    && rm -f /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/sv/LC_MESSAGES/procps-ng.mo \
+    && rm -f /usr/lib/libdb-5.3.so \
+    && rm -rf /usr/share/doc/bash
 
 FROM scratch
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH

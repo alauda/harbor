@@ -4,6 +4,7 @@ FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 COPY --from=tools /opt/bash/lib /opt/bash/lib
 COPY --from=tools /opt/openssl /opt/openssl
+COPY --from=tools /opt/ncurses /opt/ncurses
 
 RUN tdnf install nginx rpm -y >> /dev/null\
     && tdnf clean all \
@@ -13,10 +14,11 @@ RUN tdnf install nginx rpm -y >> /dev/null\
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
-    && rpm -e krb5 curl-libs zstd-libs rpm --nodeps \
+    && rpm -e krb5 curl-libs zstd-libs ncurses ncurses-libs rpm --nodeps \
     && rm -rf /usr/lib/bash \
-    && rm -rf /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo \
-    && rm -f /usr/lib/libdb-5.3.so
+    && rm -f /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/sv/LC_MESSAGES/procps-ng.mo \
+    && rm -f /usr/lib/libdb-5.3.so \
+    && rm -rf /usr/share/doc/bash
 
 FROM scratch
 ENV PATH /opt/openssl/bin:$PATH
