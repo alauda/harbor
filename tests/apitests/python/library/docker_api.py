@@ -53,11 +53,11 @@ def docker_manifest_push_to_harbor(index, manifests, harbor_server, user, passwo
 
 def list_repositories(harbor_host, user, password, n = None, last = None):
     if n is not None and last is not None:
-        command = ["curl", "-s", "-u", user+":"+password, "https://"+harbor_host+"/v2/_catalog"+"?n=%d"%n+"&last="+last, "--insecure"]
+        command = ["curl", "-s", "-u", user+":"+password, "http://"+harbor_host+"/v2/_catalog"+"?n=%d"%n+"&last="+last, "--insecure"]
     elif n is not None:
-            command = ["curl", "-s", "-u", user+":"+password, "https://"+harbor_host+"/v2/_catalog"+"?n=%d"%n, "--insecure"]
+            command = ["curl", "-s", "-u", user+":"+password, "http://"+harbor_host+"/v2/_catalog"+"?n=%d"%n, "--insecure"]
     else:
-        command = ["curl", "-s", "-u", user+":"+password, "https://"+harbor_host+"/v2/_catalog", "--insecure"]
+        command = ["curl", "-s", "-u", user+":"+password, "http://"+harbor_host+"/v2/_catalog", "--insecure"]
     print "List Repositories Command: ", command
     ret = base.run_command(command)
     repos = json.loads(ret).get("repositories","")
@@ -65,11 +65,11 @@ def list_repositories(harbor_host, user, password, n = None, last = None):
 
 def list_image_tags(harbor_host, repository, user, password, n = None, last = None):
     if n is not None and last is not None:
-        command = ["curl", "-s", "-u", user+":"+password, "https://"+harbor_host+"/v2/"+repository+"/tags/list"+"?n=%d"%n+"&last="+last, "--insecure"]
+        command = ["curl", "-s", "-u", user+":"+password, "http://"+harbor_host+"/v2/"+repository+"/tags/list"+"?n=%d"%n+"&last="+last, "--insecure"]
     elif n is not None:
-        command = ["curl", "-s", "-u", user+":"+password, "https://"+harbor_host+"/v2/"+repository+"/tags/list"+"?n=%d"%n, "--insecure"]
+        command = ["curl", "-s", "-u", user+":"+password, "http://"+harbor_host+"/v2/"+repository+"/tags/list"+"?n=%d"%n, "--insecure"]
     else:
-        command = ["curl", "-s", "-u", user+":"+password, "https://"+harbor_host+"/v2/"+repository+"/tags/list", "--insecure"]
+        command = ["curl", "-s", "-u", user+":"+password, "http://"+harbor_host+"/v2/"+repository+"/tags/list", "--insecure"]
     print "List Image Tags Command: ", command
     ret = base.run_command(command)
     tags = json.loads(ret).get("tags","")

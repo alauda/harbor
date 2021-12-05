@@ -12,8 +12,8 @@ parser.add_argument('--endpoint', '-e', dest='endpoint', required=True, help='Th
 parser.add_argument('--version', '-v', dest='version', required=False, help='The version to harbor')
 args = parser.parse_args()
 
-url = "https://"+args.endpoint+"/api/"
-endpoint_url = "https://"+args.endpoint
+url = "http://"+args.endpoint+"/api/"
+endpoint_url = "http://"+args.endpoint
 print url
 
 with open("feature_map.json") as f:
@@ -388,7 +388,7 @@ class HarborAPI:
         request(url+"repositories/"+reponame+"", 'put', **body)
 
     def get_ca(self, target='/harbor/ca/ca.crt'):
-        url = "https://" + args.endpoint + "/api/systeminfo/getcert"
+        url = "http://" + args.endpoint + "/api/systeminfo/getcert"
         resp = request(url, 'get')
         try:
             ca_content = json.loads(resp.text)
