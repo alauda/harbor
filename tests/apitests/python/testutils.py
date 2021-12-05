@@ -9,7 +9,7 @@ import swagger_client.models
 from pprint import pprint
 
 admin_user = "admin"
-admin_pwd = "Harbor12345"
+admin_pwd = "admin123"
 
 harbor_server = os.environ["HARBOR_HOST"]
 #CLIENT=dict(endpoint="http://"+harbor_server+"/api")
