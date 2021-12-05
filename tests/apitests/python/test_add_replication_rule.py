@@ -68,7 +68,7 @@ class TestProjects(unittest.TestCase):
             expected_project_id = TestProjects.project_add_rule_id, **TestProjects.USER_add_rule_CLIENT)
 
         #3. Create a new registry
-        TestProjects.registry_id, _ = self.registry.create_registry("http://" + harbor_server,**ADMIN_CLIENT)
+        TestProjects.registry_id, _ = self.registry.create_registry("https://" + harbor_server,**ADMIN_CLIENT)
         print "TestProjects.registry_id:", TestProjects.registry_id
 
         #4. Create a new rule for this registry;
