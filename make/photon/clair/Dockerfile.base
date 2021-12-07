@@ -43,9 +43,7 @@ RUN mkdir -p /opt/curl/bin \
     && rm -f /opt/python/2.7.18/lib/python2.7/config/libpython2.7.a \
     && rm -f /opt/python/3.9.9/lib/python3.9/site-packages/ipaddress.py \
     && rm -f /opt/python/3.9.9/lib/python3.9/site-packages/__pycache__/ipaddress.cpython-39.pyc \
-    && rm -f /usr/bin/perl \
-    && rm -f /usr/bin/{pkill,vmstat,pmap,sysctl,free,top} && rm -f /usr/sbin/sysctl \
-    && rm -f /usr/share/man/man1/lua.1.gz
+    && rm -f /usr/bin/perl
 
 FROM scratch
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
