@@ -9,7 +9,6 @@ RUN tdnf install -y shadow >>/dev/null\
     && tdnf clean all \
     && groupadd -r -g 10000 chart \
     && rm -f /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/sv/LC_MESSAGES/procps-ng.mo \
-    && rm -rf /usr/lib/bash && rm -f /usr/lib/bash/unlink \
     && useradd --no-log-init -m -g 10000 -u 10000 chart \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
@@ -18,7 +17,8 @@ RUN tdnf install -y shadow >>/dev/null\
     && rm -rf /usr/share/doc/bash \
     && rm -f /opt/sqlite3/lib/libsqlite3.so.0.8.6 \
     && rm -f /opt/krb5/lib/libkrb5.so.3.3 \
-    && rm -f /usr/lib/liblua.so.5.4.3
+    && rm -f /usr/lib/liblua.so.5.4.3 \
+    && rm -rf /usr/lib/bash && rm -f /usr/lib/bash/unlink
 
 FROM scratch
 ENV PATH /opt/openssl/bin:$PATH
