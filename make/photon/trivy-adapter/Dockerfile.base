@@ -1,7 +1,7 @@
 FROM harbor-b.alauda.cn/ops/toolbox:1.0 AS tools
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
-ENV PATH /opt/openssl/bin:/opt/ncurses/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:$PATH
+
 COPY --from=tools /opt/bash/lib /opt/bash/lib
 COPY --from=tools /opt/openssl /opt/openssl
 COPY --from=tools /opt/ncurses /opt/ncurses
@@ -25,5 +25,5 @@ RUN tdnf install -y rpm >> /dev/null \
     && rm -f /usr/bin/{pkill,vmstat,pmap,sysctl,free,top} && rm -f /usr/sbin/sysctl
 
 FROM scratch
-ENV PATH /opt/openssl/bin:/opt/ncurses/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:$PATH
+ENV PATH /opt/openssl/bin:/opt/ncurses/bin:$PATH
 COPY --from=source / /

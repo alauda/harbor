@@ -6,7 +6,7 @@ RUN wget https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz && unxz gmp-6.2.1.tar.
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:$PATH
 COPY --from=tools /opt/ncurses /opt/ncurses
 COPY --from=tools /opt/python/2.7.18 /opt/python/2.7.18
 COPY --from=tools /opt/libarchive /opt/libarchive
@@ -46,5 +46,5 @@ RUN mkdir -p /opt/curl/bin \
     && rm -f /usr/bin/perl
 
 FROM scratch
-ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:$PATH
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
 COPY --from=source / /
