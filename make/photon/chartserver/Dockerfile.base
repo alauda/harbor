@@ -1,8 +1,25 @@
 FROM harbor-b.alauda.cn/ops/toolbox:1.0 AS tools
 
 FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
+ENV PATH /opt/openssl/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:$PATH
+COPY --from=tools /opt/bash/lib /opt/bash/lib
+COPY --from=tools /opt/openssl /opt/openssl
 
-RUN tdnf install -y shadow sudo >>/dev/null\
+RUN tdnf install -y shadow >>/dev/null\
     && tdnf clean all \
     && groupadd -r -g 10000 chart \
-    && useradd --no-log-init -m -g 10000 -u 10000 chart
+    && rm -f /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/sv/LC_MESSAGES/procps-ng.mo \
+    && rm -rf /usr/lib/bash && rm -f /usr/lib/bash/unlink \
+    && useradd --no-log-init -m -g 10000 -u 10000 chart \
+    && echo "/opt/bash/lib" >>/etc/ld.so.conf \
+    && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
+    && ldconfig \
+    && rm -f /usr/lib/libdb-5.3.so \
+    && rm -rf /usr/share/doc/bash \
+    && rm -f /opt/sqlite3/lib/libsqlite3.so.0.8.6 \
+    && rm -f /opt/krb5/lib/libkrb5.so.3.3 \
+    && rm -f /usr/lib/liblua.so.5.4.3
+
+FROM scratch
+ENV PATH /opt/openssl/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:$PATH
+COPY --from=source / /
