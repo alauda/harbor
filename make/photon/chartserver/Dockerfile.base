@@ -8,12 +8,10 @@ COPY --from=tools /opt/openssl /opt/openssl
 RUN tdnf install -y shadow >>/dev/null\
     && tdnf clean all \
     && groupadd -r -g 10000 chart \
-    && rm -f /usr/lib/bash/unlink \
     && useradd --no-log-init -m -g 10000 -u 10000 chart \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
-    && ldconfig \
-    && rm -rf /usr/lib/bash
+    && ldconfig
 
 FROM scratch
 ENV PATH /opt/openssl/bin:$PATH
