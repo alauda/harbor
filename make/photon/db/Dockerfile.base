@@ -56,7 +56,10 @@ RUN mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/Dig
     && rm -f /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/sv/LC_MESSAGES/procps-ng.mo \
     && rm -f /usr/lib/libdb-5.3.so \
     && rm -rf /usr/share/doc/bash \
-    && rm -f /usr/share/man/man1/lua.1.gz
+    && rm -f /usr/bin/{pkill,vmstat,pmap,sysctl,free,top} && rm -f /usr/sbin/sysctl \
+    && rm -f /usr/share/man/man1/lua.1.gz \
+    && rm -f /usr/lib/liblz4.so.1.9.3 && rm -f /usr/bin/lz4 \
+    && rm -f /opt/sqlite3/lib/libsqlite3.so.0.8.6
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
