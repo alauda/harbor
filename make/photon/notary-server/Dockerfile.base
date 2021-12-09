@@ -18,7 +18,9 @@ RUN tdnf install -y shadow \
     && rm -rf /usr/share/doc/bash \
     && rm -f /opt/sqlite3/lib/libsqlite3.so.0.8.6 \
     && rm -f /opt/krb5/lib/libkrb5.so.3.3 \
-    && rm -f /usr/lib/liblua.so.5.4.3
+    && rm -f /usr/lib/liblua.so.5.4.3 \
+    && rm -f /usr/bin/{pkill,vmstat,pmap,sysctl,free,top} && rm -f /usr/sbin/sysctl \
+    && rm -f /usr/share/man/man1/lua.1.gz && rm -f /usr/share/man/man1/curl.1.gz
 
 FROM scratch
 ENV PATH /opt/openssl/bin:$PATH
