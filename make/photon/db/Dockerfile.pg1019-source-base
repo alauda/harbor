@@ -9,7 +9,7 @@ RUN wget https://ftp.postgresql.org/pub/source/v10.19/postgresql-10.19.tar.gz \
     && ./configure --prefix=/opt/postgresql/10.19\
     && make && make install
 
-FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
+FROM harbor-b.alauda.cn/ops/photon:3.0-hw AS source
 
 ENV PGDATA /var/lib/postgresql/data
 ENV PGHOME /opt/postgresql

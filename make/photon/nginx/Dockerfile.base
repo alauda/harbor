@@ -1,6 +1,6 @@
 FROM harbor-b.alauda.cn/ops/toolbox:1.0 AS tools
 
-FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
+FROM harbor-b.alauda.cn/ops/photon:3.0-hw AS source
 
 COPY --from=tools /opt/bash/lib /opt/bash/lib
 COPY --from=tools /opt/openssl /opt/openssl

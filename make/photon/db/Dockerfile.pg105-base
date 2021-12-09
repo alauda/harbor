@@ -18,7 +18,7 @@ RUN wget https://www.python.org/ftp/python/3.9.9/Python-3.9.9.tgz \
     && tar -xf Python-3.9.9.tgz && cd Python-3.9.9 \
     && ./configure --prefix=/opt/python/3.9.9 --enable-shared --enable-optimizations && make && make install && cd ..
 
-FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
+FROM harbor-b.alauda.cn/ops/photon:3.0-hw AS source
 
 ENV PGDATA /var/lib/postgresql/data
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/libsolv/bin:/opt/python/3.9.9/bin:$PATH

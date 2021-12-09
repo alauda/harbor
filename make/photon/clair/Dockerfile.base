@@ -4,7 +4,7 @@ RUN wget https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz && unxz gmp-6.2.1.tar.
     && tar -xf gmp-6.2.1.tar && cd gmp-6.2.1 \
     && ./configure --prefix=/opt/gmp && make && make install && cd ..
 
-FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
+FROM harbor-b.alauda.cn/ops/photon:3.0-hw AS source
 
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:$PATH
 COPY --from=tools /opt/ncurses /opt/ncurses
