@@ -8,7 +8,7 @@ RUN wget https://www.lua.org/ftp/lua-5.4.3.tar.gz \
     && tar -xf lua-5.4.3.tar.gz && cd lua-5.4.3 \
     && make && make INSTALL_TOP=/opt/lua install && cd ..
 
-FROM harbor-b.alauda.cn/ops/photon:3.0-hw AS source
+FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
