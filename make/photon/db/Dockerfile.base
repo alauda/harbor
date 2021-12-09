@@ -8,7 +8,7 @@ RUN wget https://www.lua.org/ftp/lua-5.4.3.tar.gz \
     && tar -xf lua-5.4.3.tar.gz && cd lua-5.4.3 \
     && make && make INSTALL_TOP=/opt/lua install && cd ..
 
-FROM harbor-b.alauda.cn/ops/photon:3.0-hw AS source
+FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
@@ -57,8 +57,8 @@ RUN mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/Dig
     && rm -f /usr/lib/libdb-5.3.so \
     && rm -rf /usr/share/doc/bash \
     && rm -f /usr/bin/{pkill,vmstat,pmap,sysctl,free,top} && rm -f /usr/sbin/sysctl \
-    && rm -f /usr/share/man/man1/lua.1.gz \
-    && rm -f /opt/sqlite3/lib/libsqlite3.so.0.8.6
+    && rm -f /usr/share/man/man1/lua.1.gz && rm -f /usr/share/man/man1/curl.1.gz \
+    && rm -f /opt/sqlite3/lib/libsqlite3.so.0.8.6 && rm -f /usr/lib/bash/mypid
 
 FROM scratch
 ENV PGDATA /var/lib/postgresql/data
