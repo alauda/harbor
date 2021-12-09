@@ -19,6 +19,7 @@ RUN mkdir -p /opt/curl/bin \
     && chmod 2777 /opt/curl/bin \
     && cp /usr/bin/curl /opt/curl/bin/curl \
     && tdnf install -y shadow gzip ruby systemd rpm \
+    && rpm -e openssl --nodeps \
     && tdnf erase -y toybox \
     && tdnf install -y net-tools postgresql=10.19-1.ph3 \
     && groupadd -r postgres --gid=999 \
