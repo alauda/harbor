@@ -12,7 +12,7 @@ RUN tdnf install tzdata rpm -y >> /dev/null \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
-    && rpm -e ncurses rpm --nodeps \
+    && rpm -e ncurses zstd-libs rpm --nodeps \
     && rm -rf /usr/lib/bash \
     && rm -f /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/sv/LC_MESSAGES/procps-ng.mo \
     && rm -f /usr/lib/libdb-5.3.so \

@@ -7,7 +7,7 @@ COPY --from=tools /opt/openssl /opt/openssl
 
 RUN tdnf install -y shadow rpm \
     && tdnf clean all \
-    && rpm -e ncurses rpm --nodeps \
+    && rpm -e ncurses zstd-libs rpm --nodeps \
     && groupadd -r -g 10000 notary \
     && useradd --no-log-init -r -g 10000 -u 10000 notary \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \

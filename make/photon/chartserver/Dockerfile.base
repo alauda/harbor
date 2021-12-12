@@ -14,7 +14,7 @@ RUN tdnf install -y shadow rpm >>/dev/null\
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
-    && rpm -e ncurses rpm --nodeps \
+    && rpm -e ncurses zstd-libs rpm --nodeps \
     && rm -f /usr/lib/libdb-5.3.so \
     && rm -rf /usr/share/doc/bash \
     && rm -f /opt/sqlite3/lib/libsqlite3.so.0.8.6 \

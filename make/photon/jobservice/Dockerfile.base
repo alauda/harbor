@@ -7,7 +7,7 @@ COPY --from=tools /opt/openssl /opt/openssl
 
 RUN tdnf install tzdata rpm -y >> /dev/null \
     && tdnf clean all \
-    && rpm -e ncurses rpm --nodeps \
+    && rpm -e ncurses zstd-libs rpm --nodeps \
     && groupadd -r -g 10000 harbor && useradd --no-log-init -r -m -g 10000 -u 10000 harbor \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \

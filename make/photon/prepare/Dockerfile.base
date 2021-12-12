@@ -6,7 +6,7 @@ COPY --from=tools /opt/bash/lib /opt/bash/lib
 COPY --from=tools /opt/openssl /opt/openssl
 
 RUN tdnf install -y python3 python3-pip httpd rpm && tdnf clean all \
-    && rpm -e ncurses rpm --nodeps \
+    && rpm -e ncurses zstd-libs rpm --nodeps \
     && echo "/opt/bash/lib" >>/etc/ld.so.conf \
     && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
     && ldconfig \
