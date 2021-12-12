@@ -22,7 +22,7 @@ RUN mkdir -p /opt/curl/bin \
     && groupadd -r -g 10000 clair \
     && useradd --no-log-init -m -g 10000 -u 10000 clair \
     && tdnf upgrade libsolv -y \
-    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 expat expat-libs sqlite-libs gmp --nodeps \
+    && rpm -e curl curl-libs ncurses ncurses-libs zstd-libs krb5 expat expat-libs sqlite-libs gmp apr cyrus-sasl --nodeps \
     && tdnf clean all \
     && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
     && echo "/opt/python/2.7.18/lib" >>/etc/ld.so.conf \
@@ -48,7 +48,8 @@ RUN mkdir -p /opt/curl/bin \
     && rm -f /usr/share/man/man1/lua.1.gz && rm -f /usr/share/man/man1/curl.1.gz \
     && rm -f /usr/lib/python3.9/ensurepip/_bundled/pip-20.2.3-py2.py3-none-any.whl \
     && rm -f /opt/python/2.7.18/lib/python2.7/ensurepip/_bundled/pip-19.2.3-py2.py3-none-any.whl \
-    && rm -f /opt/gmp/lib/libgmp.so.10.4.1 && rm -f /opt/gmp/lib/libgmp.a
+    && rm -f /opt/gmp/lib/libgmp.so.10.4.1 && rm -f /opt/gmp/lib/libgmp.a \
+    && rm -f /
 
 FROM scratch
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/python/2.7.18/bin:/opt/libarchive/bin:/opt/python/3.9.9/bin:/opt/openssl/bin:$PATH
