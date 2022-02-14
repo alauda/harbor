@@ -32,7 +32,7 @@ func TestBuildImageResourceURL(t *testing.T) {
 		{
 			"tag",
 			args{"library/photon", "2.0"},
-			"demo.goharbor.io/library/photon:2.0",
+			"demo.goharbor.io/library/build-harbor.alauda.cn/devops/photon:3.0",
 			false,
 		},
 	}

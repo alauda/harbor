@@ -29,7 +29,7 @@ RUN python -c 'import sys, yaml, json; y=yaml.load(sys.stdin.read()); print json
 RUN cp swagger.yaml dist
 COPY ./LICENSE /build_dir/dist
 
-FROM ${harbor_base_namespace}/harbor-portal-base:${harbor_base_image_version}
+FROM build-harbor.alauda.cn/devops/harbor-portal-base:${harbor_base_image_version}
 
 COPY --from=nodeportal /build_dir/dist /usr/share/nginx/html
 COPY --from=nodeportal /build_dir/package*.json /usr/share/nginx/

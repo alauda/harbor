@@ -1,6 +1,6 @@
 ARG harbor_base_image_version
 ARG harbor_base_namespace
-FROM ${harbor_base_namespace}/harbor-db-base:${harbor_base_image_version}
+FROM build-harbor.alauda.cn/devops/harbor-db-base:${harbor_base_image_version}
 
 ENV EXTERNAL_DB 0
 
