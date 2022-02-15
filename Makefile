@@ -315,6 +315,7 @@ define swagger_generate_server
 	@echo "/path/tools" && ls $(COMPILEBUILDPATH)/tools
 	@echo "/path/tools/swagger" && ls $(COMPILEBUILDPATH)/tools/swagger
 	@echo "/path/tools/swagger/templates" && ls $(COMPILEBUILDPATH)/tools/swagger/templates
+	@echo "pwd" && pwd
 	@rm -rf $(2)/{models,restapi}
 	@mkdir -p $(2)
 	@$(SWAGGER_GENERATE_SERVER) -f $(1) -A $(3) --target $(2)
