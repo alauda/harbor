@@ -134,7 +134,7 @@ endef
 
 # docker parameters
 DOCKERCMD=$(shell which docker)
-DOCKERBUILD=$(DOCKERCMD) build
+DOCKERBUILD=$(DOCKERCMD) build --network=host
 DOCKERRMIMAGE=$(DOCKERCMD) rmi
 DOCKERPULL=$(DOCKERCMD) pull
 DOCKERIMAGES=$(DOCKERCMD) images
@@ -407,18 +407,10 @@ build_standalone_db_migrator: compile_standalone_db_migrator
 	make -f $(MAKEFILEPATH_PHOTON)/Makefile _build_standalone_db_migrator -e BASEIMAGETAG=$(BASEIMAGETAG) -e VERSIONTAG=$(VERSIONTAG)
 
 build_base_docker:
-	if [ -n "$(REGISTRYUSER)" ] && [ -n "$(REGISTRYPASSWORD)" ] ; then \
-		docker login -u $(REGISTRYUSER) -p $(REGISTRYPASSWORD) ; \
-	else \
-		echo "No docker credentials provided, please make sure enough priviledges to access docker hub!" ; \
-	fi
-	@for name in chartserver trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl exporter; do \
+	@for name in chartserver clair clair-adapter trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl; do \
 		echo $$name ; \
-		sleep 30 ; \
-		$(DOCKERBUILD)  --no-cache -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) --label base-build-date=$(date +"%Y%m%d") . && \
-		if [ -n "$(PUSHBASEIMAGE)" ] ; then \
-		       docker push build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) || exit 1; \
-		fi ; \
+		$(DOCKERBUILD)  -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) . && \
+		docker push harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) || exit 1; \
 	done
 
 pull_base_docker:
