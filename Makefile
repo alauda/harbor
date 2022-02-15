@@ -313,7 +313,6 @@ define swagger_generate_server
 	@echo "generate all the files for API from $(1)"
 	@rm -rf $(2)/{models,restapi}
 	@mkdir -p $(2)
-	@
 	@$(SWAGGER_GENERATE_SERVER) -f $(1) -A $(3) --target $(2)
 endef
 
