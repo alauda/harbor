@@ -297,7 +297,7 @@ endif
 
 SWAGGER_IMAGENAME=build-harbor.alauda.cn/devops/goharbor-swagger
 SWAGGER_VERSION=v0.21.0
-SWAGGER=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(COMPILEBUILDPATH):$(COMPILEBUILDPATH) -v $(COMPILEBUILDPATH)/tools/swagger/templates:$(COMPILEBUILDPATH)/tools/swagger/templates -w $(COMPILEBUILDPATH) ${SWAGGER_IMAGENAME}:${SWAGGER_VERSION}
+SWAGGER=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(COMPILEBUILDPATH)/tools/swagger/templates:$(COMPILEBUILDPATH)/tools/swagger/templates -w $(COMPILEBUILDPATH) ${SWAGGER_IMAGENAME}:${SWAGGER_VERSION}
 SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(COMPILEBUILDPATH)/tools/swagger/templates
 SWAGGER_IMAGE_BUILD_CMD=${DOCKERBUILD} -f ${TOOLSPATH}/swagger/Dockerfile --build-arg SWAGGER_VERSION=${SWAGGER_VERSION} -t ${SWAGGER_IMAGENAME}:$(SWAGGER_VERSION) .
 
@@ -313,6 +313,7 @@ define swagger_generate_server
 	@echo "generate all the files for API from $(1)"
 	@rm -rf $(2)/{models,restapi}
 	@mkdir -p $(2)
+	@
 	@$(SWAGGER_GENERATE_SERVER) -f $(1) -A $(3) --target $(2)
 endef
 
