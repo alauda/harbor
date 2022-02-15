@@ -1,4 +1,5 @@
 # Makefile for a harbor project
+TRIVYFLAG=true
 #
 # Targets:
 #
@@ -33,67 +34,67 @@ DOCKERFILEPATH=$(MAKEPATH)/photon
 
 DOCKERFILEPATH_PREPARE=$(DOCKERFILEPATH)/prepare
 DOCKERFILENAME_PREPARE=Dockerfile
-DOCKERIMAGENAME_PREPARE=goharbor/prepare
+DOCKERIMAGENAME_PREPARE=build-harbor.alauda.cn/devops/goharbor-prepare
 
 DOCKERFILEPATH_PORTAL=$(DOCKERFILEPATH)/portal
 DOCKERFILENAME_PORTAL=Dockerfile
-DOCKERIMAGENAME_PORTAL=goharbor/harbor-portal
+DOCKERIMAGENAME_PORTAL=build-harbor.alauda.cn/devops/goharbor-harbor-portal
 
 DOCKERFILEPATH_CORE=$(DOCKERFILEPATH)/core
 DOCKERFILENAME_CORE=Dockerfile
-DOCKERIMAGENAME_CORE=goharbor/harbor-core
+DOCKERIMAGENAME_CORE=build-harbor.alauda.cn/devops/goharbor-harbor-core
 
 DOCKERFILEPATH_JOBSERVICE=$(DOCKERFILEPATH)/jobservice
 DOCKERFILENAME_JOBSERVICE=Dockerfile
-DOCKERIMAGENAME_JOBSERVICE=goharbor/harbor-jobservice
+DOCKERIMAGENAME_JOBSERVICE=build-harbor.alauda.cn/devops/goharbor-harbor-jobservice
 
 DOCKERFILEPATH_LOG=$(DOCKERFILEPATH)/log
 DOCKERFILENAME_LOG=Dockerfile
-DOCKERIMAGENAME_LOG=goharbor/harbor-log
+DOCKERIMAGENAME_LOG=build-harbor.alauda.cn/devops/goharbor-harbor-log
 
 DOCKERFILEPATH_DB=$(DOCKERFILEPATH)/db
 DOCKERFILENAME_DB=Dockerfile
-DOCKERIMAGENAME_DB=goharbor/harbor-db
+DOCKERIMAGENAME_DB=build-harbor.alauda.cn/devops/goharbor-harbor-db
 
 DOCKERFILEPATH_POSTGRESQL=$(DOCKERFILEPATH)/postgresql
 DOCKERFILENAME_POSTGRESQL=Dockerfile
-DOCKERIMAGENAME_POSTGRESQL=goharbor/postgresql-photon
+DOCKERIMAGENAME_POSTGRESQL=build-harbor.alauda.cn/devops/goharbor-postgresql-photon
 
 DOCKERFILEPATH_TRIVY_ADAPTER=$(DOCKERFILEPATH)/trivy-adapter
 DOCKERFILENAME_TRIVY_ADAPTER=Dockerfile
-DOCKERIMAGENAME_TRIVY_ADAPTER=goharbor/trivy-adapter-photon
+DOCKERIMAGENAME_TRIVY_ADAPTER=build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon
 
 DOCKERFILEPATH_NGINX=$(DOCKERFILEPATH)/nginx
 DOCKERFILENAME_NGINX=Dockerfile
-DOCKERIMAGENAME_NGINX=goharbor/nginx-photon
+DOCKERIMAGENAME_NGINX=build-harbor.alauda.cn/devops/goharbor-nginx-photon
 
 DOCKERFILEPATH_REG=$(DOCKERFILEPATH)/registry
 DOCKERFILENAME_REG=Dockerfile
-DOCKERIMAGENAME_REG=goharbor/registry-photon
+DOCKERIMAGENAME_REG=build-harbor.alauda.cn/devops/goharbor-registry-photon
 
 DOCKERFILEPATH_REGISTRYCTL=$(DOCKERFILEPATH)/registryctl
 DOCKERFILENAME_REGISTRYCTL=Dockerfile
-DOCKERIMAGENAME_REGISTRYCTL=goharbor/harbor-registryctl
+DOCKERIMAGENAME_REGISTRYCTL=build-harbor.alauda.cn/devops/goharbor-harbor-registryctl
 
 DOCKERFILEPATH_NOTARY=$(DOCKERFILEPATH)/notary
 DOCKERFILEPATH_NOTARYSERVER=$(DOCKERFILEPATH)/notary-server
 DOCKERFILENAME_NOTARYSIGNER=Dockerfile
-DOCKERIMAGENAME_NOTARYSIGNER=goharbor/notary-signer-photon
+DOCKERIMAGENAME_NOTARYSIGNER=build-harbor.alauda.cn/devops/goharbor-notary-signer-photon
 DOCKERFILEPATH_NOTARYSIGNER=$(DOCKERFILEPATH)/notary-signer
 DOCKERFILENAME_NOTARYSERVER=Dockerfile
-DOCKERIMAGENAME_NOTARYSERVER=goharbor/notary-server-photon
+DOCKERIMAGENAME_NOTARYSERVER=build-harbor.alauda.cn/devops/goharbor-notary-server-photon
 
 DOCKERFILEPATH_REDIS=$(DOCKERFILEPATH)/redis
 DOCKERFILENAME_REDIS=Dockerfile
-DOCKERIMAGENAME_REDIS=goharbor/redis-photon
+DOCKERIMAGENAME_REDIS=build-harbor.alauda.cn/devops/goharbor-redis-photon
 
 DOCKERFILEPATH_STANDALONE_DB_MIGRATOR=$(DOCKERFILEPATH)/standalone-db-migrator
 DOCKERFILENAME_STANDALONE_DB_MIGRATOR=Dockerfile
-DOCKERIMAGENAME_STANDALONE_DB_MIGRATOR=goharbor/standalone-db-migrator
+DOCKERIMAGENAME_STANDALONE_DB_MIGRATOR=build-harbor.alauda.cn/devops/goharbor-standalone-db-migrator
 
 DOCKERFILEPATH_EXPORTER=$(DOCKERFILEPATH)/exporter
 DOCKERFILENAME_EXPORTER=Dockerfile
-DOCKERIMAGENAME_EXPORTER=goharbor/harbor-exporter
+DOCKERIMAGENAME_EXPORTER=build-harbor.alauda.cn/devops/goharbor-harbor-exporter
 
 # for chart server (chartmuseum)
 DOCKERFILEPATH_CHART_SERVER=$(DOCKERFILEPATH)/chartserver
@@ -233,7 +234,7 @@ endef
 
 
 
-build: _build_prepare _build_db _build_portal _build_core _build_jobservice _build_log _build_nginx _build_registry _build_registryctl _build_notary _build_trivy_adapter _build_redis _build_chart_server _compile_and_build_exporter
+build: _build_db _build_portal _build_core _build_jobservice _build_nginx _build_registry _build_registryctl _build_notary _build_trivy_adapter _build_chart_server _compile_and_build_exporter
 
 cleanimage:
 	@echo "cleaning image for photon..."
