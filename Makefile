@@ -297,9 +297,8 @@ endif
 
 SWAGGER_IMAGENAME=build-harbor.alauda.cn/devops/goharbor-swagger
 SWAGGER_VERSION=v0.21.0
-SWAGGER=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(COMPILEBUILDPATH):$(COMPILEBUILDPATH) -w $(COMPILEBUILDPATH) ${SWAGGER_IMAGENAME}:${SWAGGER_VERSION}
-SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(COMPILEBUILDPATH)/tools/swagger/templates --exclude-main --additional-initialism=CVE --additional-initialism=GC
-SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(COMPILEBUILDPATH)/tools/swagger/templates --exclude-main
+SWAGGER=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(BUILDPATH):$(BUILDPATH) -w $(BUILDPATH) ${SWAGGER_IMAGENAME}:${SWAGGER_VERSION}
+SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(TOOLSPATH)/swagger/templates --exclude-main --additional-initialism=CVE --additional-initialism=GC
 SWAGGER_IMAGE_BUILD_CMD=${DOCKERBUILD} -f ${TOOLSPATH}/swagger/Dockerfile --build-arg SWAGGER_VERSION=${SWAGGER_VERSION} -t ${SWAGGER_IMAGENAME}:$(SWAGGER_VERSION) .
 
 SWAGGER_IMAGENAME:
