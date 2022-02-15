@@ -311,11 +311,8 @@ SWAGGER_IMAGENAME:
 # $3 the name of the application
 define swagger_generate_server
 	@echo "generate all the files for API from $(1)"
-	@echo "/path" && ls $(COMPILEBUILDPATH)
-	@echo "/path/tools" && ls $(COMPILEBUILDPATH)/tools
-	@echo "/path/tools/swagger" && ls $(COMPILEBUILDPATH)/tools/swagger
-	@echo "/path/tools/swagger/templates" && ls $(COMPILEBUILDPATH)/tools/swagger/templates
-	@echo "pwd" && pwd
+	@echo "patch " && cd $(COMPILEBUILDPATH)/tools/swagger/templates && pwd && ls
+	@cd -
 	@rm -rf $(2)/{models,restapi}
 	@mkdir -p $(2)
 	@$(SWAGGER_GENERATE_SERVER) -f $(1) -A $(3) --target $(2)
