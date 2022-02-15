@@ -4,5 +4,5 @@ RUN tdnf install -y rpm shadow wget >> /dev/null \
     && tdnf clean all \
     && groupadd -r -g 10000 scanner \
     && useradd --no-log-init -m -r -g 10000 -u 10000 scanner \
-    && wget -P /home/scanner/.cache/trivy/ https://github.com/aquasecurity/trivy-db/releases/download/v1-2022021406/trivy-offline.db.tgz \
+    && wget -P /home/scanner/.cache/trivy/ https://github.com/aquasecurity/trivy-db/releases/download/v1-2022021512/trivy-offline.db.tgz \
     && cd /home/scanner/.cache/trivy && tar -zxf trivy-offline.db.tgz && rm -f trivy-offline.db.tgz
