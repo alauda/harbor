@@ -1,5 +1,4 @@
 # Makefile for Harbor project
-COMPILEBUILDPATH=/go/pkg
 #
 # Targets:
 #
@@ -79,10 +78,10 @@ REGISTRYSERVER=
 REGISTRYPROJECTNAME=goharbor
 DEVFLAG=true
 NOTARYFLAG=false
-TRIVYFLAG=true
+TRIVYFLAG=false
 HTTPPROXY=
-BUILDBIN=true
-NPM_REGISTRY=https://build-nexus.alauda.cn/repository/npm/
+BUILDBIN=false
+NPM_REGISTRY=https://registry.npmjs.org
 # enable/disable chart repo supporting
 CHARTFLAG=false
 BUILDTARGET=build
@@ -90,10 +89,10 @@ GEN_TLS=
 
 # version prepare
 # for docker image tag
-VERSIONTAG=alauda-v2.2.1-${BUILD_NUMBER}-amd64
+VERSIONTAG=dev
 # for base docker image tag
 PUSHBASEIMAGE=
-BASEIMAGETAG=v2.2.1
+BASEIMAGETAG=dev
 BASEIMAGENAMESPACE=goharbor
 # for harbor package name
 PKGVERSIONTAG=dev
@@ -223,15 +222,15 @@ MAKEFILEPATH_PHOTON=$(MAKEPATH)/photon
 DOCKERFILEPATH_COMMON=$(MAKEPATH)/common
 
 # docker image name
-DOCKER_IMAGE_NAME_PREPARE=build-harbor.alauda.cn/devops/goharbor-prepare
-DOCKERIMAGENAME_PORTAL=build-harbor.alauda.cn/devops/goharbor-harbor-portal
-DOCKERIMAGENAME_CORE=build-harbor.alauda.cn/devops/goharbor-harbor-core
-DOCKERIMAGENAME_JOBSERVICE=build-harbor.alauda.cn/devops/goharbor-harbor-jobservice
-DOCKERIMAGENAME_LOG=build-harbor.alauda.cn/devops/goharbor-harbor-log
-DOCKERIMAGENAME_DB=build-harbor.alauda.cn/devops/goharbor-harbor-db
-DOCKERIMAGENAME_CHART_SERVER=build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon
-DOCKERIMAGENAME_REGCTL=build-harbor.alauda.cn/devops/goharbor-harbor-registryctl
-DOCKERIMAGENAME_EXPORTER=build-harbor.alauda.cn/devops/goharbor-harbor-exporter
+DOCKER_IMAGE_NAME_PREPARE=goharbor/prepare
+DOCKERIMAGENAME_PORTAL=goharbor/harbor-portal
+DOCKERIMAGENAME_CORE=goharbor/harbor-core
+DOCKERIMAGENAME_JOBSERVICE=goharbor/harbor-jobservice
+DOCKERIMAGENAME_LOG=goharbor/harbor-log
+DOCKERIMAGENAME_DB=goharbor/harbor-db
+DOCKERIMAGENAME_CHART_SERVER=goharbor/chartmuseum-photon
+DOCKERIMAGENAME_REGCTL=goharbor/harbor-registryctl
+DOCKERIMAGENAME_EXPORTER=goharbor/harbor-exporter
 
 # docker-compose files
 DOCKERCOMPOSEFILEPATH=$(MAKEPATH)
@@ -295,10 +294,10 @@ ifeq ($(CHARTFLAG), true)
 	DOCKERSAVE_PARA+= $(DOCKERIMAGENAME_CHART_SERVER):$(VERSIONTAG)
 endif
 
-SWAGGER_IMAGENAME=build-harbor.alauda.cn/devops/goharbor-swagger
+SWAGGER_IMAGENAME=goharbor/swagger
 SWAGGER_VERSION=v0.21.0
-SWAGGER=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(COMPILEBUILDPATH):$(COMPILEBUILDPATH) -w $(COMPILEBUILDPATH) ${SWAGGER_IMAGENAME}:${SWAGGER_VERSION}
-SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(COMPILEBUILDPATH)/tools/swagger/templates --exclude-main --additional-initialism=CVE --additional-initialism=GC
+SWAGGER=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(BUILDPATH):$(BUILDPATH) -w $(BUILDPATH) ${SWAGGER_IMAGENAME}:${SWAGGER_VERSION}
+SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(TOOLSPATH)/swagger/templates --exclude-main --additional-initialism=CVE --additional-initialism=GC
 SWAGGER_IMAGE_BUILD_CMD=${DOCKERBUILD} -f ${TOOLSPATH}/swagger/Dockerfile --build-arg SWAGGER_VERSION=${SWAGGER_VERSION} -t ${SWAGGER_IMAGENAME}:$(SWAGGER_VERSION) .
 
 SWAGGER_IMAGENAME:
@@ -320,7 +319,7 @@ gen_apis: SWAGGER_IMAGENAME
 	$(call swagger_generate_server,api/v2.0/swagger.yaml,src/server/v2.0,harbor)
 
 
-MOCKERY_IMAGENAME=build-harbor.alauda.cn/devops/goharbor-mockery
+MOCKERY_IMAGENAME=goharbor/mockery
 MOCKERY_VERSION=v2.1.0
 MOCKERY=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(BUILDPATH):$(BUILDPATH) -w $(BUILDPATH) ${MOCKERY_IMAGENAME}:${MOCKERY_VERSION}
 MOCKERY_IMAGE_BUILD_CMD=${DOCKERBUILD} -f ${TOOLSPATH}/mockery/Dockerfile --build-arg GOLANG=${GOBUILDIMAGE} --build-arg MOCKERY_VERSION=${MOCKERY_VERSION} -t ${MOCKERY_IMAGENAME}:$(MOCKERY_VERSION) .
@@ -352,7 +351,7 @@ check_environment:
 compile_core: gen_apis
 	@echo "compiling binary for core (golang image)..."
 	@echo $(GOBUILDPATHINCONTAINER)
-	@$(DOCKERCMD) run --rm -v $(COMPILEBUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_CORE) $(GOBUILDIMAGE) $(GOIMAGEBUILD_CORE) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_CORE)/$(CORE_BINARYNAME)
+	@$(DOCKERCMD) run --rm -v $(BUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_CORE) $(GOBUILDIMAGE) $(GOIMAGEBUILD_CORE) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_CORE)/$(CORE_BINARYNAME)
 	@echo "Done."
 
 compile_jobservice:
@@ -375,7 +374,7 @@ compile_standalone_db_migrator:
 	@$(DOCKERCMD) run --rm -v $(BUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_STANDALONE_DB_MIGRATOR) $(GOBUILDIMAGE) $(GOIMAGEBUILD_COMMON) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_STANDALONE_DB_MIGRATOR)/$(STANDALONE_DB_MIGRATOR_BINARYNAME)
 	@echo "Done."
 
-compile: versions_prepare compile_core compile_jobservice compile_registryctl compile_notary_migrate_patch
+compile: check_environment versions_prepare compile_core compile_jobservice compile_registryctl compile_notary_migrate_patch
 
 update_prepare_version:
 	@echo "substitute the prepare version tag in prepare file..."
@@ -399,7 +398,7 @@ build:
 	 -e VERSIONTAG=$(VERSIONTAG) \
 	 -e BUILDBIN=$(BUILDBIN) \
 	 -e CHARTMUSEUMVERSION=$(CHARTMUSEUMVERSION) -e CHARTMUSEUM_SRC_TAG=$(CHARTMUSEUM_SRC_TAG) -e DOCKERIMAGENAME_CHART_SERVER=$(DOCKERIMAGENAME_CHART_SERVER) \
-	 -e NPM_REGISTRY=$(NPM_REGISTRY) -e NOTARYFLAG=true -e CHARTFLAG=true -e BASEIMAGETAG=$(BASEIMAGETAG) -e BASEIMAGENAMESPACE=$(BASEIMAGENAMESPACE) \
+	 -e NPM_REGISTRY=$(NPM_REGISTRY) -e BASEIMAGETAG=$(BASEIMAGETAG) -e BASEIMAGENAMESPACE=$(BASEIMAGENAMESPACE) \
 	 -e CHARTURL=$(CHARTURL) -e NORARYURL=$(NORARYURL) -e REGISTRYURL=$(REGISTRYURL) \
 	 -e TRIVY_DOWNLOAD_URL=$(TRIVY_DOWNLOAD_URL) -e TRIVY_ADAPTER_DOWNLOAD_URL=$(TRIVY_ADAPTER_DOWNLOAD_URL)
 
@@ -412,19 +411,19 @@ build_base_docker:
 	else \
 		echo "No docker credentials provided, please make sure enough priviledges to access docker hub!" ; \
 	fi
-	@for name in chartserver trivy-adapter core db jobservice nginx notary-server notary-signer portal registry registryctl exporter; do \
+	@for name in chartserver trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl exporter; do \
 		echo $$name ; \
 		sleep 30 ; \
-		$(DOCKERBUILD) --no-cache -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) --label base-build-date=$(date +"%Y%m%d") . && \
+		$(DOCKERBUILD) --pull --no-cache -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t $(BASEIMAGENAMESPACE)/harbor-$$name-base:$(BASEIMAGETAG) --label base-build-date=$(date +"%Y%m%d") . && \
 		if [ -n "$(PUSHBASEIMAGE)" ] ; then \
-			docker push build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) || exit 1; \
+			$(PUSHSCRIPTPATH)/$(PUSHSCRIPTNAME) $(BASEIMAGENAMESPACE)/harbor-$$name-base:$(BASEIMAGETAG) $(REGISTRYUSER) $(REGISTRYPASSWORD) || exit 1; \
 		fi ; \
 	done
 
 pull_base_docker:
 	@for name in chartserver trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl; do \
 		echo $$name ; \
-		$(DOCKERPULL) build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) ; \
+		$(DOCKERPULL) $(BASEIMAGENAMESPACE)/harbor-$$name-base:$(BASEIMAGETAG) ; \
 	done
 
 install: compile build prepare start
@@ -574,7 +573,7 @@ cleanbinary:
 cleanbaseimage:
 	@echo "cleaning base image for photon..."
 	@for name in chartserver trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl; do \
-		$(DOCKERRMIMAGE) -f build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) ; \
+		$(DOCKERRMIMAGE) -f $(BASEIMAGENAMESPACE)/harbor-$$name-base:$(BASEIMAGETAG) ; \
 	done
 
 cleanimage:

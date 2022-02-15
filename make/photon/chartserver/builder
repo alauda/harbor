@@ -21,7 +21,7 @@ BIN_NAME="$5"
 set -e
 
 cd `dirname $0`
-cur=/go/pkg/make/photon/chartserver
+cur=$PWD
 
 mkdir -p binary
 rm -rf binary/$BIN_NAME || true
