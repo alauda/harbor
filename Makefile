@@ -407,10 +407,10 @@ build_standalone_db_migrator: compile_standalone_db_migrator
 	make -f $(MAKEFILEPATH_PHOTON)/Makefile _build_standalone_db_migrator -e BASEIMAGETAG=$(BASEIMAGETAG) -e VERSIONTAG=$(VERSIONTAG)
 
 build_base_docker:
-	@for name in chartserver clair clair-adapter trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl; do \
+	@for name in chartserver trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl exporter; do \
 		echo $$name ; \
-		$(DOCKERBUILD)  -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) . && \
-		docker push harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) || exit 1; \
+		$(DOCKERBUILD)  --no-cache -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) --label base-build-date=$(date +"%Y%m%d") . && \
+		docker push build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) || exit 1; \
 	done
 
 pull_base_docker:
