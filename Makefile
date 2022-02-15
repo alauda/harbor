@@ -299,6 +299,7 @@ SWAGGER_IMAGENAME=build-harbor.alauda.cn/devops/goharbor-swagger
 SWAGGER_VERSION=v0.21.0
 SWAGGER=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(COMPILEBUILDPATH):$(COMPILEBUILDPATH) -w $(COMPILEBUILDPATH) ${SWAGGER_IMAGENAME}:${SWAGGER_VERSION}
 SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(COMPILEBUILDPATH)/tools/swagger/templates --exclude-main --additional-initialism=CVE --additional-initialism=GC
+SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(COMPILEBUILDPATH)/tools/swagger/templates --exclude-main
 SWAGGER_IMAGE_BUILD_CMD=${DOCKERBUILD} -f ${TOOLSPATH}/swagger/Dockerfile --build-arg SWAGGER_VERSION=${SWAGGER_VERSION} -t ${SWAGGER_IMAGENAME}:$(SWAGGER_VERSION) .
 
 SWAGGER_IMAGENAME:
@@ -311,7 +312,9 @@ SWAGGER_IMAGENAME:
 # $3 the name of the application
 define swagger_generate_server
 	@echo "generate all the files for API from $(1)"
+	@echo "folder " && pwd && ls
 	@echo "patch " && cd $(COMPILEBUILDPATH)/tools/swagger/templates && pwd && ls
+	@echo "lsta " && lsta $(COMPILEBUILDPATH)/tools/swagger/templates
 	@cd -
 	@rm -rf $(2)/{models,restapi}
 	@mkdir -p $(2)
