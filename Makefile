@@ -314,7 +314,6 @@ define swagger_generate_server
 	@echo "generate all the files for API from $(1)"
 	@echo "folder " && pwd && ls
 	@echo "patch " && cd $(COMPILEBUILDPATH)/tools/swagger/templates && pwd && ls
-	@echo "lsta " && lsta $(COMPILEBUILDPATH)/tools/swagger/templates
 	@cd -
 	@rm -rf $(2)/{models,restapi}
 	@mkdir -p $(2)
