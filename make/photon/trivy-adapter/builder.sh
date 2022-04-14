@@ -21,7 +21,7 @@ cd $TEMP; git checkout $VERSION; cd -
 
 echo "Building Trivy adapter binary based on golang:1.13.8..."
 cp Dockerfile.binary $TEMP
-docker build -f $TEMP/Dockerfile.binary -t trivy-adapter-golang $TEMP
+docker build --network=host -f $TEMP/Dockerfile.binary -t trivy-adapter-golang $TEMP
 
 echo "Copying Trivy adapter binary from the container to the local directory..."
 ID=$(docker create trivy-adapter-golang)

@@ -9,10 +9,10 @@ import swagger_client.models
 from pprint import pprint
 
 admin_user = "admin"
-admin_pwd = "Harbor12345"
+admin_pwd = "admin123"
 
 harbor_server = os.environ["HARBOR_HOST"]
-#CLIENT=dict(endpoint="https://"+harbor_server+"/api")
+#CLIENT=dict(endpoint="http://"+harbor_server+"/api")
 ADMIN_CLIENT=dict(endpoint = os.environ.get("HARBOR_HOST_SCHEMA", "https")+ "://"+harbor_server+"/api/v2.0", username = admin_user, password =  admin_pwd)
 CHART_API_CLIENT=dict(endpoint = os.environ.get("HARBOR_HOST_SCHEMA", "https")+ "://"+harbor_server+"/api", username = admin_user, password =  admin_pwd)
 USER_ROLE=dict(admin=0,normal=1)
@@ -21,7 +21,7 @@ TEARDOWN = os.environ.get('TEARDOWN', 'true').lower() in ('true', 'yes')
 def GetProductApi(username, password, harbor_server= os.environ["HARBOR_HOST"]):
 
     cfg = swagger_client.Configuration()
-    cfg.host = "https://"+harbor_server+"/api/v2.0"
+    cfg.host = "http://"+harbor_server+"/api/v2.0"
     cfg.username = username
     cfg.password = password
     cfg.verify_ssl = False
@@ -33,7 +33,7 @@ def GetProductApi(username, password, harbor_server= os.environ["HARBOR_HOST"]):
 def GetRepositoryApi(username, password, harbor_server= os.environ["HARBOR_HOST"]):
 
     cfg = v2_swagger_client.Configuration()
-    cfg.host = "https://"+harbor_server+"/api/v2.0"
+    cfg.host = "http://"+harbor_server+"/api/v2.0"
     cfg.username = username
     cfg.password = password
     cfg.verify_ssl = False

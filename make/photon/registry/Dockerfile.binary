@@ -1,4 +1,4 @@
-FROM golang:1.13.8
+FROM harbor-b.alauda.cn/devops/golang:1.15-custom
 
 ENV DISTRIBUTION_DIR /go/src/github.com/docker/distribution
 ENV BUILDTAGS include_oss include_gcs

@@ -1,8 +1,26 @@
-FROM photon:2.0
+FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS toolbox
+
+RUN wget https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-2.1.27/cyrus-sasl-2.1.27.tar.gz \
+    && tar -xf cyrus-sasl-2.1.27.tar.gz && cd cyrus-sasl-2.1.27 \
+    && ./configure --prefix=/opt/cyrus-sasl --with-shared && make && make install && cd ..
+
+RUN wget https://www.lua.org/ftp/lua-5.4.3.tar.gz \
+    && tar -xf lua-5.4.3.tar.gz && cd lua-5.4.3 \
+    && make && make INSTALL_TOP=/opt/lua install && cd ..
+
+FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
+COPY --from=toolbox /opt/ncurses /opt/ncurses
+COPY --from=toolbox /opt/openssl /opt/openssl
 
-RUN tdnf install -y shadow gzip postgresql >> /dev/null\
+RUN mkdir -p /opt/curl/bin \
+    && chmod 2777 /opt/curl/bin \
+    && cp /usr/bin/curl /opt/curl/bin/curl \
+    && tdnf install -y shadow gzip ruby systemd rpm \
+    && tdnf erase -y toybox \
+    && tdnf install -y net-tools postgresql=10.19-1.ph3 \
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres \
     && mkdir -p /docker-entrypoint-initdb.d \
@@ -12,6 +30,38 @@ RUN tdnf install -y shadow gzip postgresql >> /dev/null\
     && mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PGDATA" \
     && sed -i "s|#listen_addresses = 'localhost'.*|listen_addresses = '*'|g" /usr/share/postgresql/postgresql.conf.sample \
     && sed -i "s|#unix_socket_directories = '/tmp'.*|unix_socket_directories = '/run/postgresql'|g" /usr/share/postgresql/postgresql.conf.sample \
-    && tdnf clean all
+    && tdnf clean all \
+    && rpm -e curl-libs ncurses-libs zstd-libs krb5 expat-libs rpm --nodeps \
+    && echo "/opt/ncurses/lib" >>/etc/ld.so.conf \
+    && echo "/opt/openssl/lib" >>/etc/ld.so.conf \
+    && ldconfig
 
-RUN tdnf erase -y toybox && tdnf install -y util-linux net-tools
+FROM scratch AS tmp
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:/usr/bin:/bin:$PATH
+COPY --from=source / /
+COPY --from=toolbox /opt/bash/lib /usr/lib/bash/lib
+COPY --from=toolbox /opt/cyrus-sasl /opt/cyrus-sasl
+COPY --from=toolbox /opt/lua /opt/lua
+RUN mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/AddTrustExternalCARoot.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/AddTrustExternalCARoot \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA_R3.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA_R3 \
+    && mv /usr/lib/ruby/2.7.0/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA.pem /usr/lib/ruby/2.7.0/rubygems/ssl_certs/index.rubygems.org/GlobalSignRootCA \
+    && echo "/opt/cyrus-sasl/lib" >> /etc/ld.so.conf \
+    && echo "/opt/lua/lib" >> /etc/ld.so.conf \
+    && ldconfig \
+    && rm -f /usr/bin/lua && rm -f /usr/bin/luac && rm -f /usr/lib/bash/unlink \
+    && rm -f /usr/bin/curl-config && rm -f /usr/bin/curl \
+    && rm -f usr/lib/liblua.so.5.3.4 \
+    && rm -f /usr/share/locale/fr/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/pt_BR/LC_MESSAGES/procps-ng.mo && rm -f /usr/share/locale/sv/LC_MESSAGES/procps-ng.mo \
+    && rm -f /usr/lib/libdb-5.3.so \
+    && rm -rf /usr/share/doc/bash \
+    && rm -f /usr/bin/{pkill,vmstat,pmap,sysctl,free,top} && rm -f /usr/sbin/sysctl \
+    && rm -f /usr/share/man/man1/lua.1.gz && rm -rf /usr/share/man/man1 \
+    && rm -f /opt/sqlite3/lib/libsqlite3.so.0.8.6 && rm -f /usr/lib/bash/mypid &&rm -f /usr/lib/bash/printenv \
+    && rm -f /usr/lib/bash/finfo
+
+FROM scratch
+ENV PGDATA /var/lib/postgresql/data
+ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:/opt/cyrus-sasl/bin:/opt/lua/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:$PATH
+COPY --from=tmp / /

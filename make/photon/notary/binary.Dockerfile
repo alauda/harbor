@@ -1,4 +1,4 @@
-FROM golang:1.13.8
+FROM harbor-b.alauda.cn/devops/golang:1.15-custom
 
 ARG NOTARY_VERSION
 ARG MIGRATE_VERSION
@@ -10,11 +10,11 @@ ENV MIGRATEPKG github.com/golang-migrate/migrate
 RUN git clone -b $NOTARY_VERSION https://github.com/theupdateframework/notary.git /go/src/${NOTARYPKG}
 WORKDIR /go/src/${NOTARYPKG}
 
-RUN go install -tags pkcs11 \
-    -ldflags "-w -X ${NOTARYPKG}/version.GitCommit=`git rev-parse --short HEAD` -X ${NOTARYPKG}/version.NotaryVersion=`cat NOTARY_VERSION`" ${NOTARYPKG}/cmd/notary-server 
+RUN go install -buildmode=pie -tags pkcs11 \
+    -ldflags "-w -s -linkmode=external -extldflags=-Wl,-z,relro,-z,now  -X ${NOTARYPKG}/version.GitCommit=`git rev-parse --short HEAD` -X ${NOTARYPKG}/version.NotaryVersion=`cat NOTARY_VERSION`" ${NOTARYPKG}/cmd/notary-server 
 
-RUN go install -tags pkcs11 \
-    -ldflags "-w -X ${NOTARYPKG}/version.GitCommit=`git rev-parse --short HEAD` -X ${NOTARYPKG}/version.NotaryVersion=`cat NOTARY_VERSION`" ${NOTARYPKG}/cmd/notary-signer
+RUN go install -buildmode=pie -tags pkcs11 \
+    -ldflags "-w -s -linkmode=external -extldflags=-Wl,-z,relro,-z,now  -X ${NOTARYPKG}/version.GitCommit=`git rev-parse --short HEAD` -X ${NOTARYPKG}/version.NotaryVersion=`cat NOTARY_VERSION`" ${NOTARYPKG}/cmd/notary-signer
 RUN cp -r /go/src/${NOTARYPKG}/migrations/ / 
 
 RUN git clone -b $MIGRATE_VERSION https://github.com/golang-migrate/migrate /go/src/${MIGRATEPKG}
@@ -26,5 +26,5 @@ RUN dep ensure -vendor-only
 ENV DATABASES="postgres mysql redshift cassandra spanner cockroachdb clickhouse"
 ENV SOURCES="file go_bindata github aws_s3 google_cloud_storage"
 
-RUN go install -tags "$DATABASES $SOURCES" -ldflags="-X main.Version=${MIGRATE_VERSION}" ${MIGRATEPKG}/cli && mv /go/bin/cli /go/bin/migrate
+RUN go install -buildmode=pie -tags "$DATABASES $SOURCES" -ldflags="-w -s -linkmode=external -extldflags=-Wl,-z,relro,-z,now -X  main.Version=${MIGRATE_VERSION}" ${MIGRATEPKG}/cli && mv /go/bin/cli /go/bin/migrate
 
