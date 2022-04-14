@@ -1,6 +1,6 @@
 ARG harbor_base_image_version
 ARG harbor_base_namespace
-FROM ${harbor_base_namespace}/harbor-registry-base:${harbor_base_image_version}
+FROM harbor-b.alauda.cn/devops/harbor-registry-base:${harbor_base_image_version}
 
 COPY ./make/photon/common/install_cert.sh /home/harbor
 COPY ./make/photon/registry/entrypoint.sh /home/harbor
@@ -18,3 +18,4 @@ USER harbor
 ENTRYPOINT ["/home/harbor/entrypoint.sh"]
 
 VOLUME ["/storage"]
+EXPOSE 5000

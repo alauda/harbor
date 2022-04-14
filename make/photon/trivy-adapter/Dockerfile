@@ -1,6 +1,6 @@
 ARG harbor_base_image_version
 ARG harbor_base_namespace
-FROM ${harbor_base_namespace}/harbor-trivy-adapter-base:${harbor_base_image_version}
+FROM harbor-b.alauda.cn/devops/harbor-trivy-adapter-base:${harbor_base_image_version}
 
 ARG trivy_version
 
@@ -15,6 +15,8 @@ RUN chown -R scanner:scanner /etc/pki/tls/certs \
     && chown scanner:scanner /usr/local/bin/trivy && chmod u+x /usr/local/bin/trivy \
     && chown scanner:scanner /home/scanner/bin/scanner-trivy && chmod u+x /home/scanner/bin/scanner-trivy \
     && chown scanner:scanner /home/scanner/install_cert.sh && chmod u+x /home/scanner/install_cert.sh
+
+EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl --fail -s http://127.0.0.1:8080/probe/healthy || curl -k --fail -s https://127.0.0.1:8443/probe/healthy || exit 1
 

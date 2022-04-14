@@ -1,6 +1,6 @@
 ARG harbor_base_image_version
 ARG harbor_base_namespace
-FROM ${harbor_base_namespace}/harbor-db-base:${harbor_base_image_version}
+FROM harbor-b.alauda.cn/devops/harbor-db-base:${harbor_base_image_version}
 
 VOLUME /var/lib/postgresql/data
 
@@ -15,4 +15,5 @@ RUN chown -R postgres:postgres /docker-entrypoint.sh /docker-healthcheck.sh /doc
 ENTRYPOINT ["/docker-entrypoint.sh"]
 HEALTHCHECK CMD ["/docker-healthcheck.sh"]
 
+EXPOSE 5432
 USER postgres
