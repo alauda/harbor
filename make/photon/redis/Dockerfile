@@ -1,6 +1,6 @@
 ARG harbor_base_image_version
 ARG harbor_base_namespace
-FROM harbor-b.alauda.cn/devops/harbor-redis-base:${harbor_base_image_version}
+FROM build-harbor.alauda.cn/devops/harbor-redis-base:${harbor_base_image_version}
 
 VOLUME /var/lib/redis
 WORKDIR /var/lib/redis

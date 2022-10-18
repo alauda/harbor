@@ -2,7 +2,7 @@
 
 set -e
 
-function change_base_image(){
+change_base_image() {
     for file in `ls $1`
     do
         if [ -d $1"/"$file ]

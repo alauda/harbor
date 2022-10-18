@@ -1,5 +1,4 @@
 # Makefile for Harbor project
-COMPILEBUILDPATH=/go/src
 # Targets:
 #
 # all:			prepare env, compile binaries, build images and install images
@@ -131,7 +130,7 @@ endef
 
 # docker parameters
 DOCKERCMD=$(shell which docker)
-DOCKERBUILD=$(DOCKERCMD) build --network=host
+DOCKERBUILD=$(DOCKERCMD) build
 DOCKERRMIMAGE=$(DOCKERCMD) rmi
 DOCKERPULL=$(DOCKERCMD) pull
 DOCKERIMASES=$(DOCKERCMD) images
@@ -147,7 +146,7 @@ GOINSTALL=$(GOCMD) install
 GOTEST=$(GOCMD) test
 GODEP=$(GOTEST) -i
 GOFMT=gofmt -w
-GOBUILDIMAGE=harbor-b.alauda.cn/devops/golang:1.15-custom
+GOBUILDIMAGE=build-harbor.alauda.cn/devops/golang:1.15-custom
 GOBUILDPATHINCONTAINER=/harbor
 
 # go build
@@ -217,14 +216,14 @@ MAKEFILEPATH_PHOTON=$(MAKEPATH)/photon
 DOCKERFILEPATH_COMMON=$(MAKEPATH)/common
 
 # docker image name
-DOCKER_IMAGE_NAME_PREPARE=harbor-b.alauda.cn/devops/goharbor-prepare
-DOCKERIMAGENAME_PORTAL=harbor-b.alauda.cn/devops/goharbor-harbor-portal
-DOCKERIMAGENAME_CORE=harbor-b.alauda.cn/devops/goharbor-harbor-core
-DOCKERIMAGENAME_JOBSERVICE=harbor-b.alauda.cn/devops/goharbor-harbor-jobservice
-DOCKERIMAGENAME_LOG=harbor-b.alauda.cn/devops/goharbor-harbor-log
-DOCKERIMAGENAME_DB=harbor-b.alauda.cn/devops/goharbor-harbor-db
-DOCKERIMAGENAME_CHART_SERVER=harbor-b.alauda.cn/devops/goharbor-chartmuseum-photon
-DOCKERIMAGENAME_REGCTL=harbor-b.alauda.cn/devops/goharbor-harbor-registryctl
+DOCKER_IMAGE_NAME_PREPARE=build-harbor.alauda.cn/devops/goharbor-prepare
+DOCKERIMAGENAME_PORTAL=build-harbor.alauda.cn/devops/goharbor-harbor-portal
+DOCKERIMAGENAME_CORE=build-harbor.alauda.cn/devops/goharbor-harbor-core
+DOCKERIMAGENAME_JOBSERVICE=build-harbor.alauda.cn/devops/goharbor-harbor-jobservice
+DOCKERIMAGENAME_LOG=build-harbor.alauda.cn/devops/goharbor-harbor-log
+DOCKERIMAGENAME_DB=build-harbor.alauda.cn/devops/goharbor-harbor-db
+DOCKERIMAGENAME_CHART_SERVER=build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon
+DOCKERIMAGENAME_REGCTL=build-harbor.alauda.cn/devops/goharbor-harbor-registryctl
 
 # docker-compose files
 DOCKERCOMPOSEFILEPATH=$(MAKEPATH)
@@ -297,10 +296,10 @@ ifeq ($(CHARTFLAG), true)
 	DOCKERSAVE_PARA+= $(DOCKERIMAGENAME_CHART_SERVER):$(VERSIONTAG)
 endif
 
-SWAGGER_IMAGENAME=harbor-b.alauda.cn/devops/goharbor-swagger
+SWAGGER_IMAGENAME=build-harbor.alauda.cn/devops/goharbor-swagger
 SWAGGER_VERSION=v0.21.0
-SWAGGER=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(COMPILEBUILDPATH):$(COMPILEBUILDPATH) -w $(COMPILEBUILDPATH) ${SWAGGER_IMAGENAME}:${SWAGGER_VERSION}
-SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(COMPILEBUILDPATH)/tools/swagger/templates --exclude-main
+SWAGGER=$(DOCKERCMD) run --rm -u $(shell id -u):$(shell id -g) -v $(BUILDPATH):$(BUILDPATH) -w $(BUILDPATH) ${SWAGGER_IMAGENAME}:${SWAGGER_VERSION}
+SWAGGER_GENERATE_SERVER=${SWAGGER} generate server --template-dir=$(TOOLSPATH)/swagger/templates --exclude-main
 SWAAGER_IMAGE_BUILD_CMD=${DOCKERBUILD} -f ${TOOLSPATH}/swagger/Dockerfile --build-arg SWAGGER_VERSION=${SWAGGER_VERSION} -t ${SWAGGER_IMAGENAME}:$(SWAGGER_VERSION) .
 
 SWAGGER_IMAGENAME:
@@ -331,22 +330,22 @@ check_environment:
 compile_core: gen_apis
 	@echo "compiling binary for core (golang image)..."
 	@echo $(GOBUILDPATHINCONTAINER)
-	@$(DOCKERCMD) run --rm -v $(COMPILEBUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_CORE) $(GOBUILDIMAGE) $(GOIMAGEBUILD_CORE) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_CORE)/$(CORE_BINARYNAME)
+	@$(DOCKERCMD) run --rm -v $(BUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_CORE) $(GOBUILDIMAGE) $(GOIMAGEBUILD_CORE) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_CORE)/$(CORE_BINARYNAME)
 	@echo "Done."
 
 compile_jobservice:
 	@echo "compiling binary for jobservice (golang image)..."
-	@$(DOCKERCMD) run --rm -v $(COMPILEBUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_JOBSERVICE) $(GOBUILDIMAGE) $(GOIMAGEBUILD_COMMON) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_JOBSERVICE)/$(JOBSERVICEBINARYNAME)
+	@$(DOCKERCMD) run --rm -v $(BUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_JOBSERVICE) $(GOBUILDIMAGE) $(GOIMAGEBUILD_COMMON) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_JOBSERVICE)/$(JOBSERVICEBINARYNAME)
 	@echo "Done."
 
 compile_registryctl:
 	@echo "compiling binary for harbor registry controller (golang image)..."
-	@$(DOCKERCMD) run --rm -v $(COMPILEBUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_REGISTRYCTL) $(GOBUILDIMAGE) $(GOIMAGEBUILD_COMMON) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_REGISTRYCTL)/$(REGISTRYCTLBINARYNAME)
+	@$(DOCKERCMD) run --rm -v $(BUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_REGISTRYCTL) $(GOBUILDIMAGE) $(GOIMAGEBUILD_COMMON) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_REGISTRYCTL)/$(REGISTRYCTLBINARYNAME)
 	@echo "Done."
 
 compile_notary_migrate_patch:
 	@echo "compiling binary for migrate patch (golang image)..."
-	@$(DOCKERCMD) run --rm -v $(COMPILEBUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_MIGRATEPATCH) $(GOBUILDIMAGE) $(GOIMAGEBUILD_COMMON) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_NOTARY)/$(MIGRATEPATCHBINARYNAME)
+	@$(DOCKERCMD) run --rm -v $(BUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_MIGRATEPATCH) $(GOBUILDIMAGE) $(GOIMAGEBUILD_COMMON) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_NOTARY)/$(MIGRATEPATCHBINARYNAME)
 	@echo "Done."
 
 compile: versions_prepare compile_core compile_jobservice compile_registryctl compile_notary_migrate_patch
@@ -380,14 +379,14 @@ build:
 build_base_docker:
 	@for name in chartserver clair clair-adapter trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl; do \
 		echo $$name ; \
-		$(DOCKERBUILD)  -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) . && \
-		docker push harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) || exit 1; \
+		$(DOCKERBUILD)  -f $(MAKEFILEPATH_PHOTON)/$$name/Dockerfile.base -t build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) . && \
+		docker push build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) || exit 1; \
 	done
 
 pull_base_docker:
 	@for name in chartserver clair clair-adapter trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl; do \
 		echo $$name ; \
-		$(DOCKERPULL) harbor-b.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) ; \
+		$(DOCKERPULL) build-harbor.alauda.cn/devops/harbor-$$name-base:$(BASEIMAGETAG) ; \
 	done
 
 install: compile build prepare start

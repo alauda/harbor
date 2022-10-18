@@ -28,7 +28,7 @@ RUN npm install --unsafe-perm
 RUN npm run generate-build-timestamp
 RUN node --max_old_space_size=2048 'node_modules/@angular/cli/bin/ng' build --prod
 
-FROM harbor-b.alauda.cn/devops/harbor-portal-base:${harbor_base_image_version}
+FROM build-harbor.alauda.cn/devops/harbor-portal-base:${harbor_base_image_version}
 
 COPY --from=nodeportal /build_dir/dist /usr/share/nginx/html
 COPY --from=nodeportal /build_dir/swagger.yaml /usr/share/nginx/html

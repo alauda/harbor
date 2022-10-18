@@ -1,4 +1,4 @@
-FROM harbor-b.alauda.cn/devops/golang:1.15-custom
+FROM build-harbor.alauda.cn/devops/golang:1.15-custom
 
 ARG NOTARY_VERSION
 ARG MIGRATE_VERSION

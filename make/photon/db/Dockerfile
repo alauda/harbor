@@ -1,6 +1,6 @@
 ARG harbor_base_image_version
 ARG harbor_base_namespace
-FROM harbor-b.alauda.cn/devops/harbor-db-base:${harbor_base_image_version}
+FROM build-harbor.alauda.cn/devops/harbor-db-base:${harbor_base_image_version}
 
 VOLUME /var/lib/postgresql/data
 

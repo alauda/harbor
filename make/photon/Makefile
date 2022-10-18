@@ -17,7 +17,7 @@ CURL=$(shell which curl)
 
 # docker parameters
 DOCKERCMD=$(shell which docker)
-DOCKERBUILD=$(DOCKERCMD) build --network=host
+DOCKERBUILD=$(DOCKERCMD) build
 DOCKERRMIMAGE=$(DOCKERCMD) rmi
 DOCKERIMASES=$(DOCKERCMD) images
 BASEIMAGENAMESPACE=goharbor
@@ -33,67 +33,67 @@ DOCKERFILEPATH=$(MAKEPATH)/photon
 
 DOCKERFILEPATH_PREPARE=$(DOCKERFILEPATH)/prepare
 DOCKERFILENAME_PREPARE=Dockerfile
-DOCKERIMAGENAME_PREPARE=harbor-b.alauda.cn/devops/goharbor-prepare
+DOCKERIMAGENAME_PREPARE=build-harbor.alauda.cn/devops/goharbor-prepare
 
 DOCKERFILEPATH_PORTAL=$(DOCKERFILEPATH)/portal
 DOCKERFILENAME_PORTAL=Dockerfile
-DOCKERIMAGENAME_PORTAL=harbor-b.alauda.cn/devops/goharbor-harbor-portal
+DOCKERIMAGENAME_PORTAL=build-harbor.alauda.cn/devops/goharbor-harbor-portal
 
 DOCKERFILEPATH_CORE=$(DOCKERFILEPATH)/core
 DOCKERFILENAME_CORE=Dockerfile
-DOCKERIMAGENAME_CORE=harbor-b.alauda.cn/devops/goharbor-harbor-core
+DOCKERIMAGENAME_CORE=build-harbor.alauda.cn/devops/goharbor-harbor-core
 
 DOCKERFILEPATH_JOBSERVICE=$(DOCKERFILEPATH)/jobservice
 DOCKERFILENAME_JOBSERVICE=Dockerfile
-DOCKERIMAGENAME_JOBSERVICE=harbor-b.alauda.cn/devops/goharbor-harbor-jobservice
+DOCKERIMAGENAME_JOBSERVICE=build-harbor.alauda.cn/devops/goharbor-harbor-jobservice
 
 DOCKERFILEPATH_LOG=$(DOCKERFILEPATH)/log
 DOCKERFILENAME_LOG=Dockerfile
-DOCKERIMAGENAME_LOG=harbor-b.alauda.cn/devops/goharbor-harbor-log
+DOCKERIMAGENAME_LOG=build-harbor.alauda.cn/devops/goharbor-harbor-log
 
 DOCKERFILEPATH_DB=$(DOCKERFILEPATH)/db
 DOCKERFILENAME_DB=Dockerfile
-DOCKERIMAGENAME_DB=harbor-b.alauda.cn/devops/goharbor-harbor-db
+DOCKERIMAGENAME_DB=build-harbor.alauda.cn/devops/goharbor-harbor-db
 
 DOCKERFILEPATH_POSTGRESQL=$(DOCKERFILEPATH)/postgresql
 DOCKERFILENAME_POSTGRESQL=Dockerfile
-DOCKERIMAGENAME_POSTGRESQL=harbor-b.alauda.cn/devops/goharbor-postgresql-photon
+DOCKERIMAGENAME_POSTGRESQL=build-harbor.alauda.cn/devops/goharbor-postgresql-photon
 
 DOCKERFILEPATH_CLAIR=$(DOCKERFILEPATH)/clair
 DOCKERFILENAME_CLAIR=Dockerfile
-DOCKERIMAGENAME_CLAIR=harbor-b.alauda.cn/devops/goharbor-clair-photon
+DOCKERIMAGENAME_CLAIR=build-harbor.alauda.cn/devops/goharbor-clair-photon
 
 DOCKERFILEPATH_CLAIR_ADAPTER=$(DOCKERFILEPATH)/clair-adapter
 DOCKERFILENAME_CLAIR_ADAPTER=Dockerfile
-DOCKERIMAGENAME_CLAIR_ADAPTER=harbor-b.alauda.cn/devops/goharbor-clair-adapter-photon
+DOCKERIMAGENAME_CLAIR_ADAPTER=build-harbor.alauda.cn/devops/goharbor-clair-adapter-photon
 
 DOCKERFILEPATH_TRIVY_ADAPTER=$(DOCKERFILEPATH)/trivy-adapter
 DOCKERFILENAME_TRIVY_ADAPTER=Dockerfile
-DOCKERIMAGENAME_TRIVY_ADAPTER=harbor-b.alauda.cn/devops/goharbor-trivy-adapter-photon
+DOCKERIMAGENAME_TRIVY_ADAPTER=build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon
 
 DOCKERFILEPATH_NGINX=$(DOCKERFILEPATH)/nginx
 DOCKERFILENAME_NGINX=Dockerfile
-DOCKERIMAGENAME_NGINX=harbor-b.alauda.cn/devops/goharbor-nginx-photon
+DOCKERIMAGENAME_NGINX=build-harbor.alauda.cn/devops/goharbor-nginx-photon
 
 DOCKERFILEPATH_REG=$(DOCKERFILEPATH)/registry
 DOCKERFILENAME_REG=Dockerfile
-DOCKERIMAGENAME_REG=harbor-b.alauda.cn/devops/goharbor-registry-photon
+DOCKERIMAGENAME_REG=build-harbor.alauda.cn/devops/goharbor-registry-photon
 
 DOCKERFILEPATH_REGISTRYCTL=$(DOCKERFILEPATH)/registryctl
 DOCKERFILENAME_REGISTRYCTL=Dockerfile
-DOCKERIMAGENAME_REGISTRYCTL=harbor-b.alauda.cn/devops/goharbor-harbor-registryctl
+DOCKERIMAGENAME_REGISTRYCTL=build-harbor.alauda.cn/devops/goharbor-harbor-registryctl
 
 DOCKERFILEPATH_NOTARY=$(DOCKERFILEPATH)/notary
 DOCKERFILEPATH_NOTARYSERVER=$(DOCKERFILEPATH)/notary-server
 DOCKERFILENAME_NOTARYSIGNER=Dockerfile
-DOCKERIMAGENAME_NOTARYSIGNER=harbor-b.alauda.cn/devops/goharbor-notary-signer-photon
+DOCKERIMAGENAME_NOTARYSIGNER=build-harbor.alauda.cn/devops/goharbor-notary-signer-photon
 DOCKERFILEPATH_NOTARYSIGNER=$(DOCKERFILEPATH)/notary-signer
 DOCKERFILENAME_NOTARYSERVER=Dockerfile
-DOCKERIMAGENAME_NOTARYSERVER=harbor-b.alauda.cn/devops/goharbor-notary-server-photon
+DOCKERIMAGENAME_NOTARYSERVER=build-harbor.alauda.cn/devops/goharbor-notary-server-photon
 
 DOCKERFILEPATH_REDIS=$(DOCKERFILEPATH)/redis
 DOCKERFILENAME_REDIS=Dockerfile
-DOCKERIMAGENAME_REDIS=harbor-b.alauda.cn/devops/goharbor-redis-photon
+DOCKERIMAGENAME_REDIS=build-harbor.alauda.cn/devops/goharbor-redis-photon
 
 # for chart server (chartmuseum)
 DOCKERFILEPATH_CHART_SERVER=$(DOCKERFILEPATH)/chartserver

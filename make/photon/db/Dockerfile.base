@@ -1,4 +1,4 @@
-FROM harbor-b.alauda.cn/devops/toolbox:1.0 AS toolbox
+FROM build-harbor.alauda.cn/devops/toolbox:1.0 AS toolbox
 
 RUN wget https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-2.1.27/cyrus-sasl-2.1.27.tar.gz \
     && tar -xf cyrus-sasl-2.1.27.tar.gz && cd cyrus-sasl-2.1.27 \
@@ -8,7 +8,7 @@ RUN wget https://www.lua.org/ftp/lua-5.4.3.tar.gz \
     && tar -xf lua-5.4.3.tar.gz && cd lua-5.4.3 \
     && make && make INSTALL_TOP=/opt/lua install && cd ..
 
-FROM harbor-b.alauda.cn/ops/photon:3.0 AS source
+FROM build-harbor.alauda.cn/ops/photon:3.0 AS source
 
 ENV PGDATA /var/lib/postgresql/data
 ENV PATH /opt/ncurses/bin:/opt/curl/bin:/opt/openssl/bin:/opt/bash/bin:$PATH
