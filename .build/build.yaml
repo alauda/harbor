@@ -46,10 +46,11 @@ spec:
           value: $(tasks.generate-version.results.commit-short-id)
         - name: container-images
           value:
-            - build-harbor.alauda.cn/devops
+            - build-harbor.alauda.cn/devops/docker:19-dind
       taskSpec:
         metadata:
-          katanomi.dev/class.ociContainerImageBuild: "true"
+          annotations:
+            katanomi.dev/class.ociContainerImageBuild: "true"
         params:
           - name: version
             description: harbor version
@@ -62,13 +63,12 @@ spec:
           - name: dind-certs
             emptyDir: {}
         sidecars:
-          - image: build-harbor.alauda.cn/devops/docker:19-dind
+          - image: registry.alauda.cn:60080/devops/docker:19-dind
             name: docker-daemon
             args:
               - --storage-driver=vfs
               - --userland-proxy=false
               - --debug
-              - --insecure-registry=registry.alauda.cn:60080
             securityContext:
               privileged: true
             env:
@@ -83,7 +83,7 @@ spec:
                 command: [ 'ls', '/certs/client/ca.pem' ]
         steps:
           - name: build-amd64
-            image: build-harbor.alauda.cn/devops/builder-tools:ubuntu-v3.8.1
+            image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
             imagePullPolicy: IfNotPresent
             workingDir: $(workspaces.source.path)
             env:
@@ -93,8 +93,6 @@ spec:
                 value: '1'
               - name: DOCKER_CERT_PATH
                 value: /certs/client
-              - name: DOCKER_OPTS
-                value: "--insecure-registry=registry.alauda.cn:60080"
             volumeMounts:
               - mountPath: /certs/client
                 name: dind-certs
@@ -114,7 +112,7 @@ spec:
               make build
 
           - name: build-arm64
-            image: build-harbor.alauda.cn/devops/builder-tools:ubuntu-v3.8.1
+            image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
             imagePullPolicy: IfNotPresent
             workingDir: $(workspaces.source.path)
             env:

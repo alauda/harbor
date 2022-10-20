@@ -22,10 +22,10 @@ change_base_image () {
 change_base_image "make/photon"
 
 # swagger
-sed -i 's/--template-dir=$(TOOLSPATH)/--template-dir=$(COMPILEBUILDPATH)\/tools/g' "Makefile"
-sed -i 's/-v $(BUILDPATH):$(BUILDPATH) -w $(BUILDPATH)/-v $(COMPILEBUILDPATH):$(COMPILEBUILDPATH) -w $(COMPILEBUILDPATH)/g' "Makefile"
-sed -i 's/-v $(BUILDPATH):$(GOBUILDPATHINCONTAINER)/-v $(COMPILEBUILDPATH):$(GOBUILDPATHINCONTAINER)/g' "Makefile"
-sed -i '1 a COMPILEBUILDPATH=/harbor-builder' "Makefile"
+#sed -i 's/--template-dir=$(TOOLSPATH)/--template-dir=$(COMPILEBUILDPATH)\/tools/g' "Makefile"
+#sed -i 's/-v $(BUILDPATH):$(BUILDPATH) -w $(BUILDPATH)/-v $(COMPILEBUILDPATH):$(COMPILEBUILDPATH) -w $(COMPILEBUILDPATH)/g' "Makefile"
+#sed -i 's/-v $(BUILDPATH):$(GOBUILDPATHINCONTAINER)/-v $(COMPILEBUILDPATH):$(GOBUILDPATHINCONTAINER)/g' "Makefile"
+#sed -i '1 a COMPILEBUILDPATH=/harbor-builder' "Makefile"
 sed -i 's/registry.npmjs.org/build-nexus.alauda.cn\/repository\/npm\//g' "Makefile"
 sed -i 's/BUILDBIN=false/BUILDBIN=true/g' "Makefile"
 #sed -i 's/PUSHBASEIMAGE=false/PUSHBASEIMAGE=true/g' "Makefile"
