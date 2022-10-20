@@ -39,6 +39,8 @@ spec:
       workspaces:
         - name: source
           workspace: source
+        - name: cache
+          workspace: cache
       params:
         - name: version
           value: 2.2.3
@@ -108,6 +110,7 @@ spec:
               bash ./patch-amd64.sh
               
               make compile
+              sleep 20m
               make build_base_docker
               make build
 
@@ -143,6 +146,9 @@ spec:
         workspaces:
           - name: source
             workspace: source
+          - optional: true
+            name: cache
+            mountPath: /go/pkg
 
 
 

@@ -327,6 +327,9 @@ versions_prepare:
 check_environment:
 	@$(MAKEPATH)/$(CHECKENVCMD)
 
+test:
+	@echo "${SWAGGER_GENERATE_SERVER}"
+
 compile_core: gen_apis
 	@echo "compiling binary for core (golang image)..."
 	@echo $(GOBUILDPATHINCONTAINER)
