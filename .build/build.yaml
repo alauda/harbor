@@ -71,6 +71,7 @@ spec:
           - name: docker-sock
             hostPath:
               path: /var/run/docker.sock
+              type: Socket
         steps:
           - name: build-amd64
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
