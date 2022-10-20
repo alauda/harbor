@@ -6,6 +6,9 @@ spec:
         This workspace is shared among all the pipeline tasks to read/write
         common resources
       name: source
+    - optional: true
+      name: cache
+      mountPath: /go/pkg
   tasks:
     - name: generate-version
       workspaces:
@@ -32,6 +35,9 @@ spec:
         workspaces:
           - name: source
             workspace: source
+          - name: cache
+            optional: true
+            workspace: cache
 
     - name: build-image
       runAfter:
@@ -146,9 +152,9 @@ spec:
         workspaces:
           - name: source
             workspace: source
-          - optional: true
-            name: cache
-            mountPath: /go/pkg
+          - name: cache
+            optional: true
+            workspace: cache
 
 
 
