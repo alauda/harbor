@@ -44,6 +44,9 @@ spec:
           value: 2.2.3
         - name: commit-short-id
           value: $(tasks.generate-version.results.commit-short-id)
+        - name: container-images
+          value:
+            - build-harbor.alauda.cn/devops
       taskSpec:
         metadata:
           katanomi.dev/class.ociContainerImageBuild: "true"
@@ -52,6 +55,9 @@ spec:
             description: harbor version
           - name: commit-short-id
             description: The precise commit short SHA that was fetched by this Task
+          - name: container-images
+            type: array
+            description: used for insert secret
         volumes:
           - name: dind-certs
             emptyDir: {}
