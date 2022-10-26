@@ -70,6 +70,6 @@ DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker run --rm --privileged 
 DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker run --rm --privileged build-harbor.alauda.cn/3rdparty/multiarch/qemu-user-static --reset -p yes
 
 docker context create builder-arm
-docker buildx create builder-arm --platform linux/arm64 --use
+docker buildx create builder-arm --driver-opt network=host --platform linux/arm64 --use
 
 

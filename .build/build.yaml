@@ -121,45 +121,43 @@ spec:
                 cpu: 4000m
                 memory: 8000Mi
         steps:
-          - name: build-amd64
-            image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
-            imagePullPolicy: IfNotPresent
-            workingDir: $(workspaces.source.path)
-            timeout: 120m
-            resources:
-              requests:
-                cpu: 1000m
-                memory: 2000Mi
-              limits:
-                cpu: 2000m
-                memory: 4000Mi
-            env:
-              - name: DOCKER_HOST
-                value: tcp://localhost:2376
-              - name: DOCKER_TLS_VERIFY
-                value: '1'
-              - name: DOCKER_CERT_PATH
-                value: /certs/client
-            volumeMounts:
-              - mountPath: /certs/client
-                name: dind-certs
-            script: |
-              #!/bin/bash
-              set -ex
-              
-              git config --global --add safe.directory $(workspaces.source.path)
-                            
-              bash make/patches/patch-amd64.sh
-
-              BUILDPATH=$(workspaces.source.path)
-              VERSIONTAG=$(params.version)-amd64
-              BASEIMAGETAG=$(params.version)-amd64
-              BASEIMAGENAMESPACE=localhost:5000
-              
-              sleep 30m
-
-              BUILDPATH="$BUILDPATH" make compile
-              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
+#          - name: build-amd64
+#            image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
+#            imagePullPolicy: IfNotPresent
+#            workingDir: $(workspaces.source.path)
+#            timeout: 120m
+#            resources:
+#              requests:
+#                cpu: 1000m
+#                memory: 2000Mi
+#              limits:
+#                cpu: 2000m
+#                memory: 4000Mi
+#            env:
+#              - name: DOCKER_HOST
+#                value: tcp://localhost:2376
+#              - name: DOCKER_TLS_VERIFY
+#                value: '1'
+#              - name: DOCKER_CERT_PATH
+#                value: /certs/client
+#            volumeMounts:
+#              - mountPath: /certs/client
+#                name: dind-certs
+#            script: |
+#              #!/bin/bash
+#              set -ex
+#
+#              git config --global --add safe.directory $(workspaces.source.path)
+#
+#              bash make/patches/patch-amd64.sh
+#
+#              BUILDPATH=$(workspaces.source.path)
+#              VERSIONTAG=$(params.version)-amd64
+#              BASEIMAGETAG=$(params.version)-amd64
+#              BASEIMAGENAMESPACE=localhost:5000
+#
+#              BUILDPATH="$BUILDPATH" make compile
+#              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
 
           - name: build-arm64
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
