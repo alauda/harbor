@@ -155,6 +155,8 @@ spec:
               VERSIONTAG=$(params.version)-amd64
               BASEIMAGETAG=$(params.version)-amd64
               BASEIMAGENAMESPACE=localhost:5000
+              
+              sleep 30m
 
               BUILDPATH="$BUILDPATH" make compile
               BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
