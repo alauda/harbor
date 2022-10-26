@@ -377,7 +377,7 @@ compile_standalone_db_migrator:
 	@$(DOCKERCMD) run --rm -v $(BUILDPATH):$(GOBUILDPATHINCONTAINER) -w $(GOBUILDPATH_STANDALONE_DB_MIGRATOR) $(GOBUILDIMAGE) $(GOIMAGEBUILD_COMMON) -o $(GOBUILDPATHINCONTAINER)/$(GOBUILDMAKEPATH_STANDALONE_DB_MIGRATOR)/$(STANDALONE_DB_MIGRATOR_BINARYNAME)
 	@echo "Done."
 
-compile: check_environment versions_prepare compile_core compile_jobservice compile_registryctl compile_notary_migrate_patch
+compile: compile_core
 
 update_prepare_version:
 	@echo "substitute the prepare version tag in prepare file..."
