@@ -109,6 +109,17 @@ spec:
               periodSeconds: 1
               exec:
                 command: [ 'ls', '/certs/client/ca.pem' ]
+          - image: registry.alauda.cn:60080/test/registry:2.8.1
+            name: docker-registry
+            securityContext:
+              privileged: true
+            resources:
+              requests:
+                cpu: 1000m
+                memory: 2000Mi
+              limits:
+                cpu: 4000m
+                memory: 8000Mi
         steps:
           - name: build-amd64
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
@@ -143,7 +154,7 @@ spec:
               BUILDPATH=$(workspaces.source.path)
               VERSIONTAG=$(params.version)-amd64
               BASEIMAGETAG=$(params.version)-amd64
-              BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+              BASEIMAGENAMESPACE=localhost:5000
 
               BUILDPATH="$BUILDPATH" make compile
               BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
@@ -182,7 +193,7 @@ spec:
               BUILDPATH=$(workspaces.source.path)
               VERSIONTAG=$(params.version)-arm64
               BASEIMAGETAG=$(params.version)-arm64
-              BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+              BASEIMAGENAMESPACE=localhost:5000
 
               BUILDPATH="$BUILDPATH" make compile
               BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build

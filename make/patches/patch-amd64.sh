@@ -34,7 +34,7 @@ sed -i 's/PUSHBASEIMAGE=false/PUSHBASEIMAGE=true/g' "Makefile"
 sed -i 's/BASEIMAGENAMESPACE=goharbor/BASEIMAGENAMESPACE \?= goharbor/g' "Makefile"
 sed -i 's/TRIVYFLAG=false/TRIVYFLAG=true/g' "Makefile"
 sed -i 's/-e NPM_REGISTRY=$(NPM_REGISTRY)/-e NPM_REGISTRY=$(NPM_REGISTRY) -e NOTARYFLAG=true -e CHARTFLAG=true/g' "Makefile"
-sed -i 's/=goharbor\//=build-harbor.alauda.cn\/devops\/goharbor-/g' "Makefile"
+sed -i 's/=goharbor\//=localhost:5000\/goharbor-/g' "Makefile"
 #sed -i 's/VERSIONTAG=dev/VERSIONTAG=alauda-v2.2.3-${BUILD_NUMBER}-amd64/g' "Makefile"
 sed -i 's/VERSIONTAG=dev/VERSIONTAG \?= dev/g' "Makefile"
 #sed -i 's/BASEIMAGETAG=dev/BASEIMAGETAG=v2.2.3/g' "Makefile"
@@ -55,7 +55,7 @@ sed -i '1 a TRIVYFLAG=true' "make/photon/Makefile"
 
 sed -i 's/chartserver trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl exporter/chartserver trivy-adapter core db jobservice nginx notary-server notary-signer portal registry registryctl exporter/g' "Makefile"
 
-sed -i 's/=goharbor\//=build-harbor.alauda.cn\/devops\/goharbor-/g' "make/photon/Makefile"
+sed -i 's/=goharbor\//=localhost:5000\/goharbor-/g' "make/photon/Makefile"
 sed -i 's/BASEIMAGENAMESPACE=goharbor/BASEIMAGENAMESPACE \?= goharbor/g' "make/photon/Makefile"
 
 sed -i 's/golang:1.15.6/build-harbor.alauda.cn\/devops\/golang:1.15-ubuntu16.04/g' "tools/swagger/Dockerfile"
