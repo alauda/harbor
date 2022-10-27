@@ -9,7 +9,7 @@ change_base_image () {
             change_base_image $1"/"$file
         elif [[ $file == *Dockerfile* ]]
         then
-            sed -i 's/photon:2.0/build-harbor.alauda.cn\/test\/photon:4.0/' $1"/"$file
+            sed -i 's/photon:2.0/build-harbor.alauda.cn\/ops\/photon:4.0/' $1"/"$file
             sed -i 's/node:15.4.0/build-harbor.alauda.cn\/3rdparty\/node:15.4.0/' $1"/"$file
 
             echo $1"/"$file
@@ -34,7 +34,7 @@ sed -i 's/PUSHBASEIMAGE=false/PUSHBASEIMAGE=true/g' "Makefile"
 sed -i 's/BASEIMAGENAMESPACE=goharbor/BASEIMAGENAMESPACE \?= goharbor/g' "Makefile"
 sed -i 's/TRIVYFLAG=false/TRIVYFLAG=true/g' "Makefile"
 sed -i 's/-e NPM_REGISTRY=$(NPM_REGISTRY)/-e NPM_REGISTRY=$(NPM_REGISTRY) -e NOTARYFLAG=true -e CHARTFLAG=true/g' "Makefile"
-sed -i 's/=goharbor\//=localhost:5000\/goharbor-/g' "Makefile"
+sed -i 's/=goharbor\//=build-harbor.alauda.cn\/devops\/goharbor-/g' "Makefile"
 #sed -i 's/VERSIONTAG=dev/VERSIONTAG=alauda-v2.2.3-${BUILD_NUMBER}-amd64/g' "Makefile"
 sed -i 's/VERSIONTAG=dev/VERSIONTAG \?= dev/g' "Makefile"
 #sed -i 's/BASEIMAGETAG=dev/BASEIMAGETAG=v2.2.3/g' "Makefile"
@@ -50,12 +50,12 @@ sed -i 's/compile: check_environment versions_prepare compile_core compile_jobse
 echo "AMD64 after change the Makefile is "
 cat Makefile
 
-sed -i 's/build: _build_prepare _build_db _build_portal _build_core _build_jobservice _build_log _build_nginx _build_registry _build_registryctl _build_notary _build_trivy_adapter _build_redis _build_chart_server _compile_and_build_exporter/build: _build_db _build_portal _build_core _build_jobservice _build_nginx _build_registry _build_registryctl _build_notary _build_trivy_adapter _build_chart_server _compile_and_build_exporter/g' "make/photon/Makefile"
+sed -i 's/build: _build_prepare _build_db _build_portal _build_core _build_jobservice _build_log _build_nginx _build_registry _build_registryctl _build_notary _build_trivy_adapter _build_redis _build_chart_server _compile_and_build_exporter/build: _build_portal _build_core _build_jobservice _build_nginx _build_registry _build_registryctl _build_notary _build_trivy_adapter _build_chart_server _compile_and_build_exporter/g' "make/photon/Makefile"
 sed -i '1 a TRIVYFLAG=true' "make/photon/Makefile"
 
-sed -i 's/chartserver trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl exporter/chartserver trivy-adapter core db jobservice nginx notary-server notary-signer portal registry registryctl exporter/g' "Makefile"
+#sed -i 's/chartserver trivy-adapter core db jobservice log nginx notary-server notary-signer portal prepare redis registry registryctl exporter/chartserver trivy-adapter core db jobservice nginx notary-server notary-signer portal registry registryctl exporter/g' "Makefile"
 
-sed -i 's/=goharbor\//=localhost:5000\/goharbor-/g' "make/photon/Makefile"
+sed -i 's/=goharbor\//=build-harbor.alauda.cn\/devops\/goharbor-/g' "make/photon/Makefile"
 sed -i 's/BASEIMAGENAMESPACE=goharbor/BASEIMAGENAMESPACE \?= goharbor/g' "make/photon/Makefile"
 
 sed -i 's/golang:1.15.6/build-harbor.alauda.cn\/devops\/golang:1.15-ubuntu16.04/g' "tools/swagger/Dockerfile"

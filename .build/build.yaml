@@ -46,23 +46,9 @@ spec:
       params:
         - name: version
           value: 2.2.3-$(tasks.generate-version.results.commit-short-id)
-        - name: components
-          value:
-            - harbor-portal
-            - notary-server-photon
-            - notary-signer-photon
-            - harbor-registryctl
-            - registry-photon
-            - nginx-photon
-            - harbor-jobservice
-            - harbor-core
-            - harbor-db
-            - chartmuseum-photon
-            - trivy-adapter-photon
-            - harbor-exporter
         - name: container-images
           value:
-            - build-harbor.alauda.cn/devops/docker:19-dind
+            - build-harbor.alauda.cn/devops/builder-tools:ubuntu-v3.8.1
       taskSpec:
         metadata:
           annotations:
@@ -70,9 +56,6 @@ spec:
         params:
           - name: version
             description: harbor version
-          - name: components
-            type: array
-            description: harbor components list
           - name: container-images
             type: array
             description: used for insert secret
@@ -80,7 +63,7 @@ spec:
           - name: dind-certs
             emptyDir: {}
         sidecars:
-          - image: registry.alauda.cn:60080/devops/docker:19-dind
+          - image: registry.alauda.cn:60080/test/docker:20-dind
             name: docker-daemon
             args:
               - --storage-driver=overlay2
@@ -91,8 +74,6 @@ spec:
             env:
               - name: DOCKER_TLS_CERTDIR  # 将生成的证书写入与客户端共享的路径
                 value: /certs
-              - name: DOCKER_OPTS
-                value: "--registry-mirror=https://docker.mirrors.ustc.edu.cn/"
             resources:
               requests:
                 cpu: 1000m
@@ -109,17 +90,6 @@ spec:
               periodSeconds: 1
               exec:
                 command: [ 'ls', '/certs/client/ca.pem' ]
-          - image: registry.alauda.cn:60080/test/registry:2.8.1
-            name: docker-registry
-            securityContext:
-              privileged: true
-            resources:
-              requests:
-                cpu: 1000m
-                memory: 2000Mi
-              limits:
-                cpu: 4000m
-                memory: 8000Mi
         steps:
           - name: build-amd64
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
@@ -154,7 +124,7 @@ spec:
               BUILDPATH=$(workspaces.source.path)
               VERSIONTAG=$(params.version)-amd64
               BASEIMAGETAG=$(params.version)-amd64
-              BASEIMAGENAMESPACE=localhost:5000
+              BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
 
               BUILDPATH="$BUILDPATH" make compile
               BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
@@ -190,13 +160,13 @@ spec:
 
               bash make/patches/patch-arm64.sh
 
-#              BUILDPATH=$(workspaces.source.path)
-#              VERSIONTAG=$(params.version)-arm64
-#              BASEIMAGETAG=$(params.version)-arm64
-#              BASEIMAGENAMESPACE=localhost:5000
-#
-#              BUILDPATH="$BUILDPATH" make compile
-#              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
+              BUILDPATH=$(workspaces.source.path)
+              VERSIONTAG=$(params.version)-arm64
+              BASEIMAGETAG=$(params.version)-arm64
+              BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+
+              BUILDPATH="$BUILDPATH" make compile
+              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
 
           - name: build-manifests
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1

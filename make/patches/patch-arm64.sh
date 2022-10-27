@@ -19,7 +19,7 @@ change_base_image "make/photon"
 
 sed -i 's/$(DOCKERBUILD) -f/docker buildx build --platform linux\/arm64 --output=type=docker -f/g' "make/photon/Makefile"
 
-sed -i 's/$(DOCKERCMD) build/$(DOCKERCMD) buildx build --platform linux\/arm64 --progress plain --output=type=image/' "make/photon/Makefile"
+sed -i 's/$(DOCKERCMD) build/$(DOCKERCMD) buildx build --platform linux\/arm64 --progress plain --output=type=registry/' "make/photon/Makefile"
 echo "ARM64 after change  make/photon/Makefile is "
 cat make/photon/Makefile
 
@@ -27,7 +27,7 @@ cat make/photon/Makefile
 
 sed -i 's/--rm/--rm --env CGO_ENABLED=0 --env GOOS=linux --env GOARCH=arm64/g' "Makefile"
 # build base
-sed -i 's/$(DOCKERBUILD)/docker buildx build --platform linux\/arm64 --progress plain --output=type=image/g' "Makefile"
+sed -i 's/$(DOCKERBUILD)/docker buildx build --platform linux\/arm64 --progress plain --output=type=registry/g' "Makefile"
 sed -i 's/docker push/echo /g' "Makefile"
 echo "ARM64 after change Makefile is "
 cat Makefile

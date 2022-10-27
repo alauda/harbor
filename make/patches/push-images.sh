@@ -6,14 +6,12 @@ set -e
 
 docker image ls
 
-components=(harbor-portal notary-server-photon notary-signer-photon harbor-registryctl registry-photon nginx-photon harbor-jobservice harbor-core harbor-db chartmuseum-photon trivy-adapter-photon harbor-exporter)
+components=(harbor-portal notary-server-photon notary-signer-photon harbor-registryctl registry-photon nginx-photon harbor-jobservice harbor-core chartmuseum-photon trivy-adapter-photon harbor-exporter)
 
 for arg in "${components[@]}"; do
-  image="goharbor-${arg}:${VERSIONTAG}"
-  local="localhost:5000/${image}"
-  remote="build-harbor.alauda.cn/devops/${image}"
-  docker push "${local}-amd64"
-  docker push "${local}-arm64"
-  docker manifest create "${remote}" --amend "${local}-amd64" --amend "${local}-arm64"
-  docker manifest push "${remote}"
+  image="build-harbor.alauda.cn/devops/goharbor-${arg}:${VERSIONTAG}"
+  # only for amd64, arm has pushed when buildx build --type=registry
+  docker push "${image}-amd64"
+  docker manifest create "${image}" --amend "${image}-amd64" --amend "${image}-arm64"
+  docker manifest push "${image}"
 done
