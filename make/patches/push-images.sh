@@ -4,6 +4,8 @@ set -e
 
 # create manifest for harbor image
 
+docker image ls
+
 components=(harbor-portal notary-server-photon notary-signer-photon harbor-registryctl registry-photon nginx-photon harbor-jobservice harbor-core harbor-db chartmuseum-photon trivy-adapter-photon harbor-exporter)
 
 for arg in "${components[@]}"; do

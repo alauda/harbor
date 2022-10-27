@@ -150,14 +150,14 @@ spec:
               git config --global --add safe.directory $(workspaces.source.path)
 
               bash make/patches/patch-amd64.sh
-#
-#              BUILDPATH=$(workspaces.source.path)
-#              VERSIONTAG=$(params.version)-amd64
-#              BASEIMAGETAG=$(params.version)-amd64
-#              BASEIMAGENAMESPACE=localhost:5000
-#
-#              BUILDPATH="$BUILDPATH" make compile
-#              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
+
+              BUILDPATH=$(workspaces.source.path)
+              VERSIONTAG=$(params.version)-amd64
+              BASEIMAGETAG=$(params.version)-amd64
+              BASEIMAGENAMESPACE=localhost:5000
+
+              BUILDPATH="$BUILDPATH" make compile
+              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
 
           - name: build-arm64
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
@@ -190,13 +190,13 @@ spec:
 
               bash make/patches/patch-arm64.sh
 
-              BUILDPATH=$(workspaces.source.path)
-              VERSIONTAG=$(params.version)-arm64
-              BASEIMAGETAG=$(params.version)-arm64
-              BASEIMAGENAMESPACE=localhost:5000
-
-              BUILDPATH="$BUILDPATH" make compile
-              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
+#              BUILDPATH=$(workspaces.source.path)
+#              VERSIONTAG=$(params.version)-arm64
+#              BASEIMAGETAG=$(params.version)-arm64
+#              BASEIMAGENAMESPACE=localhost:5000
+#
+#              BUILDPATH="$BUILDPATH" make compile
+#              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
 
           - name: build-manifests
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
