@@ -13,6 +13,10 @@ RUN chown -R harbor:harbor /etc/pki/tls/certs \
     && chmod u+x /harbor/install_cert.sh \
     && chmod u+x /harbor/harbor_jobservice
 
+# remove sniff tools
+RUN set +e; \
+    ls -d /usr/bin/* | grep -E "cpp|readelf|gcc|nc|netcat" | xargs rm
+    
 WORKDIR /harbor/
 
 USER harbor

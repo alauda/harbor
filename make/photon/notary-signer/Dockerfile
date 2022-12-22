@@ -9,5 +9,10 @@ COPY ./make/photon/notary/binary/migrations/ /migrations/
 
 RUN chmod +x /bin/notary-signer /migrations/migrate.sh /bin/migrate /bin/migrate-patch
 ENV SERVICE_NAME=notary_signer
+
+# remove sniff tools
+RUN set +e; \
+    ls -d /usr/bin/* | grep -E "cpp|readelf|gcc|nc|netcat" | xargs rm
+    
 USER notary
 CMD migrate-patch -database=${DB_URL} && /migrations/migrate.sh && /bin/notary-signer -config=/etc/notary/signer-config.postgres.json -logf=logfmt

@@ -13,6 +13,9 @@ RUN chown -R harbor:harbor /etc/pki/tls/certs \
     && chown harbor:harbor /home/harbor/start.sh && chmod u+x /home/harbor/start.sh \
     && chown harbor:harbor /home/harbor/install_cert.sh && chmod u+x /home/harbor/install_cert.sh
 
+# remove sniff tools
+RUN set +e; \
+    ls -d /usr/bin/* | grep -E "cpp|readelf|gcc|nc|netcat" | xargs rm
 
 HEALTHCHECK CMD curl --fail -s http://127.0.0.1:8080/api/health || curl -sk --fail --key /etc/harbor/ssl/registryctl.key --cert /etc/harbor/ssl/registryctl.crt https://127.0.0.1:8443/api/health || exit 1
 

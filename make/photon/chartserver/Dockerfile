@@ -12,6 +12,10 @@ RUN chown -R chart:chart /etc/pki/tls/certs \
     && chmod u+x /home/chart/docker-entrypoint.sh \
     && chmod u+x /home/chart/install_cert.sh
 
+# remove sniff tools
+RUN set +e; \
+    ls -d /usr/bin/* | grep -E "cpp|readelf|gcc|nc|netcat" | xargs rm
+    
 USER chart
 
 WORKDIR /home/chart

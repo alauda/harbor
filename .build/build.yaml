@@ -40,6 +40,7 @@ spec:
     - name: build-image
       runAfter:
         - generate-version
+      timeout: 120m
       workspaces:
         - name: source
           workspace: source
@@ -151,7 +152,7 @@ spec:
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
             imagePullPolicy: IfNotPresent
             workingDir: $(workspaces.source.path)
-            timeout: 60m
+            timeout: 120m
             resources:
               requests:
                 cpu: 1000m
@@ -184,7 +185,6 @@ spec:
 
               BUILDPATH="$BUILDPATH" make compile
               BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
-
         workspaces:
           - name: source
             workspace: source

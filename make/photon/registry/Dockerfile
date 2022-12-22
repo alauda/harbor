@@ -11,8 +11,11 @@ RUN chown -R harbor:harbor /etc/pki/tls/certs \
     && chown harbor:harbor /home/harbor/install_cert.sh && chmod u+x /home/harbor/install_cert.sh \
     && chown harbor:harbor /usr/bin/registry_DO_NOT_USE_GC && chmod u+x /usr/bin/registry_DO_NOT_USE_GC
 
-HEALTHCHECK CMD curl --fail -s http://127.0.0.1:5000 || curl -k --fail -s https://127.0.0.1:5443 || exit 1
+# remove sniff tools
+RUN set +e; \
+    ls -d /usr/bin/* | grep -E "cpp|readelf|gcc|nc|netcat" | xargs rm
 
+HEALTHCHECK CMD curl --fail -s http://127.0.0.1:5000 || curl -k --fail -s https://127.0.0.1:5443 || exit 1
 USER harbor
 
 ENTRYPOINT ["/home/harbor/entrypoint.sh"]

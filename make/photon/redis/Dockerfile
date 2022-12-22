@@ -9,6 +9,10 @@ COPY ./make/photon/redis/redis.conf /etc/redis.conf
 RUN chmod +x /usr/bin/docker-healthcheck \
     && chown redis:redis /etc/redis.conf
 
+# remove sniff tools
+RUN set +e; \
+    ls -d /usr/bin/* | grep -E "cpp|readelf|gcc|nc|netcat" | xargs rm
+    
 HEALTHCHECK CMD ["docker-healthcheck"]
 USER redis
 CMD ["redis-server", "/etc/redis.conf"]

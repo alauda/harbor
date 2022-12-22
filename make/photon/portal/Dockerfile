@@ -39,6 +39,11 @@ VOLUME /var/cache/nginx /var/log/nginx /run
 STOPSIGNAL SIGQUIT
 
 HEALTHCHECK CMD curl --fail -s http://127.0.0.1:8080 || curl -k --fail -s https://127.0.0.1:8443 || exit 1
+
+# remove sniff tools
+RUN set +e; \
+    ls -d /usr/bin/* | grep -E "cpp|readelf|gcc|nc|netcat" | xargs rm
+    
 USER nginx
 CMD ["nginx", "-g", "daemon off;"]
 
