@@ -1,4 +1,4 @@
-FROM photon:2.0
+FROM build-harbor.alauda.cn/ops/photon:4
 
 RUN groupadd -r -g 10000 nginx && useradd --no-log-init -r -g 10000 -u 10000 nginx \
     && tdnf install -y nginx shadow >> /dev/null \
