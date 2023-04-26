@@ -6,7 +6,7 @@ WORKDIR /build_dir
 
 ARG npm_registry=https://registry.npmjs.org
 
-RUN apt-get update \
+RUN echo "deb http://archive.debian.org/debian stretch main" > /etc/apt/sources.list && apt-get update \
     && apt-get install -y --no-install-recommends python-yaml=3.12-1
 
 COPY src/portal/package.json /build_dir

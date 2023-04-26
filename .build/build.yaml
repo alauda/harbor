@@ -79,6 +79,7 @@ spec:
               - --storage-driver=overlay2
               - --userland-proxy=false
               - --debug
+              - --registry-mirror=https://docker-mirrors.alauda.cn
             securityContext:
               privileged: true
             env:
