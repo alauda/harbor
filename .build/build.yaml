@@ -130,18 +130,23 @@ spec:
               set -ex
               git config --global --add safe.directory $(workspaces.source.path)
               bash make/patches/patch-amd64.sh
+              echo "=> ✅  patch script done."
+
               BUILDPATH=$(workspaces.source.path)
               VERSIONTAG=$(params.container-image-tag)-amd64
               BASEIMAGETAG=$(params.container-image-tag)-amd64
-              BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+              BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops              
               BUILDPATH="$BUILDPATH" make compile
+              echo "=> ✅  compile harbor done."
               BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
+              echo "=> ✅  build harbor done."
               
               for arg in "$@"; do
                 image="${arg}:$(params.container-image-tag)-amd64"
                 # only for amd64, arm has pushed when buildx build --type=registry
                 docker push "${image}"
               done
+              echo "=> ✅  push harbor image done."
           - name: build-arm64
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
             imagePullPolicy: IfNotPresent
@@ -169,12 +174,15 @@ spec:
               set -ex
               git config --global --add safe.directory $(workspaces.source.path)
               bash make/patches/patch-arm64.sh
+              echo "=> ✅  patch script done."
               BUILDPATH=$(workspaces.source.path)
               VERSIONTAG=$(params.container-image-tag)-arm64
               BASEIMAGETAG=$(params.container-image-tag)-arm64
               BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
               BUILDPATH="$BUILDPATH" make compile
+              echo "=> ✅  compile harbor done."
               BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
+              echo "=> ✅  build harbor done."
         workspaces:
           - name: source
             workspace: source
