@@ -127,11 +127,12 @@ spec:
               - $(params.container-images[*])
             script: |
               #!/bin/bash
-              set -ex
+              set -e
               git config --global --add safe.directory $(workspaces.source.path)
               bash make/patches/patch-amd64.sh
               echo "=> ✅  patch script done."
 
+              set -x
               BUILDPATH=$(workspaces.source.path)
               VERSIONTAG=$(params.container-image-tag)-amd64
               BASEIMAGETAG=$(params.container-image-tag)-amd64
