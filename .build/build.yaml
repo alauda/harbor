@@ -4,7 +4,8 @@ spec:
   runTemplate:
     spec:
       timeouts:
-        pipeline: 120m
+        pipeline: "3h"
+        tasks: "3h"
   workspaces:
     - description: >
         This workspace is shared among all the pipeline tasks to read/write
@@ -40,6 +41,7 @@ spec:
     - name: build-image
       runAfter:
         - generate-version
+      timeout: "2.5h"
       workspaces:
         - name: source
           workspace: source
@@ -134,6 +136,8 @@ spec:
 
               bash make/patches/patch-amd64.sh
 
+              /katanomi/bin/ktn-settings copy docker --always-match=true ~/.docker/config.json
+
               BUILDPATH=$(workspaces.source.path)
               VERSIONTAG=$(params.container-image-tag)-amd64
               BASEIMAGETAG=$(params.container-image-tag)-amd64
@@ -152,7 +156,6 @@ spec:
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
             imagePullPolicy: IfNotPresent
             workingDir: $(workspaces.source.path)
-            timeout: 60m
             resources:
               requests:
                 cpu: 1000m
@@ -177,6 +180,8 @@ spec:
               git config --global --add safe.directory $(workspaces.source.path)
 
               bash make/patches/patch-arm64.sh
+
+              /katanomi/bin/ktn-settings copy docker --always-match=true ~/.docker/config.json
 
               BUILDPATH=$(workspaces.source.path)
               VERSIONTAG=$(params.container-image-tag)-arm64
