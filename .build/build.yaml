@@ -4,7 +4,8 @@ spec:
   runTemplate:
     spec:
       timeouts:
-        pipeline: 120m
+        pipeline: 3h
+        tasks: 3h
   workspaces:
     - description: >
         This workspace is shared among all the pipeline tasks to read/write
@@ -38,6 +39,7 @@ spec:
             workspace: source
 
     - name: build-image
+      timeout: 2.5h
       runAfter:
         - generate-version
       workspaces:
@@ -79,6 +81,7 @@ spec:
               - --storage-driver=overlay2
               - --userland-proxy=false
               - --debug
+              - --registry-mirror=https://docker-mirrors.alauda.cn
             securityContext:
               privileged: true
             env:
@@ -105,7 +108,7 @@ spec:
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
             imagePullPolicy: IfNotPresent
             workingDir: $(workspaces.source.path)
-            timeout: 60m
+            timeout: 2.5h
             resources:
               requests:
                 cpu: 1000m
@@ -129,6 +132,7 @@ spec:
               #!/bin/bash
               set -e
               git config --global --add safe.directory $(workspaces.source.path)
+              /katanomi/bin/ktn-settings copy docker --always-match=true ~/.docker/config.json
               bash make/patches/patch-amd64.sh
               echo "=> ✅  patch script done."
 
@@ -136,10 +140,11 @@ spec:
               BUILDPATH=$(workspaces.source.path)
               VERSIONTAG=$(params.container-image-tag)-amd64
               BASEIMAGETAG=$(params.container-image-tag)-amd64
-              BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops              
+              BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+              IMAGENAMESPACE=build-harbor.alauda.cn/devops              
               BUILDPATH="$BUILDPATH" make compile
               echo "=> ✅  compile harbor done."
-              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
+              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" IMAGENAMESPACE="$IMAGENAMESPACE" make build
               echo "=> ✅  build harbor done."
               
               for arg in "$@"; do
@@ -152,7 +157,7 @@ spec:
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
             imagePullPolicy: IfNotPresent
             workingDir: $(workspaces.source.path)
-            timeout: 60m
+            timeout: 2.5h
             resources:
               requests:
                 cpu: 1000m
@@ -174,15 +179,17 @@ spec:
               #!/bin/bash
               set -ex
               git config --global --add safe.directory $(workspaces.source.path)
+              /katanomi/bin/ktn-settings copy docker --always-match=true ~/.docker/config.json
               bash make/patches/patch-arm64.sh
               echo "=> ✅  patch script done."
               BUILDPATH=$(workspaces.source.path)
               VERSIONTAG=$(params.container-image-tag)-arm64
               BASEIMAGETAG=$(params.container-image-tag)-arm64
               BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+              IMAGENAMESPACE=build-harbor.alauda.cn/devops
               BUILDPATH="$BUILDPATH" make compile
               echo "=> ✅  compile harbor done."
-              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" make build
+              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" IMAGENAMESPACE="$IMAGENAMESPACE" make build
               echo "=> ✅  build harbor done."
         workspaces:
           - name: source
