@@ -64,6 +64,9 @@ sed -i 's/$(IMAGENAMESPACE)\//$(IMAGENAMESPACE)\/goharbor-/g' "make/photon/Makef
 
 #sed -i 's/golang:1.15.6/build-harbor.alauda.cn\/devops\/golang:1.15-ubuntu16.04/g' "tools/swagger/Dockerfile"
 
+echo "change trivy download alauda url"
+sed -i 's#https://github.com/aquasecurity/trivy/releases/download/$(TRIVYVERSION)/trivy_$(TRIVYVERSION:v%=%)_Linux-64bit.tar.gz#https://build-nexus.alauda.cn/repository/alauda/devops/trivy/$(TRIVYVERSION)/trivy_$(TRIVYVERSION:v%=%)_amd64_c448c6ec.tar.gz#g' "Makefile"
+
 
 echo "AMD64 after change the make/photon/Makefile is "
 cat make/photon/Makefile

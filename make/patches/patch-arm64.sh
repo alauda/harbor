@@ -45,8 +45,8 @@ sed -i 's/\/go\/bin\/cli/\/go\/bin\/linux_arm64\/cli/g' "make/photon/notary/bina
 echo "ARM64 after change make/photon/notary/binary.Dockerfile is "
 cat make/photon/notary/binary.Dockerfile
 
-echo "ARM64 change trivy download url"
-sed -i 's/Linux-64bit/Linux-ARM64/g' "Makefile"
+echo "change trivy download alauda url"
+sed -i 's#https://github.com/aquasecurity/trivy/releases/download/$(TRIVYVERSION)/trivy_$(TRIVYVERSION:v%=%)_Linux-64bit.tar.gz#https://build-nexus.alauda.cn/repository/alauda/devops/trivy/$(TRIVYVERSION)/trivy_$(TRIVYVERSION:v%=%)_arm64_c448c6ec.tar.gz#g' "Makefile"
 
 # exporter build
 sed -i 's/GOARCH=amd64/GOARCH=arm64/g' "make/photon/exporter/Dockerfile"
