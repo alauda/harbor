@@ -6,6 +6,7 @@ spec:
       timeouts:
         pipeline: 3h
         tasks: 3h
+      taskRunSpecs: []
   workspaces:
     - description: |
         This workspace is shared among all the pipeline tasks to read/write common resources
@@ -216,3 +217,19 @@ spec:
             - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.id)-arm64
             - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.id)-amd64
             - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.id)-arm64
+    - name: sonar
+      timeout: 30m
+      retries: 0
+      taskRef:
+        kind: ClusterTask
+        name: sonarqube-analysis
+      workspaces:
+        - name: source
+          workspace: source
+      when: []
+      params:
+        - name: server
+          value: https://build-sonar.alauda.cn
+        - name: scan-flags
+          value:
+            - sonar.projectKey=comp_introduction
