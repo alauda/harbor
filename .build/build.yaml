@@ -240,6 +240,3 @@ spec:
       params:
         - name: server
           value: https://build-sonar.alauda.cn
-        - name: scan-flags
-          value:
-            - sonar.projectKey=comp_introduction
