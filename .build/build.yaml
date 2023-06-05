@@ -226,7 +226,11 @@ spec:
       workspaces:
         - name: source
           workspace: source
-      when: []
+      when:
+        - input: run_sonar
+          operator: in
+          values:
+            - "true"
       params:
         - name: server
           value: https://build-sonar.alauda.cn
