@@ -23,6 +23,11 @@ spec:
       workspaces:
         - name: source
           workspace: source
+      when:
+        - input: $(params.run_sonar)
+          operator: notin
+          values:
+            - "true"
       params:
         - name: container-images
           value:
@@ -185,6 +190,11 @@ spec:
       workspaces:
         - name: source
           workspace: source
+      when:
+        - input: $(params.run_sonar)
+          operator: notin
+          values:
+            - "true"
       params:
         - name: container-images
           value:

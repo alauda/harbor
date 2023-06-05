@@ -136,11 +136,12 @@ def run_command_with_popen(command):
         proc = subprocess.Popen(command, universal_newlines=True, shell=True,
                             stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
         output, errors = proc.communicate()
+        return output
     except Exception as e:
         output = None
+        return output
     finally:
         proc.stdout.close()
-        return output
 
 def run_command(command, expected_error_message = None):
     try:

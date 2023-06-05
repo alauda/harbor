@@ -37,8 +37,6 @@ class Project(base.Base):
             name = base._random_name("project")
         if metadata is None:
             metadata = {}
-        if registry_id is None:
-            registry_id = registry_id
         project = v2_swagger_client.ProjectReq(project_name=name, registry_id = registry_id, metadata=metadata)
         try:
             _, status_code, header = self._get_client(**kwargs).create_project_with_http_info(project)

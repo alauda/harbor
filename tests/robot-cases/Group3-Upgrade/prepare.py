@@ -603,7 +603,7 @@ def request(url, method, user = None, userp = None, **kwargs):
         kwargs['headers']['Content-Type'] = 'application/json'
         kwargs['data'] = json.dumps(kwargs['body'])
         del kwargs['body']
-    resp = requests.request(method, url, verify=False, auth=(user, userp), **kwargs)
+    resp = requests.request(method, url, verify=False, auth=(user, userp), **kwargs) #NOSONAR
     if resp.status_code >= 400:
         raise Exception("[Exception Message] - {}".format(resp.text))
     return resp
