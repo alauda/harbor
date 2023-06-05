@@ -14,13 +14,9 @@ spec:
   params:
     - name: run_sonar
       type: string
-      description: >
+      description: |
         Controls whether to run a sonar scan. 
-        
-        The sonar of the open source component does not need to run frequently, 
-        and the sonar service may cause pipeline failure due to too many scanning tasks,
-        which is a huge cost for building a harbor image, so the sonar scan is turned off by default, 
-        and the switch control is added, and it is turned on only when necessary.
+        The sonar of the open source component does not need to run frequently,  and the sonar service may cause pipeline failure due to too many scanning tasks, which is a huge cost for building a harbor image, so the sonar scan is turned off by default,  and the switch control is added, and it is turned on only when necessary.
   tasks:
     - name: build-image
       timeout: 2.5h
@@ -237,7 +233,7 @@ spec:
         - name: source
           workspace: source
       when:
-        - input: run_sonar
+        - input: $(params.run_sonar)
           operator: in
           values:
             - "true"
