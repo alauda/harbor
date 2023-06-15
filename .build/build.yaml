@@ -6,42 +6,20 @@ spec:
       timeouts:
         pipeline: 3h
         tasks: 3h
+      taskRunSpecs: []
   workspaces:
-    - description: >
-        This workspace is shared among all the pipeline tasks to read/write
-        common resources
+    - description: |
+        This workspace is shared among all the pipeline tasks to read/write common resources
       name: source
+  params:
+    - name: run_sonar
+      type: string
+      description: |
+        Controls whether to run a sonar scan. 
+        The sonar of the open source component does not need to run frequently,  and the sonar service may cause pipeline failure due to too many scanning tasks, which is a huge cost for building a harbor image, so the sonar scan is turned off by default,  and the switch control is added, and it is turned on only when necessary.
   tasks:
-    - name: generate-version
-      workspaces:
-        - name: source
-          workspace: source
-      taskSpec:
-        results:
-          - name: commit-short-id
-            description: The precise commit short SHA that was fetched by this Task
-        steps:
-          - name: generate-commit-short-id
-            image: build-harbor.alauda.cn/devops/kubectl-devops:master
-            imagePullPolicy: IfNotPresent
-            workingDir: $(workspaces.source.path)
-            script: |
-              #!/bin/sh
-              set -ex
-              
-              # avoid `detected dubious ownership in repository at`
-              git config --global --add safe.directory "$(workspaces.source.path)"
-              
-              RESULT_SHA="$(git rev-parse HEAD)"
-              echo -n "${RESULT_SHA:0:8}" >  $(results.commit-short-id.path)
-        workspaces:
-          - name: source
-            workspace: source
-
     - name: build-image
       timeout: 2.5h
-      runAfter:
-        - generate-version
       workspaces:
         - name: source
           workspace: source
@@ -60,7 +38,7 @@ spec:
             - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon
             - build-harbor.alauda.cn/devops/goharbor-harbor-exporter
         - name: container-image-tag
-          value:  2.6.4-$(tasks.generate-version.results.commit-short-id)
+          value: 2.6.4-$(build.git.lastCommit.shortID)
       taskSpec:
         metadata:
           annotations:
@@ -85,7 +63,7 @@ spec:
             securityContext:
               privileged: true
             env:
-              - name: DOCKER_TLS_CERTDIR  # 将生成的证书写入与客户端共享的路径
+              - name: DOCKER_TLS_CERTDIR
                 value: /certs
             resources:
               requests:
@@ -99,10 +77,12 @@ spec:
                 name: dind-certs
               - mountPath: /workspace/source
                 name: $(workspaces.source.volume)
-            readinessProbe: # 等待 dind daemon 生成它与客户端共享的证书
+            readinessProbe:
               periodSeconds: 1
               exec:
-                command: [ 'ls', '/certs/client/ca.pem' ]
+                command:
+                  - ls
+                  - /certs/client/ca.pem
         steps:
           - name: build-amd64
             image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
@@ -120,7 +100,7 @@ spec:
               - name: DOCKER_HOST
                 value: tcp://localhost:2376
               - name: DOCKER_TLS_VERIFY
-                value: '1'
+                value: "1"
               - name: DOCKER_CERT_PATH
                 value: /certs/client
             volumeMounts:
@@ -146,7 +126,7 @@ spec:
               echo "=> ✅  compile harbor done."
               BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" IMAGENAMESPACE="$IMAGENAMESPACE" make build
               echo "=> ✅  build harbor done."
-              
+
               for arg in "$@"; do
                 image="${arg}:$(params.container-image-tag)-amd64"
                 # only for amd64, arm has pushed when buildx build --type=registry
@@ -169,7 +149,7 @@ spec:
               - name: DOCKER_HOST
                 value: tcp://localhost:2376
               - name: DOCKER_TLS_VERIFY
-                value: '1'
+                value: "1"
               - name: DOCKER_CERT_PATH
                 value: /certs/client
             volumeMounts:
@@ -208,38 +188,55 @@ spec:
       params:
         - name: container-images
           value:
-            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(tasks.generate-version.results.commit-short-id)
-            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)
-            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)
-            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(tasks.generate-version.results.commit-short-id)
-            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)
-            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)
-            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(tasks.generate-version.results.commit-short-id)
-            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(tasks.generate-version.results.commit-short-id)
-            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)
-            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)
-            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(tasks.generate-version.results.commit-short-id)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)
         - name: source-image-digests
           value:
-            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
-            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
-            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
-            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
-            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
-            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
-            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
-            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
-            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
-            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
-            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(tasks.generate-version.results.commit-short-id)-amd64
-            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(tasks.generate-version.results.commit-short-id)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)-arm64
+    - name: sonar
+      timeout: 30m
+      retries: 0
+      taskRef:
+        kind: ClusterTask
+        name: sonarqube-analysis
+      workspaces:
+        - name: source
+          workspace: source
+      when:
+        - input: $(params.run_sonar)
+          operator: in
+          values:
+            - "true"
+      params:
+        - name: server
+          value: https://build-sonar.alauda.cn

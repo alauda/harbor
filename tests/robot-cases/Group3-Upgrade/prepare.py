@@ -603,7 +603,8 @@ def request(url, method, user = None, userp = None, **kwargs):
         kwargs['headers']['Content-Type'] = 'application/json'
         kwargs['data'] = json.dumps(kwargs['body'])
         del kwargs['body']
-    resp = requests.request(method, url, verify=False, auth=(user, userp), **kwargs)
+    # Ignore sonar's security check on ssl, because it may cause access to http services to fail after opening.
+    resp = requests.request(method, url, verify=False, auth=(user, userp), **kwargs) #NOSONAR
     if resp.status_code >= 400:
         raise Exception("[Exception Message] - {}".format(resp.text))
     return resp

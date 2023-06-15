@@ -708,7 +708,7 @@ export class ArtifactListTabComponent implements OnInit, OnDestroy {
 
     filterLabel(labelInfo: LabelState): void {
         let labelId = labelInfo.label.id;
-        this.artifactListPageService.imageFilterLabels.filter(data => {
+        this.artifactListPageService.imageFilterLabels.forEach(data => {
             data.iconsShow = data.label.id === labelId;
         });
         this.filterOneLabel = labelInfo.label;

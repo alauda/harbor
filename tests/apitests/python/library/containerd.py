@@ -12,6 +12,6 @@ def ctr_images_list(oci_ref = None):
     command = ["ctr", "images", "list", "--q"]
     ret = base.run_command(command)
     if oci_ref is not None and oci_ref not in ret.split("\n"):
-        raise Exception(r" Get OCI ref failed, expected ref is [{}], but return ref list is [{}]".format (ret))
+        raise Exception(r" Get OCI ref failed, expected ref is [{}], but return ref list is [{}]".format (oci_ref,ret))
 
 

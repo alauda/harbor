@@ -167,7 +167,7 @@ export class EditProjectQuotasComponent {
         );
     }
     getByte(count: number, unit: string) {
-        if (+count === +count) {
+        if (count === +count) {
             return getByte(+count, unit);
         }
         return 0;
