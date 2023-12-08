@@ -115,7 +115,7 @@ TRIVYVERSION=v0.37.2
 TRIVYADAPTERVERSION=v0.30.7
 
 # version of chartmuseum for pulling the source code
-CHARTMUSEUM_SRC_TAG=v0.14.0
+CHARTMUSEUM_SRC_TAG=v0.14.1
 
 # version of chartmuseum
 CHARTMUSEUMVERSION=$(CHARTMUSEUM_SRC_TAG)-redis
