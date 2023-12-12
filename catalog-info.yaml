@@ -1,0 +1,48 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: devops-tools-harbor
+  title: Devops Tools Harbor
+  annotations:
+    # github plugin
+    github.com/project-slug: alauda/harbor
+    # acp cicd plugin
+    acp.cpaas.io/ci-pipeline: devops/business-build/tools/harbor
+    acp.cpaas.io/instance: edge.alauda.cn
+    # harbor plugin
+    goharbor.io/repository-slug: devops/goharbor-harbor-portal,devops/goharbor-notary-server-photon,devops/goharbor-notary-signer-photon,devops/goharbor-harbor-registryctl,devops/goharbor-registry-photon,devops/goharbor-nginx-photon,devops/goharbor-harbor-jobservice,devops/goharbor-harbor-core,devops/goharbor-chartmuseum-photon,devops/goharbor-trivy-adapter-photon,devops/goharbor-harbor-exporter
+    acp.cpaas.io/cd-pipeline: ""
+    # 开源组件代码仓库地址，格式：${url}/${project}/${repo}
+    acp.cpaas.io/open-source-component-repo: https://github.com/goharbor/harbor
+
+    # 开源组件的版本信息，只适用于开源组件，自研组件默认不收集版本信息,格式 ${version}
+    acp.cpaas.io/open-source-component-version: v2.6.4
+
+    # 开源组件的license信息,格式 ${license}
+    acp.cpaas.io/open-source-component-license: Apache
+
+    # 开源组件的license地址,格式 ${url}/${project}/${repo}/${license-path}
+    acp.cpaas.io/open-source-component-license_url: https://github.com/goharbor/harbor/blob/v2.6.4/LICENSE
+
+    # sonarqube plugin
+    sonarqube.org/project-key: ""
+    # backstage techdocs plugin
+    backstage.io/techdocs-ref: dir:.
+    acp.cpaas.io/owner: ykwang@alauda.io
+
+spec:
+  type: service
+  system: system:devops-tools
+  lifecycle: production
+  owner: group:g-5cstm
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: devops-tools
+  title: Devops Tools
+  tags:
+    - devops
+spec:
+  owner: group:g-5cstm
+  domain: devops
