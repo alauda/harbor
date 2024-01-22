@@ -3,6 +3,7 @@ kind: Component
 metadata:
   name: devops-tools-harbor
   title: Devops Tools Harbor
+  description: Harbor 是构建企业级私有 docker镜像仓库的开源解决方案, 具有友好的 Web UI界面, 角色和用户权限管理, 用户操作审计等功能
   annotations:
     # github plugin
     github.com/project-slug: alauda/harbor
@@ -34,15 +35,4 @@ spec:
   type: service
   system: system:devops-tools
   lifecycle: production
-  owner: group:g-5cstm
----
-apiVersion: backstage.io/v1alpha1
-kind: System
-metadata:
-  name: devops-tools
-  title: Devops Tools
-  tags:
-    - devops
-spec:
-  owner: group:g-5cstm
-  domain: devops
+  owner: devops
