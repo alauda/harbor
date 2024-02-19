@@ -11,7 +11,8 @@ metadata:
     acp.cpaas.io/ci-pipeline: devops/business-build/tools/harbor
     acp.cpaas.io/instance: edge.alauda.cn
     # harbor plugin
-    goharbor.io/repository-slug: devops/goharbor-harbor-portal,devops/goharbor-notary-server-photon,devops/goharbor-notary-signer-photon,devops/goharbor-harbor-registryctl,devops/goharbor-registry-photon,devops/goharbor-nginx-photon,devops/goharbor-harbor-jobservice,devops/goharbor-harbor-core,devops/goharbor-chartmuseum-photon,devops/goharbor-trivy-adapter-photon,devops/goharbor-harbor-exporter
+    # devops/goharbor-trivy-offline-db is an internal repository, code repository name: devops/trivy-db
+    goharbor.io/repository-slug: devops/goharbor-harbor-portal,devops/goharbor-notary-server-photon,devops/goharbor-notary-signer-photon,devops/goharbor-harbor-registryctl,devops/goharbor-registry-photon,devops/goharbor-nginx-photon,devops/goharbor-harbor-jobservice,devops/goharbor-harbor-core,devops/goharbor-chartmuseum-photon,devops/goharbor-trivy-adapter-photon,devops/goharbor-harbor-exporter,devops/goharbor-trivy-offline-db
     acp.cpaas.io/cd-pipeline: ""
     # 开源组件代码仓库地址，格式：${url}/${project}/${repo}
     acp.cpaas.io/open-source-component-repo: https://github.com/goharbor/harbor
