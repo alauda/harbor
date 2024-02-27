@@ -51,7 +51,7 @@ require (
 	github.com/gorilla/mux v1.7.4
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
 	github.com/jinzhu/gorm v1.9.8 // indirect
-	github.com/lib/pq v1.3.0
+	github.com/lib/pq v1.10.9
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/miekg/pkcs11 v0.0.0-20170220202408-7283ca79f35e // indirect
 	github.com/ncw/swift v1.0.49 // indirect
