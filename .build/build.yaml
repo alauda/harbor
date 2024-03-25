@@ -53,7 +53,7 @@ spec:
           - name: dind-certs
             emptyDir: {}
         sidecars:
-          - image: registry.alauda.cn:60080/3rdparty/kubeflow/docker:20.10-dind
+          - image: docker-mirrors.alauda.cn/library/docker:20.10-dind
             name: docker-daemon
             args:
               - --storage-driver=overlay2
