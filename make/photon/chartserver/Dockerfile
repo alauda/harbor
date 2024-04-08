@@ -4,11 +4,13 @@ FROM ${harbor_base_namespace}/harbor-chartserver-base:${harbor_base_image_versio
 
 COPY ./make/photon/chartserver/binary/chartm /home/chart/
 COPY ./make/photon/chartserver/docker-entrypoint.sh /home/chart/
+COPY ./make/photon/common/exports_env_in_dir.sh /home/chart/
 COPY ./make/photon/common/install_cert.sh /home/chart/
 
 RUN chown -R chart:chart /etc/pki/tls/certs \
     && chown -R chart:chart /home/chart \
     && chmod u+x /home/chart/chartm \
+    && chmod u+x /home/chart/exports_env_in_dir.sh \
     && chmod u+x /home/chart/docker-entrypoint.sh \
     && chmod u+x /home/chart/install_cert.sh
 

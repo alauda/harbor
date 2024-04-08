@@ -1,0 +1,166 @@
+apiVersion: builds.katanomi.dev/v1alpha1
+kind: Build
+spec:
+  runTemplate:
+    spec:
+      workspaces:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: build-cache
+          subPath: golang
+      timeouts:
+        pipeline: 3h
+        tasks: 3h
+      taskRunSpecs: []
+  workspaces:
+    - description: |
+        This workspace is shared among all the pipeline tasks to read/write common resources
+      name: source
+    - name: cache
+      optional: true
+  params:
+    - name: run_sonar
+      type: string
+      description: |
+        Controls whether to run a sonar scan. 
+        The sonar of the open source component does not need to run frequently,  and the sonar service may cause pipeline failure due to too many scanning tasks, which is a huge cost for building a harbor image, so the sonar scan is turned off by default,  and the switch control is added, and it is turned on only when necessary.
+  tasks:
+    - name: init
+      timeout: 30m
+      retries: 0
+      taskRef:
+        kind: ClusterTask
+        name: alauda-script
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: script
+          value: |
+            bash make/patches/patch-amd64.sh
+    - name: compile
+      timeout: 2.5h
+      taskRef:
+        kind: Task
+        name: docker-in-docker
+      runAfter:
+        - init
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: command
+          value: |
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            
+            BUILDPATH="$(workspaces.source.path)" make compile
+
+    - name: build-image-prepare
+      timeout: 2.5h
+      runAfter:
+        - init
+      taskRef:
+        kind: Task
+        name: buildx
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: command
+          value: |
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            
+            BUILDTARGET=_build_prepare make build
+
+    - name: build-image-db
+      timeout: 2.5h
+      runAfter:
+        - build-image-prepare
+      taskRef:
+        kind: Task
+        name: buildx
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: command
+          value: |
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            DOCKERBUILD=docker buildx build
+            
+            BUILDTARGET=_build_db make build
+
+    - name: build-image-portal
+      timeout: 2.5h
+      runAfter:
+        - build-image-prepare
+      taskRef:
+        kind: Task
+        name: buildx
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: command
+          value: |
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            
+            BUILDTARGET=_build_portal make build
+
+    - name: build-image-core
+      timeout: 2.5h
+      runAfter:
+        - build-image-prepare
+      taskRef:
+        kind: Task
+        name: buildx
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: command
+          value: |
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            
+            BUILDTARGET=_build_core make build
+
+    - name: build-image-jobservice
+      timeout: 2.5h
+      runAfter:
+        - build-image-prepare
+      taskRef:
+        kind: Task
+        name: buildx
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: command
+          value: |
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            
+            BUILDTARGET=_build_jobservice make build
