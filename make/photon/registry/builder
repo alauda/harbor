@@ -10,6 +10,7 @@ fi
 VERSION="$1"
 
 set -e
+set -x
 
 # the temp folder to store binary file...
 mkdir -p binary

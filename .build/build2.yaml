@@ -1,6 +1,11 @@
 apiVersion: builds.katanomi.dev/v1alpha1
 kind: Build
 spec:
+  git:
+    options:
+      depth: 1
+      preScript: |
+        git config --global url."https://mirror.ghproxy.com/".insteadOf https://
   runTemplate:
     spec:
       workspaces:
@@ -8,14 +13,22 @@ spec:
           persistentVolumeClaim:
             claimName: build-cache
           subPath: golang
+        - name: source-arm64
+          volumeClaimTemplate:
+            spec:
+              accessModes:
+                - ReadWriteMany
+              resources:
+                requests:
+                  storage: 2000Mi
       timeouts:
         pipeline: 3h
         tasks: 3h
       taskRunSpecs: []
   workspaces:
-    - description: |
-        This workspace is shared among all the pipeline tasks to read/write common resources
+    - description: source original, for amd64
       name: source
+    - name: source-arm64
     - name: cache
       optional: true
   params:
@@ -25,7 +38,60 @@ spec:
         Controls whether to run a sonar scan. 
         The sonar of the open source component does not need to run frequently,  and the sonar service may cause pipeline failure due to too many scanning tasks, which is a huge cost for building a harbor image, so the sonar scan is turned off by default,  and the switch control is added, and it is turned on only when necessary.
   tasks:
-    - name: init
+    - name: readme-please
+      displayName: 📣 Readme 📣
+      timeout: 30m
+      retries: 0
+      taskRef:
+        kind: ClusterTask
+        name: alauda-script
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: script
+          value: |
+            echo "###################"
+            echo "This pipeline uses tekton matrix, you cannot see all steps on katanomi builds"
+            echo "Please see all steps https://tekton-dashboard-edge.alauda.cn/#/namespaces/tools/pipelineruns/$(context.pipelineRun.name)"
+            echo "###################"
+
+    ##########
+    # prepare arm64 code
+    #########
+    - name: git-clone-arm64
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.git-revision)
+        - name: depth
+          value: "1"
+        - name: tools-image
+          value: registry.alauda.cn:60080/devops/tektoncd/pipeline/cmd/git-init:v0.41.0-9f25e235
+        - name: pre-script
+          value: >
+            git config --global url."https://mirror.ghproxy.com/".insteadOf https://
+      retries: 3
+      taskRef:
+        kind: Task
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: katanomi-git-clone
+          - name: namespace
+            value: katanomi-system
+        resolver: cluster
+      timeout: 10m0s
+      workspaces:
+        - name: source
+          workspace: source-arm64
+
+    ##########
+    # init amd64 and arm64
+    #########
+    - name: patch-amd64
       timeout: 30m
       retries: 0
       taskRef:
@@ -38,13 +104,33 @@ spec:
         - name: script
           value: |
             bash make/patches/patch-amd64.sh
-    - name: compile
+    - name: patch-arm64
+      timeout: 30m
+      retries: 0
+      runAfter:
+        - git-clone-arm64
+      taskRef:
+        kind: ClusterTask
+        name: alauda-script
+      workspaces:
+        - name: source
+          workspace: source-arm64
+      params:
+        - name: script
+          value: |
+            bash make/patches/patch-amd64.sh
+            bash make/patches/patch-arm64.sh
+
+    ##########
+    # compile amd64 and arm64
+    #########
+    - name: compile-amd64
       timeout: 2.5h
       taskRef:
         kind: Task
         name: docker-in-docker
       runAfter:
-        - init
+        - patch-amd64
       workspaces:
         - name: source
           workspace: source
@@ -56,111 +142,192 @@ spec:
             BASEIMAGETAG=${VERSIONTAG}
             BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
             IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            REGISTRY_SRC_TAG=v2.8.0
+            
+            BUILDPATH="$(workspaces.source.path)" make compile
+            
+            # compile registry
+            cd ./make/photon/registry && ./builder ${REGISTRY_SRC_TAG}
+
+    - name: compile-arm64
+      timeout: 2.5h
+      taskRef:
+        kind: Task
+        name: docker-in-docker
+      runAfter:
+        - patch-arm64
+      workspaces:
+        - name: source
+          workspace: source-arm64
+      params:
+        - name: command
+          value: |
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            REGISTRY_SRC_TAG=v2.8.0
             
             BUILDPATH="$(workspaces.source.path)" make compile
 
-    - name: build-image-prepare
-      timeout: 2.5h
-      runAfter:
-        - init
-      taskRef:
-        kind: Task
-        name: buildx
-      workspaces:
-        - name: source
-          workspace: source
-      params:
-        - name: command
-          value: |
-            BUILDPATH=$(workspaces.source.path)
-            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
-            BASEIMAGETAG=${VERSIONTAG}
-            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
-            IMAGENAMESPACE=build-harbor.alauda.cn/devops
-            
-            BUILDTARGET=_build_prepare make build
+            # compile registry
+            cd ./make/photon/registry && ./builder ${REGISTRY_SRC_TAG}
 
-    - name: build-image-db
+    ##########
+    # build-image amd64 and arm64
+    #########
+    - name: build-image-amd64
       timeout: 2.5h
+      retries: 3
       runAfter:
-        - build-image-prepare
+#        - build-image-prepare-amd64
+        - compile-amd64
       taskRef:
         kind: Task
         name: buildx
       workspaces:
         - name: source
           workspace: source
+      matrix:
+        params:
+          - name: command
+            value:
+              - make build -e BUILDTARGET=_build_portal
+              - make build -e BUILDTARGET=_build_core
+              - make build -e BUILDTARGET=_build_jobservice
+              - make build -e BUILDTARGET=_build_log
+              - make build -e BUILDTARGET=_build_nginx
+              - make build -e BUILDTARGET=_build_registry
+              - make build -e BUILDTARGET=_build_registryctl
+              - make build -e BUILDTARGET=_build_notary
+              - make build -e BUILDTARGET=_build_trivy_adapter
+              - make build -e BUILDTARGET=_build_chart_server
+              - make build -e BUILDTARGET=_compile_and_build_exporter
       params:
-        - name: command
+        - name: pre-command
           value: |
-            BUILDPATH=$(workspaces.source.path)
-            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
-            BASEIMAGETAG=${VERSIONTAG}
-            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
-            IMAGENAMESPACE=build-harbor.alauda.cn/devops
-            DOCKERBUILD=docker buildx build
+            set -x
+            # some build target need wget
+            apt-get update && apt-get install -y wget
             
-            BUILDTARGET=_build_db make build
+            export VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            export IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            export BASEIMAGETAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            export BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            export PUSHBASEIMAGE=false
+            export DOCKERBUILD="docker buildx build --platform=linux/amd64 --builder builder --push --metadata-file .build-metadata.txt --iidfile $(results.container-image-digest.path)"
+        - name: post-command
+          value: |
+            echo "==== build metadata"
+            cat .build-metadata.txt
+            echo "==== build metadata"
+            
+            cat .build-metadata.txt | jq -r '."containerimage.buildinfo".sources[0].ref' > $(results.ociContainerImageBuild-url.path)
+            
+            cat $(results.ociContainerImageBuild-url.path)
+            cat $(results.container-image-digest.path)
+    - name: build-image-arm64
+      timeout: 2.5h
+      retries: 3
+      runAfter:
+#        - build-image-prepare-arm64
+        - compile-arm64
+      taskRef:
+        kind: Task
+        name: buildx
+      workspaces:
+        - name: source
+          workspace: source-arm64
+      matrix:
+        params:
+          - name: command
+            value:
+              - make build -e BUILDTARGET=_build_portal
+              - make build -e BUILDTARGET=_build_core
+              - make build -e BUILDTARGET=_build_jobservice
+              - make build -e BUILDTARGET=_build_log
+              - make build -e BUILDTARGET=_build_nginx
+              - make build -e BUILDTARGET=_build_registry
+              - make build -e BUILDTARGET=_build_registryctl
+              - make build -e BUILDTARGET=_build_notary
+              - make build -e BUILDTARGET=_build_trivy_adapter
+              - make build -e BUILDTARGET=_build_chart_server
+              - make build -e BUILDTARGET=_compile_and_build_exporter
+      params:
+        - name: pre-command
+          value: |
+            set -x
+            # some build target need wget
+            apt-get update && apt-get install -y wget
+            
+            export VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
+            export IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            export BASEIMAGETAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
+            export BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            export PUSHBASEIMAGE=false
+            export DOCKERBUILD="docker buildx build --platform=linux/arm64 --builder builder --push --metadata-file .build-metadata.txt --iidfile $(results.container-image-digest.path)"
+        - name: post-command
+          value: |
+            echo "==== build metadata"
+            cat .build-metadata.txt
+            echo "==== build metadata"
+            
+            cat .build-metadata.txt | jq -r '."containerimage.buildinfo".sources[0].ref' > $(results.ociContainerImageBuild-url.path)
+            
+            cat $(results.ociContainerImageBuild-url.path)
+            cat $(results.container-image-digest.path)
 
-    - name: build-image-portal
-      timeout: 2.5h
+    ##########
+    # merge
+    #########
+    - name: build-manifests
       runAfter:
-        - build-image-prepare
+        - build-image-arm64
+        - build-image-amd64
+      timeout: 30m
+      retries: 3
       taskRef:
-        kind: Task
-        name: buildx
+        kind: ClusterTask
+        name: merge-image-buildkit
       workspaces:
         - name: source
           workspace: source
       params:
-        - name: command
-          value: |
-            BUILDPATH=$(workspaces.source.path)
-            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
-            BASEIMAGETAG=${VERSIONTAG}
-            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
-            IMAGENAMESPACE=build-harbor.alauda.cn/devops
-            
-            BUILDTARGET=_build_portal make build
-
-    - name: build-image-core
-      timeout: 2.5h
-      runAfter:
-        - build-image-prepare
-      taskRef:
-        kind: Task
-        name: buildx
-      workspaces:
-        - name: source
-          workspace: source
-      params:
-        - name: command
-          value: |
-            BUILDPATH=$(workspaces.source.path)
-            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
-            BASEIMAGETAG=${VERSIONTAG}
-            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
-            IMAGENAMESPACE=build-harbor.alauda.cn/devops
-            
-            BUILDTARGET=_build_core make build
-
-    - name: build-image-jobservice
-      timeout: 2.5h
-      runAfter:
-        - build-image-prepare
-      taskRef:
-        kind: Task
-        name: buildx
-      workspaces:
-        - name: source
-          workspace: source
-      params:
-        - name: command
-          value: |
-            BUILDPATH=$(workspaces.source.path)
-            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
-            BASEIMAGETAG=${VERSIONTAG}
-            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
-            IMAGENAMESPACE=build-harbor.alauda.cn/devops
-            
-            BUILDTARGET=_build_jobservice make build
+        - name: container-images
+          value:
+            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)
+        - name: source-image-digests
+          value:
+            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)-amd64
+            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)-arm64

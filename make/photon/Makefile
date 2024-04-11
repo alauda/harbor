@@ -257,7 +257,7 @@ _build_standalone_db_migrator:
 _compile_and_build_exporter:
 	@$(call _build_base,$(EXPORTER),$(DOCKERFILEPATH_EXPORTER))
 	@echo "compiling and building image for exporter..."
-	@$(DOCKERCMD) build --build-arg harbor_base_image_version=$(BASEIMAGETAG) --build-arg harbor_base_namespace=$(BASEIMAGENAMESPACE) --build-arg build_image=$(GOBUILDIMAGE) -f ${DOCKERFILEPATH_EXPORTER}/${DOCKERFILENAME_EXPORTER} -t $(DOCKERIMAGENAME_EXPORTER):$(VERSIONTAG) .
+	$(DOCKERBUILD_WITH_PULL_PARA) --build-arg harbor_base_image_version=$(BASEIMAGETAG) --build-arg harbor_base_namespace=$(BASEIMAGENAMESPACE) --build-arg build_image=$(GOBUILDIMAGE) -f ${DOCKERFILEPATH_EXPORTER}/${DOCKERFILENAME_EXPORTER} -t $(DOCKERIMAGENAME_EXPORTER):$(VERSIONTAG) .
 	@echo "Done."
 
 define _extract_archive
@@ -271,6 +271,7 @@ define _get_binary
 endef
 
 define _build_base
+	set -x; \
 	if [ "$(BUILD_BASE)" = "true" ] ; then \
 		echo "building base image for $(1)...";\
 		if [ -n "$(REGISTRYUSER)"  ] && [ -n "$(REGISTRYPASSWORD)" ] ; then \
