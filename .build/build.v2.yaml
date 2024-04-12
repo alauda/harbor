@@ -124,8 +124,9 @@ spec:
     ##########
     # compile amd64 and arm64
     #########
-    - name: compile-amd64
+    - name: compile-amd64-harbor
       timeout: 2.5h
+      retries: 3
       taskRef:
         kind: Task
         name: docker-in-docker
@@ -137,6 +138,8 @@ spec:
       params:
         - name: command
           value: |
+            set -ex
+            
             BUILDPATH=$(workspaces.source.path)
             VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
             BASEIMAGETAG=${VERSIONTAG}
@@ -144,13 +147,57 @@ spec:
             IMAGENAMESPACE=build-harbor.alauda.cn/devops
             REGISTRY_SRC_TAG=v2.8.0
             
+            # compile harbor
             BUILDPATH="$(workspaces.source.path)" make compile
+    - name: compile-amd64-thirdparty
+      timeout: 2.5h
+      retries: 3
+      taskRef:
+        kind: Task
+        name: docker-in-docker
+      runAfter:
+        - patch-amd64
+        # prevent network bandwidth is full
+        - compile-amd64-harbor
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: command
+          value: |
+            set -ex
+            
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            REGISTRY_SRC_TAG=v2.8.0
             
             # compile registry
-            cd ./make/photon/registry && ./builder ${REGISTRY_SRC_TAG}
+            cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} && cd -
 
-    - name: compile-arm64
+            # compile trivy
+            TRIVYADAPTERVERSION=v0.30.7
+            mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
+            cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
+
+            # compile chartserver
+            GOBUILDIMAGE=golang:1.19.4
+            CHART_SERVER_CODE_BASE=https://github.com/alauda/chartmuseum.git
+            CHARTMUSEUM_SRC_TAG=v0.14.1
+            CHART_SERVER_MAIN_PATH=cmd/chartmuseum
+            CHART_SERVER_BIN_NAME=chartm
+            cd ${BUILDPATH}/make/photon/chartserver && ./builder ${GOBUILDIMAGE} ${CHART_SERVER_CODE_BASE} ${CHARTMUSEUM_SRC_TAG} ${CHART_SERVER_MAIN_PATH} ${CHART_SERVER_BIN_NAME} && cd -
+
+            # compile notary
+            NOTARYVERSION=v0.6.1
+            NOTARYMIGRATEVERSION=v4.11.0
+            cd ${BUILDPATH}/make/photon/notary && ./builder ${NOTARYVERSION} ${NOTARYMIGRATEVERSION} && cd -
+
+    - name: compile-arm64-harbor
       timeout: 2.5h
+      retries: 3
       taskRef:
         kind: Task
         name: docker-in-docker
@@ -162,6 +209,8 @@ spec:
       params:
         - name: command
           value: |
+            set -ex
+            
             BUILDPATH=$(workspaces.source.path)
             VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
             BASEIMAGETAG=${VERSIONTAG}
@@ -169,10 +218,53 @@ spec:
             IMAGENAMESPACE=build-harbor.alauda.cn/devops
             REGISTRY_SRC_TAG=v2.8.0
             
+            # compile harbor
             BUILDPATH="$(workspaces.source.path)" make compile
-
+    - name: compile-arm64-thirdparty
+      timeout: 2.5h
+      retries: 3
+      taskRef:
+        kind: Task
+        name: docker-in-docker
+      runAfter:
+        - patch-arm64
+        # prevent network bandwidth is full
+        - compile-arm64-harbor
+      workspaces:
+        - name: source
+          workspace: source-arm64
+      params:
+        - name: command
+          value: |
+            set -ex
+            
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            REGISTRY_SRC_TAG=v2.8.0
+            
             # compile registry
-            cd ./make/photon/registry && ./builder ${REGISTRY_SRC_TAG}
+            cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} && cd -
+
+            # compile trivy
+            TRIVYADAPTERVERSION=v0.30.7
+            mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
+            cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
+
+            # compile chartserver
+            GOBUILDIMAGE=golang:1.19.4
+            CHART_SERVER_CODE_BASE=https://github.com/alauda/chartmuseum.git
+            CHARTMUSEUM_SRC_TAG=v0.14.1
+            CHART_SERVER_MAIN_PATH=cmd/chartmuseum
+            CHART_SERVER_BIN_NAME=chartm
+            cd ${BUILDPATH}/make/photon/chartserver && ./builder ${GOBUILDIMAGE} ${CHART_SERVER_CODE_BASE} ${CHARTMUSEUM_SRC_TAG} ${CHART_SERVER_MAIN_PATH} ${CHART_SERVER_BIN_NAME} && cd -
+
+            # compile notary
+            NOTARYVERSION=v0.6.1
+            NOTARYMIGRATEVERSION=v4.11.0
+            cd ${BUILDPATH}/make/photon/notary && ./builder ${NOTARYVERSION} ${NOTARYMIGRATEVERSION} && cd -
 
     ##########
     # build-image amd64 and arm64
@@ -181,8 +273,8 @@ spec:
       timeout: 2.5h
       retries: 3
       runAfter:
-#        - build-image-prepare-amd64
-        - compile-amd64
+        - compile-amd64-harbor
+        - compile-amd64-thirdparty
       taskRef:
         kind: Task
         name: buildx
@@ -207,7 +299,7 @@ spec:
       params:
         - name: pre-command
           value: |
-            set -x
+            set -ex
             # some build target need wget
             apt-get update && apt-get install -y wget
             
@@ -216,23 +308,19 @@ spec:
             export BASEIMAGETAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
             export BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
             export PUSHBASEIMAGE=false
+            export SKIP_BUILDBIN=true
             export DOCKERBUILD="docker buildx build --platform=linux/amd64 --builder builder --push --metadata-file .build-metadata.txt --iidfile $(results.container-image-digest.path)"
         - name: post-command
           value: |
             echo "==== build metadata"
             cat .build-metadata.txt
             echo "==== build metadata"
-            
-            cat .build-metadata.txt | jq -r '."containerimage.buildinfo".sources[0].ref' > $(results.ociContainerImageBuild-url.path)
-            
-            cat $(results.ociContainerImageBuild-url.path)
-            cat $(results.container-image-digest.path)
     - name: build-image-arm64
       timeout: 2.5h
       retries: 3
       runAfter:
-#        - build-image-prepare-arm64
-        - compile-arm64
+        - compile-arm64-harbor
+        - compile-arm64-thirdparty
       taskRef:
         kind: Task
         name: buildx
@@ -257,7 +345,7 @@ spec:
       params:
         - name: pre-command
           value: |
-            set -x
+            set -ex
             # some build target need wget
             apt-get update && apt-get install -y wget
             
@@ -266,17 +354,13 @@ spec:
             export BASEIMAGETAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
             export BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
             export PUSHBASEIMAGE=false
+            export SKIP_BUILDBIN=true
             export DOCKERBUILD="docker buildx build --platform=linux/arm64 --builder builder --push --metadata-file .build-metadata.txt --iidfile $(results.container-image-digest.path)"
         - name: post-command
           value: |
             echo "==== build metadata"
             cat .build-metadata.txt
             echo "==== build metadata"
-            
-            cat .build-metadata.txt | jq -r '."containerimage.buildinfo".sources[0].ref' > $(results.ociContainerImageBuild-url.path)
-            
-            cat $(results.ociContainerImageBuild-url.path)
-            cat $(results.container-image-digest.path)
 
     ##########
     # merge

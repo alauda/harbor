@@ -30,5 +30,9 @@ cp *.patch binary/
 
 docker run -i --rm -v $cur/binary:/go/bin --name golang_code_builder $GOLANG_IMAGE /bin/bash /go/bin/compile.sh $GIT_PATH $CODE_VERSION $MAIN_GO_PATH $BIN_NAME
 
+if [ ! -f "binary/chartm" ]; then
+  exit 1
+fi
+
 #Clear
 #docker rm -f golang_code_builder

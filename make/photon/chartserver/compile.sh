@@ -16,11 +16,12 @@ VERSION="$2"
 MAIN_GO_PATH="$3"
 BIN_NAME="$4"
 
+set -e
+
 #Get the source code
 git clone $GIT_PATH src_code
 ls
 SRC_PATH=$(pwd)/src_code
-set -e
 
 #Checkout the released tag branch
 cd $SRC_PATH
