@@ -157,8 +157,6 @@ spec:
         name: docker-in-docker
       runAfter:
         - patch-amd64
-        # prevent network bandwidth is full
-        - compile-amd64-harbor
       workspaces:
         - name: source
           workspace: source
@@ -228,8 +226,6 @@ spec:
         name: docker-in-docker
       runAfter:
         - patch-arm64
-        # prevent network bandwidth is full
-        - compile-arm64-harbor
       workspaces:
         - name: source
           workspace: source-arm64

@@ -19,13 +19,13 @@ BIN_NAME="$4"
 set -e
 
 #Get the source code
-git clone $GIT_PATH src_code
+git clone --depth=1 -b $VERSION $GIT_PATH src_code
 ls
 SRC_PATH=$(pwd)/src_code
 
 #Checkout the released tag branch
 cd $SRC_PATH
-git checkout tags/$VERSION -b $VERSION
+#git checkout tags/$VERSION -b $VERSION
 
 #Patch
 for p in $(ls /go/bin/*.patch); do
