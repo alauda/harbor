@@ -165,15 +165,17 @@ _build_log:
 _build_trivy_adapter:
 	@if [ "$(TRIVYFLAG)" = "true" ] ; then \
 		$(call _build_base,$(TRIVY_ADAPTER),$(DOCKERFILEPATH_TRIVY_ADAPTER)) ; \
-		rm -rf $(DOCKERFILEPATH_TRIVY_ADAPTER)/binary && mkdir -p $(DOCKERFILEPATH_TRIVY_ADAPTER)/binary ; \
+		mkdir -p $(DOCKERFILEPATH_TRIVY_ADAPTER)/binary ; \
 		echo "Downloading Trivy scanner $(TRIVYVERSION)..." ; \
 		$(call _extract_archive, $(TRIVY_DOWNLOAD_URL), $(DOCKERFILEPATH_TRIVY_ADAPTER)/binary/) ; \
-		if [ "$(BUILDBIN)" != "true" ] ; then \
-			echo "Downloading Trivy adapter $(TRIVYADAPTERVERSION)..." ; \
-			$(call _extract_archive, $(TRIVY_ADAPTER_DOWNLOAD_URL), $(DOCKERFILEPATH_TRIVY_ADAPTER)/binary/) ; \
-		else \
-			echo "Building Trivy adapter $(TRIVYADAPTERVERSION) from sources..." ; \
-			cd $(DOCKERFILEPATH_TRIVY_ADAPTER) && $(DOCKERFILEPATH_TRIVY_ADAPTER)/builder.sh $(TRIVYADAPTERVERSION) && cd - ; \
+		if [ ! "$(SKIP_BUILDBIN)" ] ; then \
+			if [ "$(BUILDBIN)" != "true" ] ; then \
+				echo "Downloading Trivy adapter $(TRIVYADAPTERVERSION)..." ; \
+				$(call _extract_archive, $(TRIVY_ADAPTER_DOWNLOAD_URL), $(DOCKERFILEPATH_TRIVY_ADAPTER)/binary/) ; \
+			else \
+				echo "Building Trivy adapter $(TRIVYADAPTERVERSION) from sources..." ; \
+				cd $(DOCKERFILEPATH_TRIVY_ADAPTER) && $(DOCKERFILEPATH_TRIVY_ADAPTER)/builder.sh $(TRIVYADAPTERVERSION) && cd - ; \
+			fi ; \
 		fi ; \
 		echo "Building Trivy adapter container for photon..." ; \
 		$(DOCKERBUILD_WITH_PULL_PARA) --build-arg harbor_base_image_version=$(BASEIMAGETAG) \
@@ -187,12 +189,14 @@ _build_trivy_adapter:
 
 _build_chart_server:
 	@if [ "$(CHARTFLAG)" = "true" ] ; then \
-		$(call _build_base,$(CHARTSERVER),$(DOCKERFILEPATH_CHART_SERVER)); \
-		if [ "$(BUILDBIN)" != "true" ] ; then \
-			rm -rf $(DOCKERFILEPATH_CHART_SERVER)/binary && mkdir -p $(DOCKERFILEPATH_CHART_SERVER)/binary && \
-			$(call _get_binary, $(CHARTURL), $(DOCKERFILEPATH_CHART_SERVER)/binary/chartm); \
-		else \
-			cd $(DOCKERFILEPATH_CHART_SERVER) && $(DOCKERFILEPATH_CHART_SERVER)/builder $(GOBUILDIMAGE) $(CHART_SERVER_CODE_BASE) $(CHARTMUSEUM_SRC_TAG) $(CHART_SERVER_MAIN_PATH) $(CHART_SERVER_BIN_NAME) && cd - ; \
+  		$(call _build_base,$(CHARTSERVER),$(DOCKERFILEPATH_CHART_SERVER)); \
+		if [ ! "$(SKIP_BUILDBIN)" ] ; then \
+			if [ "$(BUILDBIN)" != "true" ] ; then \
+				rm -rf $(DOCKERFILEPATH_CHART_SERVER)/binary && mkdir -p $(DOCKERFILEPATH_CHART_SERVER)/binary && \
+				$(call _get_binary, $(CHARTURL), $(DOCKERFILEPATH_CHART_SERVER)/binary/chartm); \
+			else \
+				cd $(DOCKERFILEPATH_CHART_SERVER) && $(DOCKERFILEPATH_CHART_SERVER)/builder $(GOBUILDIMAGE) $(CHART_SERVER_CODE_BASE) $(CHARTMUSEUM_SRC_TAG) $(CHART_SERVER_MAIN_PATH) $(CHART_SERVER_BIN_NAME) && cd - ; \
+			fi ; \
 		fi ; \
 		echo "building chartmuseum container for photon..." ; \
 		$(DOCKERBUILD_WITH_PULL_PARA) --build-arg harbor_base_image_version=$(BASEIMAGETAG) --build-arg harbor_base_namespace=$(BASEIMAGENAMESPACE) -f $(DOCKERFILEPATH_CHART_SERVER)/$(DOCKERFILENAME_CHART_SERVER) -t $(DOCKERIMAGENAME_CHART_SERVER):$(VERSIONTAG) . ; \
@@ -210,12 +214,14 @@ _build_notary:
 	@if [ "$(NOTARYFLAG)" = "true" ] ; then \
 		$(call _build_base,$(NOTARYSERVER),$(DOCKERFILEPATH_NOTARYSERVER)) ; \
 		$(call _build_base,$(NOTARYSIGNER),$(DOCKERFILEPATH_NOTARYSIGNER)) ; \
-		if [ "$(BUILDBIN)" != "true" ] ; then \
-			rm -rf $(DOCKERFILEPATH_NOTARY)/binary && mkdir -p $(DOCKERFILEPATH_NOTARY)/binary && \
-			$(call _get_binary, $(NOTARYURL), $(DOCKERFILEPATH_NOTARY)/binary-bundle.tgz); \
-			cd $(DOCKERFILEPATH_NOTARY) && tar -zvxf binary-bundle.tgz && cd - ; \
-		else \
-			cd $(DOCKERFILEPATH_NOTARY) && $(DOCKERFILEPATH_NOTARY)/builder $(NOTARYVERSION) $(NOTARYMIGRATEVERSION) && cd - ; \
+		if [ ! "$(SKIP_BUILDBIN)" ] ; then \
+			if [ "$(BUILDBIN)" != "true" ] ; then \
+				rm -rf $(DOCKERFILEPATH_NOTARY)/binary && mkdir -p $(DOCKERFILEPATH_NOTARY)/binary && \
+				$(call _get_binary, $(NOTARYURL), $(DOCKERFILEPATH_NOTARY)/binary-bundle.tgz); \
+				cd $(DOCKERFILEPATH_NOTARY) && tar -zvxf binary-bundle.tgz && cd - ; \
+			else \
+				cd $(DOCKERFILEPATH_NOTARY) && $(DOCKERFILEPATH_NOTARY)/builder $(NOTARYVERSION) $(NOTARYMIGRATEVERSION) && cd - ; \
+			fi ; \
 		fi ; \
 		echo "building notary container for photon..."; \
 		chmod 655 $(DOCKERFILEPATH_NOTARY)/binary/notary-signer && $(DOCKERBUILD_WITH_PULL_PARA) --build-arg harbor_base_image_version=$(BASEIMAGETAG) --build-arg harbor_base_namespace=$(BASEIMAGENAMESPACE) -f $(DOCKERFILEPATH_NOTARYSIGNER)/$(DOCKERFILENAME_NOTARYSIGNER) -t $(DOCKERIMAGENAME_NOTARYSIGNER):$(VERSIONTAG) . ; \
@@ -226,11 +232,13 @@ _build_notary:
 
 _build_registry:
 	@$(call _build_base,$(REGISTRY),$(DOCKERFILEPATH_REG))
-	@if [ "$(BUILDBIN)" != "true" ] ; then \
-		rm -rf $(DOCKERFILEPATH_REG)/binary && mkdir -p $(DOCKERFILEPATH_REG)/binary && \
-		$(call _get_binary, $(REGISTRYURL), $(DOCKERFILEPATH_REG)/binary/registry); \
-	else \
-		cd $(DOCKERFILEPATH_REG) && $(DOCKERFILEPATH_REG)/builder $(REGISTRY_SRC_TAG) && cd - ; \
+	@if [ ! "$(SKIP_BUILDBIN)" ] ; then \
+		if [ "$(BUILDBIN)" != "true" ] ; then \
+			rm -rf $(DOCKERFILEPATH_REG)/binary && mkdir -p $(DOCKERFILEPATH_REG)/binary && \
+			$(call _get_binary, $(REGISTRYURL), $(DOCKERFILEPATH_REG)/binary/registry); \
+		else \
+			cd $(DOCKERFILEPATH_REG) && $(DOCKERFILEPATH_REG)/builder $(REGISTRY_SRC_TAG) && cd - ; \
+		fi ; \
 	fi
 	@echo "building registry container for photon..."
 	@chmod 655 $(DOCKERFILEPATH_REG)/binary/registry && $(DOCKERBUILD_WITH_PULL_PARA) --build-arg harbor_base_image_version=$(BASEIMAGETAG) --build-arg harbor_base_namespace=$(BASEIMAGENAMESPACE) -f $(DOCKERFILEPATH_REG)/$(DOCKERFILENAME_REG) -t $(DOCKERIMAGENAME_REG):$(VERSIONTAG) .
@@ -240,7 +248,6 @@ _build_registryctl:
 	@$(call _build_base,$(REGISTRYCTL),$(DOCKERFILEPATH_REGISTRYCTL))
 	@echo "building registry controller for photon..."
 	@$(DOCKERBUILD_WITH_PULL_PARA) --build-arg harbor_base_image_version=$(BASEIMAGETAG) --build-arg harbor_base_namespace=$(BASEIMAGENAMESPACE) -f $(DOCKERFILEPATH_REGISTRYCTL)/$(DOCKERFILENAME_REGISTRYCTL) -t $(DOCKERIMAGENAME_REGISTRYCTL):$(VERSIONTAG) .
-	@rm -rf $(DOCKERFILEPATH_REG)/binary
 	@echo "Done."
 
 _build_redis:
@@ -257,7 +264,7 @@ _build_standalone_db_migrator:
 _compile_and_build_exporter:
 	@$(call _build_base,$(EXPORTER),$(DOCKERFILEPATH_EXPORTER))
 	@echo "compiling and building image for exporter..."
-	@$(DOCKERCMD) build --build-arg harbor_base_image_version=$(BASEIMAGETAG) --build-arg harbor_base_namespace=$(BASEIMAGENAMESPACE) --build-arg build_image=$(GOBUILDIMAGE) -f ${DOCKERFILEPATH_EXPORTER}/${DOCKERFILENAME_EXPORTER} -t $(DOCKERIMAGENAME_EXPORTER):$(VERSIONTAG) .
+	$(DOCKERBUILD_WITH_PULL_PARA) --build-arg harbor_base_image_version=$(BASEIMAGETAG) --build-arg harbor_base_namespace=$(BASEIMAGENAMESPACE) --build-arg build_image=$(GOBUILDIMAGE) -f ${DOCKERFILEPATH_EXPORTER}/${DOCKERFILENAME_EXPORTER} -t $(DOCKERIMAGENAME_EXPORTER):$(VERSIONTAG) .
 	@echo "Done."
 
 define _extract_archive
@@ -271,6 +278,7 @@ define _get_binary
 endef
 
 define _build_base
+	set -x; \
 	if [ "$(BUILD_BASE)" = "true" ] ; then \
 		echo "building base image for $(1)...";\
 		if [ -n "$(REGISTRYUSER)"  ] && [ -n "$(REGISTRYPASSWORD)" ] ; then \

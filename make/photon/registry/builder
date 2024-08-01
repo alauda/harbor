@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set +e
+set -ex
 
 if [ -z $1 ]; then
   error "Please set the 'version' variable"
@@ -8,8 +8,6 @@ if [ -z $1 ]; then
 fi
 
 VERSION="$1"
-
-set -e
 
 # the temp folder to store binary file...
 mkdir -p binary
@@ -20,12 +18,12 @@ cur=$PWD
 
 # the temp folder to store distribution source code...
 TEMP=`mktemp -d ${TMPDIR-/tmp}/distribution.XXXXXX`
-git clone -b $VERSION https://github.com/distribution/distribution.git $TEMP
+git clone --depth=1 -b $VERSION https://github.com/distribution/distribution.git $TEMP
 
 # add patch 2815
 echo 'add patch https://github.com/distribution/distribution/pull/2815 ...'
 cd $TEMP
-curl -O -L https://github.com/distribution/distribution/pull/2815.patch
+curl -O -L --retry 3 -f https://github.com/distribution/distribution/pull/2815.patch
 git apply 2815.patch
 
 # add patch redis

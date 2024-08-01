@@ -2,9 +2,9 @@
 
 set -e
 
-sed -i 's/$(DOCKERBUILD) -f/docker buildx build --platform linux\/arm64 --output=type=docker -f/g' "make/photon/Makefile"
+#sed -i 's/$(DOCKERBUILD) -f/docker buildx build --platform linux\/arm64 --output=type=docker -f/g' "make/photon/Makefile"
 
-sed -i 's/$(DOCKERCMD) build/$(DOCKERCMD) buildx build --platform linux\/arm64 --progress plain --output=type=registry/' "make/photon/Makefile"
+#sed -i 's/$(DOCKERCMD) build/$(DOCKERCMD) buildx build --platform linux\/arm64 --progress plain --output=type=registry/' "make/photon/Makefile"
 echo "ARM64 after change  make/photon/Makefile is "
 cat make/photon/Makefile
 
@@ -12,7 +12,7 @@ cat make/photon/Makefile
 
 sed -i 's/--rm/--rm --env CGO_ENABLED=0 --env GOOS=linux --env GOARCH=arm64/g' "Makefile"
 # build base
-sed -i 's/$(DOCKERBUILD)/docker buildx build --platform linux\/arm64 --progress plain --output=type=registry/g' "Makefile"
+#sed -i 's/$(DOCKERBUILD)/docker buildx build --platform linux\/arm64 --progress plain --output=type=registry/g' "Makefile"
 sed -i 's/docker push/echo /g' "Makefile"
 echo "ARM64 after change Makefile is "
 cat Makefile
@@ -51,8 +51,8 @@ sed -i 's#amd64_c448c6ec#arm64_c448c6ec#g' "Makefile"
 # exporter build
 sed -i 's/GOARCH=amd64/GOARCH=arm64/g' "make/photon/exporter/Dockerfile"
 
-DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker run --rm --privileged build-harbor.alauda.cn/3rdparty/docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64
-DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker run --rm --privileged build-harbor.alauda.cn/3rdparty/multiarch/qemu-user-static --reset -p yes
-
-docker context create builder-arm
-docker buildx create builder-arm --driver-opt network=host --platform linux/arm64 --use
+#DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker run --rm --privileged build-harbor.alauda.cn/3rdparty/docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64
+#DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker run --rm --privileged build-harbor.alauda.cn/3rdparty/multiarch/qemu-user-static --reset -p yes
+#
+#docker context create builder-arm
+#docker buildx create builder-arm --driver-opt network=host --platform linux/arm64 --use

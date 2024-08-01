@@ -6,7 +6,7 @@ ARG trivy_version
 
 COPY ./make/photon/common/install_cert.sh /home/scanner
 COPY ./make/photon/trivy-adapter/entrypoint.sh /home/scanner
-COPY ./make/photon/common/exports_env_in_dir.sh /home/scanner/
+COPY ./make/photon/common/exports_env_in_dir.sh /home/scanner
 COPY ./make/photon/trivy-adapter/binary/trivy /usr/local/bin/trivy
 COPY ./make/photon/trivy-adapter/binary/scanner-trivy /home/scanner/bin/scanner-trivy
 
