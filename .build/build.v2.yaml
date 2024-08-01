@@ -411,3 +411,46 @@ spec:
             - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
             - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)-amd64
             - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)-arm64
+
+    ##########
+    # scan image
+    #########
+    - name: image-scan-batch
+      timeout: 60m
+      runAfter:
+        - build-manifests
+      taskRef:
+        resolver: katanomi.hub
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: trivy-image-scan
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: targets-result-limit
+          value: 11
+        - name: targets
+          value:
+            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)
+        - name: quality-gate-rules
+          value:
+            - severity=High
+        - name: scan-flags
+          value:
+            - vulnerability.ignore-unfixed=true
+            - vulnerability.type[0]=os
+            - db.skip-update=false
+            - db.repository=build-harbor.alauda.cn/ops/aquasecurity/trivy-db
