@@ -44,10 +44,10 @@ class TestProjects(unittest.TestCase):
         url = ADMIN_CLIENT["endpoint"]
         chart_api_url = CHART_API_CLIENT['endpoint']
         user_chart_password = 'Aa123456'
-        TestProjects.CHART_NAME = 'mariadb'
-        TestProjects.VERSION = '4.3.1'
+        TestProjects.CHART_NAME = 'harbor'
+        TestProjects.VERSION = '1.10.4'
 
-        base.run_command( ["curl", r"-o", "./tests/apitests/python/mariadb-4.3.1.tgz", "https://storage.googleapis.com/harbor-builds/bin/charts/mariadb-4.3.1.tgz"])
+        base.run_command( ["curl", r"-o", "./tests/apitests/python/harbor-1.10.4.tgz", "https://helm.goharbor.io/harbor-1.10.4.tgz"])
         #1. Create a new user(UA);
         TestProjects.user_chart_id, user_chart_name = self.user.create_user(user_password = user_chart_password, **ADMIN_CLIENT)
 
@@ -59,7 +59,7 @@ class TestProjects(unittest.TestCase):
         TestProjects.project_chart_id, TestProjects.project_chart_name = self.project.create_project(metadata = {"public": "false"}, **TestProjects.USER_CHART_CLIENT)
 
         #3. Upload a chart file to project(PA);
-        self.chart.upload_chart(TestProjects.project_chart_name, r'./tests/apitests/python/mariadb-{}.tgz'.format(TestProjects.VERSION), **TestProjects.API_CHART_CLIENT)
+        self.chart.upload_chart(TestProjects.project_chart_name, r'./tests/apitests/python/harbor-{}.tgz'.format(TestProjects.VERSION), **TestProjects.API_CHART_CLIENT)
 
         #4. Chart file should be exist in project(PA).
         self.chart.chart_should_exist(TestProjects.project_chart_name, TestProjects.CHART_NAME, **TestProjects.API_CHART_CLIENT)

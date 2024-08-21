@@ -22,9 +22,9 @@ class TestProjects(unittest.TestCase):
         self.repo= Repository()
         self.url = ADMIN_CLIENT["endpoint"]
         self.user_push_chart_password = "Aa123456"
-        self.chart_file = "https://storage.googleapis.com/harbor-builds/helm-chart-test-files/harbor-0.2.0.tgz"
-        self.archive = "harbor/"
-        self.version = "0.2.0"
+        self.chart_file = "https://gitlab-charts.s3.amazonaws.com/gitlab-5.0.12.tgz"
+        self.archive = "gitlab/"
+        self.version = "5.0.12"
         self.repo_name = "harbor_api_test"
 
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
@@ -82,11 +82,11 @@ class TestProjects(unittest.TestCase):
 
         #6. Get addtion successfully;
         addition_r = self.artifact.get_addition(TestProjects.project_push_chart_name, self.repo_name, self.version, "readme.md", **TestProjects.USER_CLIENT)
-        self.assertIn("Helm Chart for Harbor", addition_r[0])
+        self.assertIn("Cloud Native GitLab Helm Chart", addition_r[0])
         addition_d = self.artifact.get_addition(TestProjects.project_push_chart_name, self.repo_name, self.version, "dependencies", **TestProjects.USER_CLIENT)
-        self.assertIn("https://kubernetes-charts.storage.googleapis.com", addition_d[0])
+        self.assertIn("https://charts.gitlab.io", addition_d[0])
         addition_v = self.artifact.get_addition(TestProjects.project_push_chart_name, self.repo_name, self.version, "values.yaml", **TestProjects.USER_CLIENT)
-        self.assertIn("adminserver", addition_v[0])
+        self.assertIn("gitlab-runner", addition_v[0])
 
         #7. Delete chart by reference successfully.
         self.artifact.delete_artifact(TestProjects.project_push_chart_name, self.repo_name, self.version, **TestProjects.USER_CLIENT)

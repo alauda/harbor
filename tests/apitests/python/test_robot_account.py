@@ -193,9 +193,9 @@ class TestRobotAccount(unittest.TestCase):
             21. Verify the system robot account has no the corresponding right;
         """
         #1. Define a number of access lists;
-        CHART_FILE_LIST = [dict(name = 'prometheus', version='7.0.2'), dict(name = 'harbor', version='0.2.0')]
+        CHART_FILE_LIST = [dict(name = 'gitlab', url='https://gitlab-charts.s3.amazonaws.com/gitlab-5.0.12.tgz', version='5.0.12'), dict(name = 'harbor', url='https://helm.goharbor.io/harbor-1.10.4.tgz', version='1.10.4')]
         for i in range(2):
-            base.run_command( ["curl", r"-o", "./tests/apitests/python/{}-{}.tgz".format(CHART_FILE_LIST[i]["name"], CHART_FILE_LIST[i]["version"]), "https://storage.googleapis.com/harbor-builds/helm-chart-test-files/{}-{}.tgz".format(CHART_FILE_LIST[i]["name"], CHART_FILE_LIST[i]["version"])])
+            base.run_command( ["curl", r"-o", "./tests/apitests/python/{}-{}.tgz".format(CHART_FILE_LIST[i]["name"], CHART_FILE_LIST[i]["version"]), CHART_FILE_LIST[i]["url"]])
 
         # In this priviledge check list, make sure that each of lines and rows must
         #   contains both True and False value.

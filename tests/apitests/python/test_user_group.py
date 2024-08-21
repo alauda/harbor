@@ -21,7 +21,8 @@ sys.path.append(os.environ["SWAGGER_CLIENT_PATH"])
 
 import unittest
 import testutils
-from testutils import ADMIN_CLIENT
+from testutils import ADMIN_CLIENT, harbor_url, admin_user, admin_pwd
+
 
 from v2_swagger_client.models.user_group import UserGroup
 from library.configurations import Configurations
@@ -34,8 +35,8 @@ from pprint import pprint
 
 class TestUserGroup(unittest.TestCase):
     """UserGroup unit test stubs"""
-    product_api = testutils.GetProductApi("admin", "Harbor12345")
-    usergroup_api = testutils.GetUserGroupApi("admin", "Harbor12345")
+    product_api = testutils.GetProductApi(admin_user, admin_pwd, harbor_url)
+    usergroup_api = testutils.GetUserGroupApi(admin_user, admin_pwd, harbor_url)
     groupId = 0
     def setUp(self):
         self.conf= Configurations()

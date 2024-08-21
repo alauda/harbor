@@ -16,6 +16,7 @@ sys.path.append(os.environ["SWAGGER_CLIENT_PATH"])
 
 import unittest
 import testutils
+from testutils import harbor_url, admin_user, admin_pwd
 from swagger_client.models.ldap_conf import LdapConf
 from pprint import pprint
 
@@ -23,7 +24,7 @@ from pprint import pprint
 # Define a LDAP group with harbor admin
 class TestLdapPing(unittest.TestCase):
     """AccessLog unit test stubs"""
-    product_api = testutils.GetProductApi("admin", "Harbor12345")
+    product_api = testutils.GetProductApi(admin_user, admin_pwd, harbor_url)
     project_id = 0
     def setUp(self):
         pass
