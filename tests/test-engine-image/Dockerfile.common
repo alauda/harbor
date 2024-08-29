@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 as tool_builder
+FROM build-harbor.alauda.cn/ops/ubuntu:22.04 as tool_builder
 ENV LANG C.UTF-8
 WORKDIR /tool
 
@@ -33,13 +33,13 @@ RUN pwd && mkdir /tool/binary && \
     cp linux-amd64/helm /tool/binary/helm && \
     cp linux-amd64/helm /tool/binary/helm2 && \
     # Install helm v3
-    HELM3_VERSION=3.3.3 && wget https://get.helm.sh/helm-v$HELM3_VERSION-linux-amd64.tar.gz && \
-    tar zxvf helm-v$HELM3_VERSION-linux-amd64.tar.gz && \
+    ALAUDA_HELM3_VERSION=3.5.6 && wget https://build-nexus.alauda.cn/repository/alauda/alauda/helm/v$ALAUDA_HELM3_VERSION/helm-linux/helm-linux && \
     ls || pwd && \
-    mv linux-amd64/helm /tool/binary/helm3 && \
-    # Install helm v3.7
-    HELM3_7_VERSION=3.7.0 && wget https://get.helm.sh/helm-v$HELM3_7_VERSION-linux-amd64.tar.gz && \
-    tar zxvf helm-v$HELM3_7_VERSION-linux-amd64.tar.gz && \
+    chmod +x helm-linux && mv helm-linux /tool/binary/helm3 && \
+    # Install helm v3.13
+    # Update to new version for http registry support, while retaining the name 'helm3.7' for test compatibility
+    HELM3_13_VERSION=3.13.0 && wget https://get.helm.sh/helm-v$HELM3_13_VERSION-linux-amd64.tar.gz && \
+    tar zxvf helm-v$HELM3_13_VERSION-linux-amd64.tar.gz && \
     ls || pwd && \
     mv linux-amd64/helm /tool/binary/helm3.7 && \
     # Install ORAS

@@ -589,7 +589,7 @@ restart: down prepare start
 
 swagger_client:
 	@echo "Generate swagger client"
-	wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/4.3.1/openapi-generator-cli-4.3.1.jar -O openapi-generator-cli.jar
+	curl https://build-nexus.alauda.cn/repository/maven-central/org/openapitools/openapi-generator-cli/4.3.1/openapi-generator-cli-4.3.1.jar -o openapi-generator-cli.jar
 	rm -rf harborclient
 	mkdir  -p harborclient/harbor_client
 	mkdir  -p harborclient/harbor_swagger_client

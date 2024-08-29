@@ -13,7 +13,7 @@ def get_chart_file(file_name):
 
 def helm_login(harbor_server, user, password):
     os.putenv("HELM_EXPERIMENTAL_OCI", "1")
-    command = ["helm3", "registry", "login", harbor_server, "-u", user, "-p", password]
+    command = ["helm3", "registry", "login", "--insecure", harbor_server, "-u", user, "-p", password]
     ret = base.run_command(command)
     print("Command return: ", ret)
 
@@ -22,7 +22,7 @@ def helm_save(chart_archive, harbor_server, project, repo_name):
     base.run_command(command)
 
 def helm_push(harbor_server, project, repo_name, version):
-    command = ["helm3", "chart", "push", harbor_server+"/"+project+"/"+repo_name+":"+version]
+    command = ["helm3", "chart", "push", "--insecure", harbor_server+"/"+project+"/"+repo_name+":"+version]
     ret = base.run_command(command)
     return ret
 
@@ -58,7 +58,7 @@ def helm2_fetch_chart_file(helm_repo_name, harbor_url, project, username, passwo
     base.run_command(command_ls)
 
 def helm3_7_registry_login(ip, user, password):
-    command = ["helm3.7", "registry", "login", ip, "-u", user, "-p", password]
+    command = ["helm3.7", "registry", "login", "--insecure", ip, "-u", user, "-p", password]
     base.run_command(command)
 
 def helm3_7_package(file_path):
@@ -66,5 +66,12 @@ def helm3_7_package(file_path):
     base.run_command(command)
 
 def helm3_7_push(file_path, ip, project_name):
-    command = ["helm3.7", "push", file_path, "oci://{}/{}".format(ip, project_name)]
+    command = ["helm3.7", "push", *insecure_opt(), file_path, "oci://{}/{}".format(ip, project_name)]
     base.run_command(command)
+
+def insecure_opt():
+    schema = os.environ.get("HARBOR_HOST_SCHEMA", "https")
+    if schema == "http":
+        return  ["--plain-http"]
+
+    return ["--insecure-skip-tls-verify"]

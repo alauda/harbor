@@ -19,16 +19,18 @@ import v2_swagger_client
 import swagger_client.models
 
 admin_user = "admin"
-admin_pwd = "Harbor12345"
+admin_pwd = os.environ.get("HARBOR_PASSWORD", "Harbor12345")
 
 harbor_server = os.environ.get("HARBOR_HOST", '')
-harbor_url = "https://{}".format(harbor_server)
+harbor_schema = os.environ.get("HARBOR_HOST_SCHEMA", "https")
+harbor_url = "{}://{}".format(harbor_schema, harbor_server)
+
 #CLIENT=dict(endpoint="https://"+harbor_server+"/api")
 ADMIN_CLIENT=dict(endpoint = os.environ.get("HARBOR_HOST_SCHEMA", "https")+ "://"+harbor_server+"/api/v2.0", username = admin_user, password =  admin_pwd)
 CHART_API_CLIENT=dict(endpoint = os.environ.get("HARBOR_HOST_SCHEMA", "https")+ "://"+harbor_server+"/api", username = admin_user, password =  admin_pwd)
 USER_ROLE=dict(admin=0,normal=1)
 TEARDOWN = os.environ.get('TEARDOWN', 'true').lower() in ('true', 'yes')
-notary_url = os.environ.get('NOTARY_URL', 'https://'+harbor_server+':4443')
+notary_url = os.environ.get('NOTARY_URL', harbor_url+':4443')
 DOCKER_USER = os.environ.get('DOCKER_USER', '')
 DOCKER_PWD = os.environ.get('DOCKER_PWD', '')
 METRIC_URL = os.environ.get('METRIC_URL', 'http://'+harbor_server+':9090')
@@ -36,10 +38,10 @@ LOG_PATH = os.environ.get('LOG_PATH', '/var/log/harbor/')
 BASE_IMAGE = dict(name='busybox', tag='latest')
 BASE_IMAGE_ABS_PATH_NAME = '/' + BASE_IMAGE['name'] + '.tar'
 
-def GetProductApi(username, password, harbor_server= os.environ.get("HARBOR_HOST", '')):
+def GetProductApi(username, password, harbor_url):
 
     cfg = swagger_client.Configuration()
-    cfg.host = "https://"+harbor_server+"/api/v2.0"
+    cfg.host = harbor_url+"/api/v2.0"
     cfg.username = username
     cfg.password = password
     cfg.verify_ssl = False
@@ -48,10 +50,10 @@ def GetProductApi(username, password, harbor_server= os.environ.get("HARBOR_HOST
     api_instance = swagger_client.ProductsApi(api_client)
     return api_instance
 
-def GetRepositoryApi(username, password, harbor_server= os.environ.get("HARBOR_HOST", '')):
+def GetRepositoryApi(username, password, harbor_url):
 
     cfg = v2_swagger_client.Configuration()
-    cfg.host = "https://"+harbor_server+"/api/v2.0"
+    cfg.host = harbor_url+"/api/v2.0"
     cfg.username = username
     cfg.password = password
     cfg.verify_ssl = False
@@ -60,9 +62,9 @@ def GetRepositoryApi(username, password, harbor_server= os.environ.get("HARBOR_H
     api_instance = v2_swagger_client.RepositoryApi(api_client)
     return api_instance
 
-def GetUserGroupApi(username, password, harbor_server= os.environ.get("HARBOR_HOST", '')):
+def GetUserGroupApi(username, password, harbor_url):
     cfg = v2_swagger_client.Configuration()
-    cfg.host = "https://"+harbor_server+"/api/v2.0"
+    cfg.host = harbor_url+"/api/v2.0"
     cfg.username = username
     cfg.password = password
     cfg.verify_ssl = False

@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import unittest
 
 from testutils import ADMIN_CLIENT, CHART_API_CLIENT, suppress_urllib3_warning
-from testutils import harbor_server
+from testutils import harbor_server, harbor_schema
 from testutils import TEARDOWN
 import library.repository
 import library.helm
@@ -23,11 +23,11 @@ class TestProjects(unittest.TestCase):
         self.url = ADMIN_CLIENT["endpoint"]
         self.chart_api_url = CHART_API_CLIENT['endpoint']
         self.user_push_chart_password = "Aa123456"
-        self.chart_file = "https://storage.googleapis.com/harbor-builds/helm-chart-test-files/harbor-0.2.0.tgz"
+        self.chart_file = "https://helm.goharbor.io/harbor-1.10.4.tgz"
         self.archive = "harbor/"
         self.CHART_NAME=self.archive.replace("/", "")
-        self.verion = "0.2.0"
-        self.chart_repo_name = "chart_local"
+        self.verion = "1.10.4"
+        self.chart_repo_name = "harbor"
         self.repo_name = "harbor_api_test"
 
     @unittest.skipIf(TEARDOWN == False, "Test data won't be erased.")
@@ -61,7 +61,7 @@ class TestProjects(unittest.TestCase):
         robot_id, robot_account = self.robot.create_project_robot(TestProjects.project_name,
                                                                          30 ,**TestProjects.USER_CLIENT)
         #4. Push chart to project(PA) by Helm2 CLI with robot account(RA);"
-        library.helm.helm2_add_repo(self.chart_repo_name, "https://"+harbor_server, TestProjects.project_name, robot_account.name, robot_account.secret)
+        library.helm.helm2_add_repo(self.chart_repo_name, harbor_schema + "://"+harbor_server, TestProjects.project_name, robot_account.name, robot_account.secret)
         library.helm.helm2_push(self.chart_repo_name, self.chart_file, TestProjects.project_name, robot_account.name, robot_account.secret)
 
         #5. Get chart repositry from project(PA) successfully;

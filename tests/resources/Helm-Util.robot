@@ -21,7 +21,6 @@ Library  Process
 Prepare Helm Plugin
     Wait Unitl Command Success  helm init --stable-repo-url https://charts.helm.sh/stable --client-only
     Wait Unitl Command Success  helm plugin install https://github.com/chartmuseum/helm-push
-    Wait Unitl Command Success  helm3 plugin install https://github.com/chartmuseum/helm-push
 
 Helm Repo Add
     [Arguments]  ${harbor_url}  ${user}  ${pwd}  ${project_name}=library  ${helm_repo_name}=myrepo
