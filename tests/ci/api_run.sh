@@ -43,12 +43,15 @@ elif [ "$1" = 'LDAP' ]; then
                                   ldap_uid=cn
     docker run -i --privileged -v $DIR/../../:/drone -v $DIR/../:/ca -w /drone $E2E_IMAGE robot -v DOCKER_USER:${DOCKER_USER} -v DOCKER_PWD:${DOCKER_PWD} -v ip:$2  -v ip1: -v http_get_ca:false -v HARBOR_PASSWORD:Harbor12345 /drone/tests/robot-cases/Group1-Nightly/Setup.robot /drone/tests/robot-cases/Group0-BAT/API_LDAP.robot
 else
-    rc=999
+  echo "Wrong test params, exit"
+  exit 1
 fi
 rc=$?
 ## --------------------------------------------- Upload Harbor CI Logs -------------------------------------------
-GIT_COMMIT=$(git rev-parse --short "$GITHUB_SHA")
+GIT_COMMIT=$(git rev-parse --short HEAD)
 outfile="integration-logs-$GIT_COMMIT.tar.gz"
 tar -zcvf $outfile output.xml log.html
 
-exit $rc
+if [ $rc -gt 0 ]; then
+    echo "Failed test count $rc" >&2
+fi
