@@ -1,16 +1,36 @@
 apiVersion: builds.katanomi.dev/v1alpha1
 kind: Build
 spec:
+  git:
+    options:
+      depth: 1
+      preScript: |
+        git config --global url."https://mirror.ghproxy.com/".insteadOf https://
   runTemplate:
     spec:
+      workspaces:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: build-cache
+          subPath: golang
+        - name: source-arm64
+          volumeClaimTemplate:
+            spec:
+              accessModes:
+                - ReadWriteMany
+              resources:
+                requests:
+                  storage: 2000Mi
       timeouts:
         pipeline: 3h
         tasks: 3h
       taskRunSpecs: []
   workspaces:
-    - description: |
-        This workspace is shared among all the pipeline tasks to read/write common resources
+    - description: source original, for amd64
       name: source
+    - name: source-arm64
+    - name: cache
+      optional: true
   params:
     - name: run_sonar
       type: string
@@ -18,167 +38,335 @@ spec:
         Controls whether to run a sonar scan. 
         The sonar of the open source component does not need to run frequently,  and the sonar service may cause pipeline failure due to too many scanning tasks, which is a huge cost for building a harbor image, so the sonar scan is turned off by default,  and the switch control is added, and it is turned on only when necessary.
   tasks:
-    - name: build-image
-      timeout: 2.5h
+    - name: readme-please
+      displayName: 📣 Readme 📣
+      timeout: 30m
+      retries: 0
+      taskRef:
+        kind: ClusterTask
+        name: alauda-script
       workspaces:
         - name: source
           workspace: source
       params:
-        - name: container-images
-          value:
-            - build-harbor.alauda.cn/devops/goharbor-harbor-portal
-            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon
-            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon
-            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl
-            - build-harbor.alauda.cn/devops/goharbor-registry-photon
-            - build-harbor.alauda.cn/devops/goharbor-nginx-photon
-            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice
-            - build-harbor.alauda.cn/devops/goharbor-harbor-core
-            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon
-            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon
-            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter
-        - name: container-image-tag
-          value: 2.6.4-$(build.git.lastCommit.shortID)
-      taskSpec:
-        metadata:
-          annotations:
-            katanomi.dev/class.ociContainerImageBuild: "true"
+        - name: script
+          value: |
+            echo "###################"
+            echo "This pipeline uses tekton matrix, you cannot see all steps on katanomi builds"
+            echo "Please see all steps https://tekton-dashboard-edge.alauda.cn/#/namespaces/tools/pipelineruns/$(context.pipelineRun.name)"
+            echo "###################"
+
+    ##########
+    # prepare arm64 code
+    #########
+    - name: git-clone-arm64
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.git-revision)
+        - name: depth
+          value: "1"
+        - name: tools-image
+          value: registry.alauda.cn:60080/devops/tektoncd/pipeline/cmd/git-init:v0.41.0-9f25e235
+        - name: pre-script
+          value: >
+            git config --global url."https://mirror.ghproxy.com/".insteadOf https://
+      retries: 3
+      taskRef:
+        kind: Task
         params:
-          - name: container-images
-            type: array
-            description: harbor components images
-          - name: container-image-tag
-            description: image tag
-        volumes:
-          - name: dind-certs
-            emptyDir: {}
-        sidecars:
-          - image: docker-mirrors.alauda.cn/library/docker:20.10-dind
-            name: docker-daemon
-            args:
-              - --storage-driver=overlay2
-              - --userland-proxy=false
-              - --debug
-              - --registry-mirror=https://docker-mirrors.alauda.cn
-            securityContext:
-              privileged: true
-            env:
-              - name: DOCKER_TLS_CERTDIR
-                value: /certs
-            resources:
-              requests:
-                cpu: 1000m
-                memory: 2000Mi
-              limits:
-                cpu: 4000m
-                memory: 8000Mi
-            volumeMounts:
-              - mountPath: /certs/client
-                name: dind-certs
-              - mountPath: /workspace/source
-                name: $(workspaces.source.volume)
-            readinessProbe:
-              periodSeconds: 1
-              exec:
-                command:
-                  - ls
-                  - /certs/client/ca.pem
-        steps:
-          - name: build-amd64
-            image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
-            imagePullPolicy: IfNotPresent
-            workingDir: $(workspaces.source.path)
-            timeout: 2.5h
-            resources:
-              requests:
-                cpu: 1000m
-                memory: 2000Mi
-              limits:
-                cpu: 2000m
-                memory: 4000Mi
-            env:
-              - name: DOCKER_HOST
-                value: tcp://localhost:2376
-              - name: DOCKER_TLS_VERIFY
-                value: "1"
-              - name: DOCKER_CERT_PATH
-                value: /certs/client
-            volumeMounts:
-              - mountPath: /certs/client
-                name: dind-certs
-            args:
-              - $(params.container-images[*])
-            script: |
-              #!/bin/bash
-              set -e
-              git config --global --add safe.directory $(workspaces.source.path)
-              /katanomi/bin/ktn-settings copy docker --always-match=true ~/.docker/config.json
-              bash make/patches/patch-amd64.sh
-              echo "=> ✅  patch script done."
+          - name: kind
+            value: task
+          - name: name
+            value: katanomi-git-clone
+          - name: namespace
+            value: katanomi-system
+        resolver: cluster
+      timeout: 10m0s
+      workspaces:
+        - name: source
+          workspace: source-arm64
 
-              set -x
-              BUILDPATH=$(workspaces.source.path)
-              VERSIONTAG=$(params.container-image-tag)-amd64
-              BASEIMAGETAG=$(params.container-image-tag)-amd64
-              BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
-              IMAGENAMESPACE=build-harbor.alauda.cn/devops              
-              BUILDPATH="$BUILDPATH" make compile
-              echo "=> ✅  compile harbor done."
-              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" IMAGENAMESPACE="$IMAGENAMESPACE" make build
-              echo "=> ✅  build harbor done."
-
-              for arg in "$@"; do
-                image="${arg}:$(params.container-image-tag)-amd64"
-                # only for amd64, arm has pushed when buildx build --type=registry
-                docker push "${image}"
-              done
-              echo "=> ✅  push harbor image done."
-          - name: build-arm64
-            image: registry.alauda.cn:60080/devops/builder-tools:ubuntu-v3.8.1
-            imagePullPolicy: IfNotPresent
-            workingDir: $(workspaces.source.path)
-            timeout: 2.5h
-            resources:
-              requests:
-                cpu: 1000m
-                memory: 2000Mi
-              limits:
-                cpu: 2000m
-                memory: 4000Mi
-            env:
-              - name: DOCKER_HOST
-                value: tcp://localhost:2376
-              - name: DOCKER_TLS_VERIFY
-                value: "1"
-              - name: DOCKER_CERT_PATH
-                value: /certs/client
-            volumeMounts:
-              - mountPath: /certs/client
-                name: dind-certs
-            script: |
-              #!/bin/bash
-              set -ex
-              git config --global --add safe.directory $(workspaces.source.path)
-              /katanomi/bin/ktn-settings copy docker --always-match=true ~/.docker/config.json
-              bash make/patches/patch-arm64.sh
-              echo "=> ✅  patch script done."
-              BUILDPATH=$(workspaces.source.path)
-              VERSIONTAG=$(params.container-image-tag)-arm64
-              BASEIMAGETAG=$(params.container-image-tag)-arm64
-              BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
-              IMAGENAMESPACE=build-harbor.alauda.cn/devops
-              BUILDPATH="$BUILDPATH" make compile
-              echo "=> ✅  compile harbor done."
-              BUILDPATH="$BUILDPATH" BASEIMAGETAG="$BASEIMAGETAG" BASEIMAGENAMESPACE="$BASEIMAGENAMESPACE" VERSIONTAG="$VERSIONTAG" IMAGENAMESPACE="$IMAGENAMESPACE" make build
-              echo "=> ✅  build harbor done."
-        workspaces:
-          - name: source
-            workspace: source
-    - name: build-manifests
-      runAfter:
-        - build-image
+    ##########
+    # init amd64 and arm64
+    #########
+    - name: patch-amd64
       timeout: 30m
       retries: 0
+      taskRef:
+        kind: ClusterTask
+        name: alauda-script
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: script
+          value: |
+            bash make/patches/patch-amd64.sh
+    - name: patch-arm64
+      timeout: 30m
+      retries: 0
+      runAfter:
+        - git-clone-arm64
+      taskRef:
+        kind: ClusterTask
+        name: alauda-script
+      workspaces:
+        - name: source
+          workspace: source-arm64
+      params:
+        - name: script
+          value: |
+            bash make/patches/patch-amd64.sh
+            bash make/patches/patch-arm64.sh
+
+    ##########
+    # compile amd64 and arm64
+    #########
+    - name: compile-amd64-harbor
+      timeout: 2.5h
+      retries: 3
+      taskRef:
+        kind: Task
+        name: docker-in-docker
+      runAfter:
+        - patch-amd64
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: command
+          value: |
+            set -ex
+            
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            REGISTRY_SRC_TAG=v2.8.0
+            
+            # compile harbor
+            BUILDPATH="$(workspaces.source.path)" make compile
+    - name: compile-amd64-thirdparty
+      timeout: 2.5h
+      retries: 3
+      taskRef:
+        kind: Task
+        name: docker-in-docker
+      runAfter:
+        - patch-amd64
+      workspaces:
+        - name: source
+          workspace: source
+      params:
+        - name: command
+          value: |
+            set -ex
+            
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            REGISTRY_SRC_TAG=v2.8.0
+            
+            # compile registry
+            cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} && cd -
+
+            # compile trivy
+            TRIVYADAPTERVERSION=v0.30.7
+            mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
+            cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
+
+            # compile chartserver
+            GOBUILDIMAGE=golang:1.19.4
+            CHART_SERVER_CODE_BASE=https://github.com/alauda/chartmuseum.git
+            CHARTMUSEUM_SRC_TAG=v0.14.1
+            CHART_SERVER_MAIN_PATH=cmd/chartmuseum
+            CHART_SERVER_BIN_NAME=chartm
+            cd ${BUILDPATH}/make/photon/chartserver && ./builder ${GOBUILDIMAGE} ${CHART_SERVER_CODE_BASE} ${CHARTMUSEUM_SRC_TAG} ${CHART_SERVER_MAIN_PATH} ${CHART_SERVER_BIN_NAME} && cd -
+
+            # compile notary
+            NOTARYVERSION=v0.6.1
+            NOTARYMIGRATEVERSION=v4.11.0
+            cd ${BUILDPATH}/make/photon/notary && ./builder ${NOTARYVERSION} ${NOTARYMIGRATEVERSION} && cd -
+
+    - name: compile-arm64-harbor
+      timeout: 2.5h
+      retries: 3
+      taskRef:
+        kind: Task
+        name: docker-in-docker
+      runAfter:
+        - patch-arm64
+      workspaces:
+        - name: source
+          workspace: source-arm64
+      params:
+        - name: command
+          value: |
+            set -ex
+            
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            REGISTRY_SRC_TAG=v2.8.0
+            
+            # compile harbor
+            BUILDPATH="$(workspaces.source.path)" make compile
+    - name: compile-arm64-thirdparty
+      timeout: 2.5h
+      retries: 3
+      taskRef:
+        kind: Task
+        name: docker-in-docker
+      runAfter:
+        - patch-arm64
+      workspaces:
+        - name: source
+          workspace: source-arm64
+      params:
+        - name: command
+          value: |
+            set -ex
+            
+            BUILDPATH=$(workspaces.source.path)
+            VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
+            BASEIMAGETAG=${VERSIONTAG}
+            BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            REGISTRY_SRC_TAG=v2.8.0
+            
+            # compile registry
+            cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} && cd -
+
+            # compile trivy
+            TRIVYADAPTERVERSION=v0.30.7
+            mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
+            cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
+
+            # compile chartserver
+            GOBUILDIMAGE=golang:1.19.4
+            CHART_SERVER_CODE_BASE=https://github.com/alauda/chartmuseum.git
+            CHARTMUSEUM_SRC_TAG=v0.14.1
+            CHART_SERVER_MAIN_PATH=cmd/chartmuseum
+            CHART_SERVER_BIN_NAME=chartm
+            cd ${BUILDPATH}/make/photon/chartserver && ./builder ${GOBUILDIMAGE} ${CHART_SERVER_CODE_BASE} ${CHARTMUSEUM_SRC_TAG} ${CHART_SERVER_MAIN_PATH} ${CHART_SERVER_BIN_NAME} && cd -
+
+            # compile notary
+            NOTARYVERSION=v0.6.1
+            NOTARYMIGRATEVERSION=v4.11.0
+            cd ${BUILDPATH}/make/photon/notary && ./builder ${NOTARYVERSION} ${NOTARYMIGRATEVERSION} && cd -
+
+    ##########
+    # build-image amd64 and arm64
+    #########
+    - name: build-image-amd64
+      timeout: 2.5h
+      retries: 3
+      runAfter:
+        - compile-amd64-harbor
+        - compile-amd64-thirdparty
+      taskRef:
+        kind: Task
+        name: buildx
+      workspaces:
+        - name: source
+          workspace: source
+      matrix:
+        params:
+          - name: command
+            value:
+              - make build -e BUILDTARGET=_build_portal
+              - make build -e BUILDTARGET=_build_core
+              - make build -e BUILDTARGET=_build_jobservice
+              - make build -e BUILDTARGET=_build_log
+              - make build -e BUILDTARGET=_build_nginx
+              - make build -e BUILDTARGET=_build_registry
+              - make build -e BUILDTARGET=_build_registryctl
+              - make build -e BUILDTARGET=_build_notary
+              - make build -e BUILDTARGET=_build_trivy_adapter
+              - make build -e BUILDTARGET=_build_chart_server
+              - make build -e BUILDTARGET=_compile_and_build_exporter
+      params:
+        - name: pre-command
+          value: |
+            set -ex
+            # some build target need wget
+            apt-get update && apt-get install -y wget
+            
+            export VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            export IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            export BASEIMAGETAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
+            export BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            export PUSHBASEIMAGE=false
+            export SKIP_BUILDBIN=true
+            export DOCKERBUILD="docker buildx build --platform=linux/amd64 --builder builder --push --metadata-file .build-metadata.txt --iidfile $(results.container-image-digest.path)"
+        - name: post-command
+          value: |
+            echo "==== build metadata"
+            cat .build-metadata.txt
+            echo "==== build metadata"
+    - name: build-image-arm64
+      timeout: 2.5h
+      retries: 3
+      runAfter:
+        - compile-arm64-harbor
+        - compile-arm64-thirdparty
+      taskRef:
+        kind: Task
+        name: buildx
+      workspaces:
+        - name: source
+          workspace: source-arm64
+      matrix:
+        params:
+          - name: command
+            value:
+              - make build -e BUILDTARGET=_build_portal
+              - make build -e BUILDTARGET=_build_core
+              - make build -e BUILDTARGET=_build_jobservice
+              - make build -e BUILDTARGET=_build_log
+              - make build -e BUILDTARGET=_build_nginx
+              - make build -e BUILDTARGET=_build_registry
+              - make build -e BUILDTARGET=_build_registryctl
+              - make build -e BUILDTARGET=_build_notary
+              - make build -e BUILDTARGET=_build_trivy_adapter
+              - make build -e BUILDTARGET=_build_chart_server
+              - make build -e BUILDTARGET=_compile_and_build_exporter
+      params:
+        - name: pre-command
+          value: |
+            set -ex
+            # some build target need wget
+            apt-get update && apt-get install -y wget
+            
+            export VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
+            export IMAGENAMESPACE=build-harbor.alauda.cn/devops
+            export BASEIMAGETAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
+            export BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
+            export PUSHBASEIMAGE=false
+            export SKIP_BUILDBIN=true
+            export DOCKERBUILD="docker buildx build --platform=linux/arm64 --builder builder --push --metadata-file .build-metadata.txt --iidfile $(results.container-image-digest.path)"
+        - name: post-command
+          value: |
+            echo "==== build metadata"
+            cat .build-metadata.txt
+            echo "==== build metadata"
+
+    ##########
+    # merge
+    #########
+    - name: build-manifests
+      runAfter:
+        - build-image-arm64
+        - build-image-amd64
+      timeout: 30m
+      retries: 3
       taskRef:
         kind: ClusterTask
         name: merge-image-buildkit
@@ -223,20 +411,46 @@ spec:
             - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.shortID)-arm64
             - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)-amd64
             - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)-arm64
-    - name: sonar
-      timeout: 30m
-      retries: 0
+
+    ##########
+    # scan image
+    #########
+    - name: image-scan-batch
+      timeout: 60m
+      runAfter:
+        - build-manifests
       taskRef:
-        kind: ClusterTask
-        name: sonarqube-analysis
+        resolver: katanomi.hub
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: trivy-image-scan
       workspaces:
         - name: source
           workspace: source
-      when:
-        - input: $(params.run_sonar)
-          operator: in
-          values:
-            - "true"
       params:
-        - name: server
-          value: https://build-sonar.alauda.cn
+        - name: targets-result-limit
+          value: 11
+        - name: targets
+          value:
+            - build-harbor.alauda.cn/devops/goharbor-harbor-portal:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-notary-server-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-notary-signer-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-registryctl:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-registry-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-nginx-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-jobservice:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-core:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-chartmuseum-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-trivy-adapter-photon:2.6.4-$(build.git.lastCommit.shortID)
+            - build-harbor.alauda.cn/devops/goharbor-harbor-exporter:2.6.4-$(build.git.lastCommit.shortID)
+        - name: quality-gate-rules
+          value:
+            - severity=High
+        - name: scan-flags
+          value:
+            - vulnerability.ignore-unfixed=true
+            - vulnerability.type[0]=os
+            - db.skip-update=false
+            - db.repository=build-harbor.alauda.cn/ops/aquasecurity/trivy-db
