@@ -16,7 +16,7 @@ cur=$PWD
 
 # The temporary directory to clone Trivy adapter source code
 TEMP=$(mktemp -d ${TMPDIR-/tmp}/trivy-adapter.XXXXXX)
-git clone https://github.com/goharbor/harbor-scanner-trivy.git $TEMP
+git clone --depth=1 https://github.com/goharbor/harbor-scanner-trivy.git $TEMP
 cd $TEMP; git checkout $VERSION; cd -
 
 echo "Building Trivy adapter binary based on golang:1.23.2..."
