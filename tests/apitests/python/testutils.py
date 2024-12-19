@@ -18,10 +18,12 @@ files_directory = os.getcwd() + "/tests/files/"
 import v2_swagger_client
 
 admin_user = "admin"
-admin_pwd = "Harbor12345"
+admin_pwd = os.environ.get("HARBOR_PASSWORD", "Harbor12345")
 
 harbor_server = os.environ.get("HARBOR_HOST", '')
-harbor_url = "https://{}".format(harbor_server)
+harbor_schema = os.environ.get("HARBOR_HOST_SCHEMA", "https")
+harbor_url = "{}://{}".format(harbor_schema, harbor_server)
+
 #CLIENT=dict(endpoint="https://"+harbor_server+"/api")
 ADMIN_CLIENT=dict(endpoint = os.environ.get("HARBOR_HOST_SCHEMA", "https")+ "://"+harbor_server+"/api/v2.0", username = admin_user, password =  admin_pwd)
 CHART_API_CLIENT=dict(endpoint = os.environ.get("HARBOR_HOST_SCHEMA", "https")+ "://"+harbor_server+"/api", username = admin_user, password =  admin_pwd)
@@ -36,10 +38,10 @@ BASE_IMAGE = dict(name='busybox', tag='latest')
 BASE_IMAGE_ABS_PATH_NAME = '/' + BASE_IMAGE['name'] + '.tar'
 
 
-def GetRepositoryApi(username, password, harbor_server= os.environ.get("HARBOR_HOST", '')):
+def GetRepositoryApi(username, password, harbor_url):
 
     cfg = v2_swagger_client.Configuration()
-    cfg.host = "https://"+harbor_server+"/api/v2.0"
+    cfg.host = harbor_url+"/api/v2.0"
     cfg.username = username
     cfg.password = password
     cfg.verify_ssl = False
@@ -48,9 +50,9 @@ def GetRepositoryApi(username, password, harbor_server= os.environ.get("HARBOR_H
     api_instance = v2_swagger_client.RepositoryApi(api_client)
     return api_instance
 
-def GetUserGroupApi(username, password, harbor_server= os.environ.get("HARBOR_HOST", '')):
+def GetUserGroupApi(username, password, harbor_url):
     cfg = v2_swagger_client.Configuration()
-    cfg.host = "https://"+harbor_server+"/api/v2.0"
+    cfg.host = harbor_url+"/api/v2.0"
     cfg.username = username
     cfg.password = password
     cfg.verify_ssl = False
