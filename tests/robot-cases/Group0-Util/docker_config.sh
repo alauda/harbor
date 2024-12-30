@@ -15,7 +15,14 @@ mkdir -p /etc/docker
 if [ "$HARBOR_HOST_SCHEMA" = "http" ]; then
     cat > /etc/docker/daemon.json <<EOF
 {
-    "insecure-registries": ["0.0.0.0/0", "${HARBOR_HOST}"]
+    "insecure-registries": ["0.0.0.0/0", "${HARBOR_HOST}"],
+    "default-shm-size": "256m"
+}
+EOF
+else
+    cat > /etc/docker/daemon.json <<EOF
+{
+    "default-shm-size": "256m"
 }
 EOF
 fi

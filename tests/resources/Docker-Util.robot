@@ -117,7 +117,7 @@ Get Container IP
 Start Docker Daemon Locally
     ${pid}=  Run  ps aux | grep -v grep | grep /usr/local/bin/dockerd | awk '{print $2}'
     ${rc}  ${output}=  Run And Return Rc And Output  ./tests/robot-cases/Group0-Util/docker_config.sh
-    Log  ${output}
+    Log To Console  output: ${output}
     Should Be Equal As Integers  ${rc}  0
     Log To Console  pid: ${pid}
     Return From Keyword If  '${pid}' != '${EMPTY}'
