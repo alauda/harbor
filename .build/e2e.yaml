@@ -54,7 +54,9 @@ spec:
             export HARBOR_PASSWORD=$(params.HARBOR_PASSWORD)
             export E2E_IMAGE=$(params.TEST_IMAGE)
             export DOCKER_HOST=tcp://192.168.162.203:31168
-            export DOCKER_TLS_VERIFY=
+            export DOCKER_TLS_VERIFY=0
+            sleep 1000
+            
             ./tests/ci/api_run.sh DB $(params.HARBOR_HOST)
 
     - name: upload-report
