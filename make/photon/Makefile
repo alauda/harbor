@@ -200,6 +200,11 @@ _build_redis:
 	@$(DOCKERBUILD_WITH_PULL_PARA) --build-arg harbor_base_image_version=$(BASEIMAGETAG) --build-arg harbor_base_namespace=$(BASEIMAGENAMESPACE) -f $(DOCKERFILEPATH_REDIS)/$(DOCKERFILENAME_REDIS) -t $(DOCKERIMAGENAME_REDIS):$(VERSIONTAG) .
 	@echo "Done."
 
+_build_bitnami_redis:
+	@echo "building redis container for photon..."
+	@$(DOCKERBUILD_WITH_PULL_PARA) -f $(DOCKERFILEPATH_REDIS)/$(DOCKERFILENAME_REDIS).bitnami -t $(DOCKERIMAGENAME_REDIS):$(VERSIONTAG) .
+	@echo "Done."
+
 _build_standalone_db_migrator:
 	@echo "building standalone db migrator image for photon..."
 	$(DOCKERBUILD_WITH_PULL_PARA) --build-arg harbor_base_image_version=$(BASEIMAGETAG) --build-arg harbor_base_namespace=$(BASEIMAGENAMESPACE) -f $(DOCKERFILEPATH_STANDALONE_DB_MIGRATOR)/$(DOCKERFILENAME_STANDALONE_DB_MIGRATOR) -t $(DOCKERIMAGENAME_STANDALONE_DB_MIGRATOR):$(VERSIONTAG) .
