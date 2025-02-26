@@ -25,3 +25,8 @@ if [ -f $DST_FILE  ]; then
     rm $DST_FILE
 fi
 $CMD_BASE $SRC_FILE >> $DST_FILE
+
+TEMP_DIR=$(mktemp -d)
+cp -R ../.. "$TEMP_DIR/harbor-src" && rm -rf "$TEMP_DIR/harbor-src/.git"
+cp -R "$TEMP_DIR/harbor-src" ./src
+rm -rf "$TEMP_DIR"
