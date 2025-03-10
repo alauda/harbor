@@ -4,8 +4,6 @@ spec:
   git:
     options:
       depth: 1
-      preScript: |
-        git config --global url."https://mirror.ghproxy.com/".insteadOf https://
   runTemplate:
     spec:
       workspaces:
@@ -69,9 +67,6 @@ spec:
           value: "1"
         - name: tools-image
           value: registry.alauda.cn:60080/devops/tektoncd/pipeline/cmd/git-init:v0.41.0-9f25e235
-        - name: pre-script
-          value: >
-            git config --global url."https://mirror.ghproxy.com/".insteadOf https://
       retries: 3
       taskRef:
         kind: Task
@@ -177,7 +172,7 @@ spec:
             cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} ${REGISTRY_SRC} && cd -
 
             # compile trivy
-            TRIVYADAPTERVERSION=v0.32.0
+            TRIVYADAPTERVERSION=v0.32.3
             mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
             cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
 

@@ -9,9 +9,9 @@ change_base_image () {
             change_base_image $1"/"$file
         elif [[ $file == *Dockerfile* ]]
         then
-            sed -i 's/photon:5.0/build-harbor.alauda.cn\/ops\/photon:5.0/' $1"/"$file
+            sed -i 's/photon:5.0/build-harbor.alauda.cn\/ops\/photon:5-alauda-202502271510/' $1"/"$file
             sed -i 's/node:16.18.0/docker-mirrors.alauda.cn\/library\/node:16.18.0/' $1"/"$file
-            
+
             echo $1"/"$file
         elif [[ $file == "docker-healthcheck.sh" ]]
         then
@@ -33,7 +33,7 @@ sed -i 's/TRIVYFLAG=false/TRIVYFLAG=true/g' "Makefile"
 sed -i 's/=goharbor\//=build-harbor.alauda.cn\/devops\/goharbor-/g' "Makefile"
 sed -i 's/--pull / /g' "Makefile"
 sed -i 's/$(IMAGENAMESPACE)\//$(IMAGENAMESPACE)\/goharbor-/g' "Makefile"
-sed -i 's/golang:1.23.2/docker-mirrors.alauda.cn\/library\/golang:1.23.2 /g' "Makefile"
+sed -i 's/golang:1.23.2/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "Makefile"
 sed -i 's/-v \$(BUILDPATH):\$(GOBUILDPATHINCONTAINER)/-v \$(BUILDPATH):\$(GOBUILDPATHINCONTAINER) -e GOPROXY=\$(GOPROXY)/' "Makefile"
 sed -i '1 a GOPROXY=https://build-nexus.alauda.cn/repository/golang/,direct' "Makefile"
 
@@ -53,7 +53,13 @@ sed -i 's/$(IMAGENAMESPACE)\//$(IMAGENAMESPACE)\/goharbor-/g' "make/photon/Makef
 echo "AMD64 after change the make/photon/Makefile is "
 cat make/photon/Makefile
 
+sed -i 's/golang:1.23.2/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "make/photon/trivy-adapter/Dockerfile.binary"
+echo "AMD64 after change the make/photon/trivy-adapter/Dockerfile.binary "
+cat make/photon/trivy-adapter/Dockerfile.binary
 
+sed -i 's/golang:1.23.2/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "make/photon/registry/Dockerfile.binary"
+echo "AMD64 after change the make/photon/registry/Dockerfile.binary "
+cat make/photon/registry/Dockerfile.binary
 
 
 

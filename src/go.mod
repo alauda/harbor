@@ -1,6 +1,6 @@
 module github.com/goharbor/harbor/src
 
-go 1.23.2
+go 1.23.7
 
 require (
 	github.com/FZambia/sentinel v1.1.0
@@ -8,7 +8,7 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1193
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
 	github.com/aws/aws-sdk-go v1.55.5
-	github.com/beego/beego/v2 v2.2.1
+	github.com/beego/beego/v2 v2.3.4
 	github.com/beego/i18n v0.0.0-20140604031826-e87155e8f0c0
 	github.com/bmatcuk/doublestar v1.3.4
 	github.com/casbin/casbin v1.9.1
@@ -51,8 +51,8 @@ require (
 	github.com/prometheus/client_golang v1.20.4
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spf13/viper v1.19.0
-	github.com/stretchr/testify v1.9.0
-	github.com/tencentcloud/tencentcloud-sdk-go v3.0.233+incompatible
+	github.com/stretchr/testify v1.10.0
+	github.com/tencentcloud/tencentcloud-sdk-go v0.0.0-20200814010556-5e7ece9bdf21
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 	github.com/volcengine/volcengine-go-sdk v1.0.159
 	go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux v0.51.0
@@ -63,11 +63,11 @@ require (
 	go.opentelemetry.io/otel/sdk v1.29.0
 	go.opentelemetry.io/otel/trace v1.31.0
 	go.uber.org/ratelimit v0.3.1
-	golang.org/x/crypto v0.28.0
-	golang.org/x/net v0.29.0
+	golang.org/x/crypto v0.32.0
+	golang.org/x/net v0.33.0
 	golang.org/x/oauth2 v0.23.0
-	golang.org/x/sync v0.8.0
-	golang.org/x/text v0.19.0
+	golang.org/x/sync v0.10.0
+	golang.org/x/text v0.21.0
 	golang.org/x/time v0.7.0
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gopkg.in/yaml.v2 v2.4.0
@@ -108,14 +108,14 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
-	github.com/go-jose/go-jose/v4 v4.0.2 // indirect
+	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/analysis v0.23.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
@@ -176,8 +176,8 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/sys v0.26.0 // indirect
-	golang.org/x/term v0.25.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/term v0.28.0 // indirect
 	google.golang.org/api v0.171.0 // indirect
 	google.golang.org/cloud v0.0.0-20151119220103-975617b05ea8 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240528184218-531527333157 // indirect
