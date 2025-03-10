@@ -9,7 +9,7 @@ change_base_image () {
             change_base_image $1"/"$file
         elif [[ $file == *Dockerfile* ]]
         then
-            sed -i 's/photon:4.0/build-harbor.alauda.cn\/ops\/photon:4.0/' $1"/"$file
+            sed -i 's/photon:4.0/build-harbor.alauda.cn\/ops\/photon:4-alauda-202503101110/' $1"/"$file
             sed -i 's/node:16.10.0/build-harbor.alauda.cn\/devops\/node:16.10.0/' $1"/"$file
             
             echo $1"/"$file
@@ -46,7 +46,7 @@ sed -i 's/--pull / /g' "Makefile"
 sed -i 's/PULL_BASE_FROM_DOCKERHUB=true/PULL_BASE_FROM_DOCKERHUB=false/g' "Makefile"
 #sed -i 's/golang:1.15.6/build-harbor.alauda.cn\/devops\/golang:1.15-ubuntu16.04 /g' "Makefile"
 sed -i 's/$(IMAGENAMESPACE)\//$(IMAGENAMESPACE)\/goharbor-/g' "Makefile"
-sed -i 's/golang:1.19.4/build-harbor.alauda.cn\/devops\/golang:1.19.4 /g' "Makefile"
+sed -i 's/golang:1.19.4/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "Makefile"
 
 sed -i 's/compile: check_environment versions_prepare compile_core compile_jobservice compile_registryctl compile_notary_migrate_patch/compile: versions_prepare compile_core compile_jobservice compile_registryctl compile_notary_migrate_patch/g' "Makefile"
 echo "AMD64 after change the Makefile is "
@@ -76,6 +76,14 @@ sed -i 's/docker run -it/docker run -i/g' "make/photon/chartserver/builder"
 #sed -i 's/$PWD/\/harbor-builder\/make\/photon\/chartserver/g' "make/photon/chartserver/builder"
 echo "AMD64 after change make/photon/chartserver/builder is"
 cat make/photon/chartserver/builder
+
+sed -i 's/golang:1.19.4/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "make/photon/trivy-adapter/Dockerfile.binary"
+echo "AMD64 after change the make/photon/trivy-adapter/Dockerfile.binary "
+cat make/photon/trivy-adapter/Dockerfile.binary
+
+sed -i 's/golang:1.19.4/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "make/photon/registry/Dockerfile.binary"
+echo "AMD64 after change the make/photon/registry/Dockerfile.binary "
+cat make/photon/registry/Dockerfile.binary
 
 
 
