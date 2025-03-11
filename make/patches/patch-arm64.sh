@@ -46,7 +46,7 @@ echo "ARM64 after change make/photon/notary/binary.Dockerfile is "
 cat make/photon/notary/binary.Dockerfile
 
 echo "change trivy download alauda url"
-sed -i 's#amd64_c448c6ec#arm64_c448c6ec#g' "Makefile"
+sed -i 's#_Linux-64bit.tar.gz#_Linux-ARM.tar.gz#g' "Makefile"
 
 # exporter build
 sed -i 's/GOARCH=amd64/GOARCH=arm64/g' "make/photon/exporter/Dockerfile"

@@ -262,7 +262,7 @@ github.com/docker/distribution/registry/storage/driver/swift
 github.com/docker/distribution/testutil
 github.com/docker/distribution/uuid
 github.com/docker/distribution/version
-# github.com/docker/docker v20.10.17+incompatible
+# github.com/docker/docker v20.10.24+incompatible
 ## explicit
 github.com/docker/docker/api/types
 github.com/docker/docker/api/types/blkiodev

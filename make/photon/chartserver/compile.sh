@@ -33,5 +33,5 @@ for p in $(ls /go/bin/*.patch); do
 done
 
 #Compile
-cd $SRC_PATH/$MAIN_GO_PATH && go build -a -o $BIN_NAME
+cd $SRC_PATH/$MAIN_GO_PATH && CGO_ENABLED=0 go build --ldflags "-w -s -extldflags '-static'"  -a -o $BIN_NAME
 mv $BIN_NAME /go/bin/

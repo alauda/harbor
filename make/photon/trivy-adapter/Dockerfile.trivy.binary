@@ -1,0 +1,14 @@
+FROM docker-mirrors.alauda.cn/library/golang:1.23.7
+
+ADD .   /go/src/github.com/aquasecurity/trivy/
+WORKDIR /go/src/github.com/aquasecurity/trivy/
+
+RUN set -ex && export GOPROXY='https://build-nexus.alauda.cn/repository/golang/,direct' GOOS=linux GO111MODULE=on CGO_ENABLED=0 && \
+	go get golang.org/x/net@v0.33.0 && \
+	go get github.com/docker/docker@v25.0.6+incompatible && \
+	go get github.com/go-git/go-git/v5@v5.13.0 && \
+	go get github.com/hashicorp/go-getter@v1.7.5 && \
+	go get golang.org/x/crypto@v0.31.0 && \
+	go mod tidy && \
+	export GOMAXPROCS=4 && \
+	go build --ldflags "-w -s -extldflags '-static'" -o trivy cmd/trivy/main.go

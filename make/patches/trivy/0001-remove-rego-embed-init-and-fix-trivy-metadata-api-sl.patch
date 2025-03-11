@@ -1,0 +1,58 @@
+From b04d0909bd04fd2e83f92964be3e5febf090acce Mon Sep 17 00:00:00 2001
+From: chengjingtao <jtcheng0616@gmail.com>
+Date: Fri, 14 Mar 2025 15:16:41 +0800
+Subject: [PATCH] remove rego/embed init and fix trivy metadata api slowly
+
+Signed-off-by: chengjingtao <jtcheng0616@gmail.com>
+---
+ pkg/iac/rego/embed.go | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
+
+diff --git a/pkg/iac/rego/embed.go b/pkg/iac/rego/embed.go
+index 16eff73..38c2db5 100644
+--- a/pkg/iac/rego/embed.go
++++ b/pkg/iac/rego/embed.go
+@@ -12,23 +12,23 @@ import (
+ 	"github.com/aquasecurity/trivy/pkg/iac/rules"
+ )
+ 
+-func init() {
+-
+-	modules, err := LoadEmbeddedPolicies()
+-	if err != nil {
+-		// we should panic as the policies were not embedded properly
+-		panic(err)
+-	}
+-	loadedLibs, err := LoadEmbeddedLibraries()
+-	if err != nil {
+-		panic(err)
+-	}
+-	for name, policy := range loadedLibs {
+-		modules[name] = policy
+-	}
+-
+-	RegisterRegoRules(modules)
+-}
++// func init() {
++
++// 	modules, err := LoadEmbeddedPolicies()
++// 	if err != nil {
++// 		// we should panic as the policies were not embedded properly
++// 		panic(err)
++// 	}
++// 	loadedLibs, err := LoadEmbeddedLibraries()
++// 	if err != nil {
++// 		panic(err)
++// 	}
++// 	for name, policy := range loadedLibs {
++// 		modules[name] = policy
++// 	}
++
++// 	RegisterRegoRules(modules)
++// }
+ 
+ func RegisterRegoRules(modules map[string]*ast.Module) {
+ 	ctx := context.TODO()
+-- 
+2.39.3 (Apple Git-145)
+
