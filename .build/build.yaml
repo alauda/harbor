@@ -4,8 +4,6 @@ spec:
   git:
     options:
       depth: 1
-      preScript: |
-        git config --global url."https://mirror.ghproxy.com/".insteadOf https://
   runTemplate:
     spec:
       workspaces:
@@ -24,7 +22,27 @@ spec:
       timeouts:
         pipeline: 3h
         tasks: 3h
-      taskRunSpecs: []
+      taskRunSpecs:
+        - pipelineTaskName: compile-amd64-thirdparty
+          sidecarOverrides:
+            - name: docker-daemon
+              resources:
+                limits:
+                  cpu: "6"
+                  memory: 6000Mi
+                requests:
+                  cpu: "3"
+                  memory: 3000Mi
+        - pipelineTaskName: compile-arm64-thirdparty
+          sidecarOverrides:
+            - name: docker-daemon
+              resources:
+                limits:
+                  cpu: "6"
+                  memory: 6000Mi
+                requests:
+                  cpu: "3"
+                  memory: 3000Mi
   workspaces:
     - description: source original, for amd64
       name: source
@@ -69,9 +87,6 @@ spec:
           value: "1"
         - name: tools-image
           value: registry.alauda.cn:60080/devops/tektoncd/pipeline/cmd/git-init:v0.41.0-9f25e235
-        - name: pre-script
-          value: >
-            git config --global url."https://mirror.ghproxy.com/".insteadOf https://
       retries: 3
       taskRef:
         kind: Task
@@ -104,6 +119,7 @@ spec:
         - name: script
           value: |
             bash make/patches/patch-amd64.sh
+            make -f ./make/patches.mk apply-patches
     - name: patch-arm64
       timeout: 30m
       retries: 0
@@ -139,14 +155,15 @@ spec:
         - name: command
           value: |
             set -ex
-            
+
             BUILDPATH=$(workspaces.source.path)
             VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
             BASEIMAGETAG=${VERSIONTAG}
             BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
             IMAGENAMESPACE=build-harbor.alauda.cn/devops
             REGISTRY_SRC_TAG=v2.8.0
-            
+            export GOBUILDLDFLAGS="-extldflags '-static'"
+
             # compile harbor
             BUILDPATH="$(workspaces.source.path)" make compile
     - name: compile-amd64-thirdparty
@@ -164,29 +181,33 @@ spec:
         - name: command
           value: |
             set -ex
-            
+            git config --global url."https://ghfast.top/".insteadOf https://
+
             BUILDPATH=$(workspaces.source.path)
             VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
             BASEIMAGETAG=${VERSIONTAG}
             BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
             IMAGENAMESPACE=build-harbor.alauda.cn/devops
             REGISTRY_SRC_TAG=v2.8.0
-            
+
             # compile registry
             cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} && cd -
 
             # compile trivy
-            TRIVYADAPTERVERSION=v0.30.7
+            TRIVYVERSION=v0.50.1
+            mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
+            cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.trivy.sh ${TRIVYVERSION} && cd -
+            TRIVYADAPTERVERSION=v0.30.23
             mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
             cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
 
             # compile chartserver
-            GOBUILDIMAGE=golang:1.19.4
+            GOBUILDIMAGE=golang:1.23.7
             CHART_SERVER_CODE_BASE=https://github.com/alauda/chartmuseum.git
             CHARTMUSEUM_SRC_TAG=v0.14.1
             CHART_SERVER_MAIN_PATH=cmd/chartmuseum
             CHART_SERVER_BIN_NAME=chartm
-            cd ${BUILDPATH}/make/photon/chartserver && ./builder ${GOBUILDIMAGE} ${CHART_SERVER_CODE_BASE} ${CHARTMUSEUM_SRC_TAG} ${CHART_SERVER_MAIN_PATH} ${CHART_SERVER_BIN_NAME} && cd -
+            cd ${BUILDPATH}/make/photon/chartserver && ./builder docker-mirrors.alauda.cn/library/${GOBUILDIMAGE} ${CHART_SERVER_CODE_BASE} ${CHARTMUSEUM_SRC_TAG} ${CHART_SERVER_MAIN_PATH} ${CHART_SERVER_BIN_NAME} && cd -
 
             # compile notary
             NOTARYVERSION=v0.6.1
@@ -208,14 +229,15 @@ spec:
         - name: command
           value: |
             set -ex
-            
+
             BUILDPATH=$(workspaces.source.path)
             VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
             BASEIMAGETAG=${VERSIONTAG}
             BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
             IMAGENAMESPACE=build-harbor.alauda.cn/devops
             REGISTRY_SRC_TAG=v2.8.0
-            
+            export GOBUILDLDFLAGS="-extldflags '-static'"
+
             # compile harbor
             BUILDPATH="$(workspaces.source.path)" make compile
     - name: compile-arm64-thirdparty
@@ -233,24 +255,29 @@ spec:
         - name: command
           value: |
             set -ex
-            
+            git config --global url."https://ghfast.top/".insteadOf https://
+
             BUILDPATH=$(workspaces.source.path)
             VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
             BASEIMAGETAG=${VERSIONTAG}
             BASEIMAGENAMESPACE=build-harbor.alauda.cn/devops
             IMAGENAMESPACE=build-harbor.alauda.cn/devops
             REGISTRY_SRC_TAG=v2.8.0
-            
+
             # compile registry
             cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} && cd -
 
             # compile trivy
-            TRIVYADAPTERVERSION=v0.30.7
+            TRIVYVERSION=v0.50.1
+            mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
+            cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.trivy.sh ${TRIVYVERSION} && cd -
+            TRIVYADAPTERVERSION=v0.30.23
             mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
             cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
 
+
             # compile chartserver
-            GOBUILDIMAGE=golang:1.19.4
+            GOBUILDIMAGE=golang:1.23.7
             CHART_SERVER_CODE_BASE=https://github.com/alauda/chartmuseum.git
             CHARTMUSEUM_SRC_TAG=v0.14.1
             CHART_SERVER_MAIN_PATH=cmd/chartmuseum
@@ -298,7 +325,7 @@ spec:
             set -ex
             # some build target need wget
             apt-get update && apt-get install -y wget
-            
+
             export VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
             export IMAGENAMESPACE=build-harbor.alauda.cn/devops
             export BASEIMAGETAG=2.6.4-$(build.git.lastCommit.shortID)-amd64
@@ -344,7 +371,7 @@ spec:
             set -ex
             # some build target need wget
             apt-get update && apt-get install -y wget
-            
+
             export VERSIONTAG=2.6.4-$(build.git.lastCommit.shortID)-arm64
             export IMAGENAMESPACE=build-harbor.alauda.cn/devops
             export BASEIMAGETAG=2.6.4-$(build.git.lastCommit.shortID)-arm64

@@ -39,6 +39,10 @@ sed -i 's/CGO_ENABLED=0/GOOS=linux GOARCH=arm64 CGO_ENABLED=0/g' "make/photon/tr
 echo "ARM64 after change make/photon/trivy-adapter/Dockerfile.binary is "
 cat make/photon/trivy-adapter/Dockerfile.binary
 
+sed -i 's/CGO_ENABLED=0/GOOS=linux GOARCH=arm64 CGO_ENABLED=0/g' "make/photon/trivy-adapter/Dockerfile.trivy.binary"
+echo "ARM64 after change make/photon/trivy-adapter/Dockerfile.trivy.binary is "
+cat make/photon/trivy-adapter/Dockerfile.trivy.binary
+
 sed -i '8 a ENV CGO_ENABLED 0 \nENV GOOS linux \nENV GOARCH arm64' "make/photon/notary/binary.Dockerfile"
 sed -i 's/\/go\/bin\/cli/\/go\/bin\/linux_arm64\/cli/g' "make/photon/notary/binary.Dockerfile"
 
@@ -46,7 +50,7 @@ echo "ARM64 after change make/photon/notary/binary.Dockerfile is "
 cat make/photon/notary/binary.Dockerfile
 
 echo "change trivy download alauda url"
-sed -i 's#amd64_c448c6ec#arm64_c448c6ec#g' "Makefile"
+sed -i 's#_Linux-64bit.tar.gz#_Linux-ARM.tar.gz#g' "Makefile"
 
 # exporter build
 sed -i 's/GOARCH=amd64/GOARCH=arm64/g' "make/photon/exporter/Dockerfile"

@@ -27,11 +27,23 @@ SRC_PATH=$(pwd)/src_code
 cd $SRC_PATH
 #git checkout tags/$VERSION -b $VERSION
 
+export GOPROXY="https://build-nexus.alauda.cn/repository/golang/,direct"
+go get helm.sh/helm/v3@v3.14.2
+go get github.com/containerd/containerd@v1.7.11
+go get github.com/docker/distribution@v2.8.2+incompatible
+go get github.com/docker/docker@v25.0.6+incompatible
+go get golang.org/x/crypto@v0.31.0
+go get golang.org/x/net@v0.33.0
+go get google.golang.org/grpc@v1.58.3
+go get gopkg.in/yaml.v3@v3.0.1
+go get oras.land/oras-go@v1.2.5
+go mod tidy
+
 #Patch
 for p in $(ls /go/bin/*.patch); do
   git apply $p || exit /b 1
 done
 
 #Compile
-cd $SRC_PATH/$MAIN_GO_PATH && go build -a -o $BIN_NAME
+cd $SRC_PATH/$MAIN_GO_PATH && CGO_ENABLED=0 go build -a --ldflags "-w -s -extldflags '-static'" -o $BIN_NAME
 mv $BIN_NAME /go/bin/
