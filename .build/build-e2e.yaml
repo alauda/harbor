@@ -1,6 +1,9 @@
 apiVersion: builds.katanomi.dev/v1alpha1
 kind: Build
 spec:
+  runTemplate:
+    timeouts:
+      pipeline: 1h
   workspaces:
     - description: |
         This workspace is shared among all the pipeline tasks to read/write common resources
@@ -21,96 +24,29 @@ spec:
         - name: script
           value: | 
             cd tests/test-engine-image && ./generate.sh api
-
-    - name: build-image-amd
-      timeout: 120m
+    - name: alauda-build-image
+      timeout: 1h
       retries: 0
-      runAfter:
-          - prepare-dockerfile
       taskRef:
         kind: ClusterTask
-        name: build-image-buildkit
+        name: alauda-build-image
       workspaces:
         - name: source
           workspace: source
-        - name: cache
-        - name: config
-      when: []
-      params:
-        - name: reuse-image
-          value: "false"
-        - name: dockerfile
-          value: tests/test-engine-image/Dockerfile
-        - name: context
-          value: tests/test-engine-image
-        - name: container-images
-          value:
-            - build-harbor.alauda.cn/fundamentals/harbor-e2e-engine:5.3.0-api-amd64
-        - name: labels
-          value:
-            - branch=$(build.git.branch.name)
-            - commit=$(build.git.lastCommit.id)
-            - commit_id=$(build.git.lastCommit.id)
-
-    - name: build-image-arm
-      timeout: 60m
-      retries: 0
       runAfter:
         - prepare-dockerfile
-      taskRef:
-        kind: ClusterTask
-        name: build-image-buildkit
-      workspaces:
-        - name: source
-          workspace: source
-        - name: cache
-        - name: config
-      when: [ ]
+      when: []
       params:
-        - name: extra-args
-          value: "ARCH=arm64"
-        - name: reuse-image
-          value: "false"
+        - name: container-image
+          value: build-harbor.alauda.cn/fundamentals/harbor-e2e-engine
+        - name: container-image-tag
+          value: 5.3.0-api-docker-28
         - name: dockerfile
           value: tests/test-engine-image/Dockerfile
-        - name: context
-          value: tests/test-engine-image
-        - name: container-images
-          value:
-            - build-harbor.alauda.cn/fundamentals/harbor-e2e-engine:5.3.0-api-arm64
         - name: labels
           value:
             - branch=$(build.git.branch.name)
             - commit=$(build.git.lastCommit.id)
             - commit_id=$(build.git.lastCommit.id)
-    - name: build-manifests
-      runAfter:
-        - build-image-arm
-        - build-image-amd
-      timeout: 30m
-      retries: 3
-      taskRef:
-        kind: ClusterTask
-        name: merge-image-buildkit
-      workspaces:
-        - name: source
-          workspace: source
-      params:
-        - name: container-images
-          value:
-            - build-harbor.alauda.cn/fundamentals/harbor-e2e-engine:5.3.0-api
-        - name: source-image-digests
-          value:
-            - build-harbor.alauda.cn/fundamentals/harbor-e2e-engine:5.3.0-api-amd64
-            - build-harbor.alauda.cn/fundamentals/harbor-e2e-engine:5.3.0-api-arm64
-  runTemplate:
-    spec:
-      taskRunSpecs:
-        - pipelineTaskName: build-image-arm
-          taskPodTemplate:
-            nodeSelector:
-              kubernetes.io/arch: arm64 #指定 node 配置的 selector 标签
-            Tolerations: # 可选操作：如果 node 上设置了污点可以添加相关的配置
-              - key: "build-arm"
-                operator: "Exists"
-                effect: "NoSchedule"
+        - name: context
+          value: tests/test-engine-image
