@@ -40,7 +40,7 @@ spec:
         - name: container-image
           value: build-harbor.alauda.cn/fundamentals/harbor-e2e-engine
         - name: container-image-tag
-          value: 5.3.0-api-docker-28
+          value: 5.3.0-api-docker-28-$(build.git.lastCommit.shortID)
         - name: dockerfile
           value: tests/test-engine-image/Dockerfile
         - name: labels
