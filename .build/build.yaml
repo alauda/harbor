@@ -285,7 +285,6 @@ spec:
       timeout: 2.5h
       retries: 3
       runAfter:
-        - build-image-amd64
         - compile-arm64-harbor
         - compile-arm64-thirdparty
       taskRef:

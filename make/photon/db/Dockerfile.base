@@ -6,9 +6,7 @@ RUN tdnf install -y shadow >> /dev/null \
     && groupadd -r postgres --gid=999 \
     && useradd -m -r -g postgres --uid=999 postgres
 
-RUN tdnf clean all && \
-    tdnf makecache && \
-    tdnf install -y postgresql14-server
+RUN tdnf install -y postgresql14-server
 RUN tdnf install -y gzip postgresql15-server findutils bc >> /dev/null \
     && mkdir -p /docker-entrypoint-initdb.d \
     && mkdir -p /run/postgresql \
