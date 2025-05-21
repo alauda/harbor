@@ -33,6 +33,7 @@ go get github.com/containerd/containerd@v1.7.11
 go get github.com/docker/distribution@v2.8.2+incompatible
 go get github.com/docker/docker@v25.0.6+incompatible
 go get golang.org/x/crypto@v0.35.0
+go get github.com/golang-jwt/jwt/v4@v4.5.2
 go get golang.org/x/net@v0.33.0
 go get google.golang.org/grpc@v1.58.3
 go get gopkg.in/yaml.v3@v3.0.1
