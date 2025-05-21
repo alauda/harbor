@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/beego/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
 	migrate "github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx" // import pgx driver for migrator
 	_ "github.com/golang-migrate/migrate/v4/source/file"  // import local file driver for migrator
@@ -91,7 +91,9 @@ func (p *pgsql) Register(alias ...string) error {
 	info := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=UTC",
 		p.host, p.port, p.usr, p.pwd, p.database, p.sslmode)
 
-	if err := orm.RegisterDataBase(an, "pgx", info, p.maxIdleConns, p.maxOpenConns); err != nil {
+	if err := orm.RegisterDataBase(an, "pgx", info,
+		orm.MaxIdleConnections(p.maxIdleConns),
+		orm.MaxOpenConnections(p.maxOpenConns)); err != nil {
 		return err
 	}
 

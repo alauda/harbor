@@ -1,6 +1,7 @@
 package chartserver
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,7 +10,7 @@ import (
 	"time"
 
 	"github.com/FZambia/sentinel"
-	"github.com/beego/beego/cache"
+	"github.com/beego/beego/v2/client/cache"
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -52,63 +53,52 @@ func (rc *Cache) associate(originKey interface{}) string {
 }
 
 // Get cache from redis.
-func (rc *Cache) Get(key string) interface{} {
-	if v, err := rc.do("GET", key); err == nil {
-		return v
-	}
-	return nil
+func (rc *Cache) Get(_ context.Context, key string) (interface{}, error) {
+	return rc.do("GET", key)
 }
 
 // GetMulti get cache from redis.
-func (rc *Cache) GetMulti(keys []string) []interface{} {
+func (rc *Cache) GetMulti(_ context.Context, keys []string) ([]interface{}, error) {
 	c := rc.p.Get()
 	defer c.Close()
 	var args []interface{}
 	for _, key := range keys {
 		args = append(args, rc.associate(key))
 	}
-	values, err := redis.Values(c.Do("MGET", args...))
-	if err != nil {
-		return nil
-	}
-	return values
+	return redis.Values(c.Do("MGET", args...))
 }
 
 // Put put cache to redis.
-func (rc *Cache) Put(key string, val interface{}, timeout time.Duration) error {
+func (rc *Cache) Put(_ context.Context, key string, val interface{}, timeout time.Duration) error {
 	_, err := rc.do("SETEX", key, int64(timeout/time.Second), val)
 	return err
 }
 
 // Delete delete cache in redis.
-func (rc *Cache) Delete(key string) error {
+func (rc *Cache) Delete(_ context.Context, key string) error {
 	_, err := rc.do("DEL", key)
 	return err
 }
 
 // IsExist check cache's existence in redis.
-func (rc *Cache) IsExist(key string) bool {
-	v, err := redis.Bool(rc.do("EXISTS", key))
-	if err != nil {
-		return false
-	}
-	return v
+func (rc *Cache) IsExist(_ context.Context, key string) (bool, error) {
+	return redis.Bool(rc.do("EXISTS", key))
 }
 
 // Incr increase counter in redis.
-func (rc *Cache) Incr(key string) error {
+func (rc *Cache) Incr(_ context.Context, key string) error {
 	_, err := redis.Bool(rc.do("INCRBY", key, 1))
 	return err
 }
 
 // Decr decrease counter in redis.
-func (rc *Cache) Decr(key string) error {
+func (rc *Cache) Decr(_ context.Context, key string) error {
 	_, err := redis.Bool(rc.do("INCRBY", key, -1))
 	return err
 }
 
 // ClearAll clean all cache in redis. delete this redis collection.
-func (rc *Cache) ClearAll() error {
+func (rc *Cache) ClearAll(_ context.Context) error {
 	c := rc.p.Get()
 	defer c.Close()
 	cachedKeys, err := redis.Strings(c.Do("KEYS", rc.key+":*"))

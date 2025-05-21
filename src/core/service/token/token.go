@@ -16,17 +16,16 @@ package token
 
 import (
 	"fmt"
+	"github.com/beego/beego/v2/server/web"
 	"html/template"
 	"net/http"
-
-	"github.com/beego/beego"
 
 	"github.com/goharbor/harbor/src/lib/log"
 )
 
 // Handler handles request on /service/token, which is the auth provider for registry.
 type Handler struct {
-	beego.Controller
+	web.Controller
 }
 
 // Get handles GET request, it checks the http header for user credentials

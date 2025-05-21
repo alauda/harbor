@@ -15,10 +15,9 @@
 package middlewares
 
 import (
+	"github.com/beego/beego/v2/server/web"
 	"net/http"
 	"regexp"
-
-	"github.com/beego/beego"
 
 	"github.com/goharbor/harbor/src/pkg/distribution"
 	"github.com/goharbor/harbor/src/server/middleware"
@@ -79,8 +78,8 @@ var (
 )
 
 // MiddleWares returns global middlewares
-func MiddleWares() []beego.MiddleWare {
-	return []beego.MiddleWare{
+func MiddleWares() []web.MiddleWare {
+	return []web.MiddleWare{
 		url.Middleware(),
 		mergeslash.Middleware(),
 		trace.Middleware(),

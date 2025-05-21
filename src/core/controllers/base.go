@@ -16,11 +16,11 @@ package controllers
 
 import (
 	"context"
+	"github.com/beego/beego/v2/server/web"
 	"net/http"
 	"os"
 	"strings"
 
-	"github.com/beego/beego"
 	"github.com/beego/i18n"
 
 	"github.com/goharbor/harbor/src/common"
@@ -151,7 +151,7 @@ func init() {
 	configPath := os.Getenv("CONFIG_PATH")
 	if len(configPath) != 0 {
 		log.Infof("Config path: %s", configPath)
-		if err := beego.LoadAppConfig("ini", configPath); err != nil {
+		if err := web.LoadAppConfig("ini", configPath); err != nil {
 			log.Errorf("failed to load app config: %v", err)
 		}
 	}

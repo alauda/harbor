@@ -15,7 +15,7 @@
 package route
 
 import (
-	"github.com/beego/beego"
+	"github.com/beego/beego/v2/server/web"
 
 	"github.com/goharbor/harbor/src/core/api"
 	"github.com/goharbor/harbor/src/lib/config"
@@ -24,13 +24,13 @@ import (
 // RegisterRoutes for Harbor legacy APIs
 func registerLegacyRoutes() {
 	version := APIVersion
-	beego.Router("/api/"+version+"/email/ping", &api.EmailAPI{}, "post:Ping")
+	web.Router("/api/"+version+"/email/ping", &api.EmailAPI{}, "post:Ping")
 
 	// APIs for chart repository
 	if config.WithChartMuseum() {
 		// Labels for chart
 		chartLabelAPIType := &api.ChartLabelAPI{}
-		beego.Router("/api/"+version+"/chartrepo/:repo/charts/:name/:version/labels", chartLabelAPIType, "get:GetLabels;post:MarkLabel")
-		beego.Router("/api/"+version+"/chartrepo/:repo/charts/:name/:version/labels/:id([0-9]+)", chartLabelAPIType, "delete:RemoveLabel")
+		web.Router("/api/"+version+"/chartrepo/:repo/charts/:name/:version/labels", chartLabelAPIType, "get:GetLabels;post:MarkLabel")
+		web.Router("/api/"+version+"/chartrepo/:repo/charts/:name/:version/labels/:id([0-9]+)", chartLabelAPIType, "delete:RemoveLabel")
 	}
 }

@@ -22,8 +22,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/beego/beego"
-	"github.com/beego/beego/validation"
+	"github.com/beego/beego/v2/core/validation"
+	"github.com/beego/beego/v2/server/web"
 
 	commonhttp "github.com/goharbor/harbor/src/common/http"
 	lib_http "github.com/goharbor/harbor/src/lib/http"
@@ -40,7 +40,7 @@ const (
 
 // BaseAPI wraps common methods for controllers to host API
 type BaseAPI struct {
-	beego.Controller
+	web.Controller
 }
 
 // Context returns the context.Context from http.Request
@@ -248,16 +248,17 @@ func (b *BaseAPI) SendStatusServiceUnavailableError(err error) {
 }
 
 // SendError return the error defined in OCI spec: https://github.com/opencontainers/distribution-spec/blob/master/spec.md#errors
-// {
-//	"errors:" [{
-//			"code": <error identifier>,
-//			"message": <message describing condition>,
-//			// optional
-//			"detail": <unstructured>
-//		},
-//		...
-//	]
-// }
+//
+//	{
+//		"errors:" [{
+//				"code": <error identifier>,
+//				"message": <message describing condition>,
+//				// optional
+//				"detail": <unstructured>
+//			},
+//			...
+//		]
+//	}
 func (b *BaseAPI) SendError(err error) {
 	lib_http.SendError(b.Ctx.ResponseWriter, err)
 }
