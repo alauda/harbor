@@ -35,7 +35,7 @@ sed -i 's/--pull / /g' "Makefile"
 sed -i 's/$(IMAGENAMESPACE)\//$(IMAGENAMESPACE)\/goharbor-/g' "Makefile"
 sed -i 's/golang:1.23.2/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "Makefile"
 sed -i 's/-v \$(BUILDPATH):\$(GOBUILDPATHINCONTAINER)/-v \$(BUILDPATH):\$(GOBUILDPATHINCONTAINER) -e GOPROXY=\$(GOPROXY)/' "Makefile"
-sed -i '1 a GOPROXY=https://build-nexus.alauda.cn/repository/golang/,https://goproxy.cn,direct' "Makefile"
+sed -i '1 a GOPROXY=https://build-nexus.alauda.cn/repository/golang/,direct' "Makefile"
 
 sed -i 's/compile: check_environment versions_prepare compile_core compile_jobservice compile_registryctl/compile: versions_prepare compile_core compile_jobservice compile_registryctl/g' "Makefile"
 echo "AMD64 after change the Makefile is "
