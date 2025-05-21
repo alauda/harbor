@@ -1,6 +1,6 @@
 FROM photon:4.0
 
-RUN tdnf install -y rpm shadow >> /dev/null \
+RUN tdnf clean all && tdnf makecache && tdnf install -y rpm shadow >> /dev/null \
     && tdnf clean all \
     && groupadd -r -g 10000 scanner \
     && useradd -s /sbin/nologin --no-log-init -m -r -g 10000 -u 10000 scanner
