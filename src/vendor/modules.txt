@@ -129,7 +129,7 @@ github.com/aws/aws-sdk-go/service/s3
 github.com/aws/aws-sdk-go/service/s3/internal/arn
 github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
-# github.com/beego/beego/v2 v2.3.6
+# github.com/beego/beego/v2 v2.3.8
 ## explicit; go 1.20
 github.com/beego/beego/v2
 github.com/beego/beego/v2/client/cache

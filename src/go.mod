@@ -78,7 +78,7 @@ require (
 )
 
 require (
-	github.com/beego/beego/v2 v2.3.6
+	github.com/beego/beego/v2 v2.3.8
 	golang.org/x/text v0.23.0
 )
 
