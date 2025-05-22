@@ -9,7 +9,7 @@ change_base_image () {
             change_base_image $1"/"$file
         elif [[ $file == *Dockerfile* ]]
         then
-            sed -i 's/photon:4.0/build-harbor.alauda.cn\/ops\/photon:4-alauda-202503111116/' $1"/"$file
+            sed -i 's/photon:4.0/build-harbor.alauda.cn\/ops\/photon:4-alauda-202505080514/' $1"/"$file
             sed -i 's/node:16.10.0/build-harbor.alauda.cn\/devops\/node:16.10.0/' $1"/"$file
             
             echo $1"/"$file
@@ -73,7 +73,7 @@ sed -i 's/docker run -it/docker run -i/g' "make/photon/chartserver/builder"
 echo "AMD64 after change make/photon/chartserver/builder is"
 cat make/photon/chartserver/builder
 
-sed -i 's/golang:1.19.4/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "make/photon/trivy-adapter/Dockerfile.binary"
+sed -i 's/golang:1.19.4/docker-mirrors.alauda.cn\/library\/golang:1.23.8 /g' "make/photon/trivy-adapter/Dockerfile.binary"
 echo "AMD64 after change the make/photon/trivy-adapter/Dockerfile.binary "
 cat make/photon/trivy-adapter/Dockerfile.binary
 
