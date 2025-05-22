@@ -104,8 +104,8 @@ PREPARE_VERSION_NAME=versions
 
 #versions
 REGISTRYVERSION=v2.8.3-patch-redis
-TRIVYVERSION=v0.58.2
-TRIVYADAPTERVERSION=v0.32.0
+TRIVYVERSION=v0.62.1
+TRIVYADAPTERVERSION=v0.32.4
 
 # version of registry for pulling the source code
 REGISTRY_SRC_TAG=v2.8.3
@@ -142,7 +142,7 @@ GOINSTALL=$(GOCMD) install
 GOTEST=$(GOCMD) test
 GODEP=$(GOTEST) -i
 GOFMT=gofmt -w
-GOBUILDIMAGE=golang:1.23.2
+GOBUILDIMAGE=golang:1.23.8
 GOBUILDPATHINCONTAINER=/harbor
 
 # go build
@@ -468,7 +468,7 @@ misspell:
 	@echo checking misspell...
 	@find . -type d \( -path ./tests \) -prune -o -name '*.go' -print | xargs misspell -error
 
-# golangci-lint binary installation or refer to https://golangci-lint.run/usage/install/#local-installation
+# golangci-lint binary installation or refer to https://golangci-lint.run/usage/install/#local-installation 
 # curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
 GOLANGCI_LINT := $(shell go env GOPATH)/bin/golangci-lint
 lint:
@@ -537,7 +537,7 @@ swagger_client:
 	rm -rf harborclient
 	mkdir  -p harborclient/harbor_v2_swagger_client
 	java -jar openapi-generator-cli.jar generate -i api/v2.0/swagger.yaml -g python -o harborclient/harbor_v2_swagger_client --package-name v2_swagger_client
-	cd harborclient/harbor_v2_swagger_client; python ./setup.py install
+	cd harborclient/harbor_v2_swagger_client; pip install .
 	pip install docker -q
 	pip freeze
 

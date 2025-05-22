@@ -9,7 +9,7 @@ change_base_image () {
             change_base_image $1"/"$file
         elif [[ $file == *Dockerfile* ]]
         then
-            sed -i 's/photon:5.0/build-harbor.alauda.cn\/ops\/photon:5-alauda-202503111116/' $1"/"$file
+            sed -i 's/photon:5.0/build-harbor.alauda.cn\/ops\/photon:5-alauda-202504250948/' $1"/"$file
             sed -i 's/node:16.18.0/docker-mirrors.alauda.cn\/library\/node:16.18.0/' $1"/"$file
 
             echo $1"/"$file
@@ -35,7 +35,7 @@ sed -i 's/--pull / /g' "Makefile"
 sed -i 's/$(IMAGENAMESPACE)\//$(IMAGENAMESPACE)\/goharbor-/g' "Makefile"
 sed -i 's/golang:1.23.2/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "Makefile"
 sed -i 's/-v \$(BUILDPATH):\$(GOBUILDPATHINCONTAINER)/-v \$(BUILDPATH):\$(GOBUILDPATHINCONTAINER) -e GOPROXY=\$(GOPROXY)/' "Makefile"
-sed -i '1 a GOPROXY=https://build-nexus.alauda.cn/repository/golang/,direct' "Makefile"
+sed -i '1 a GOPROXY=https://build-nexus.alauda.cn/repository/golang/,https://goproxy.cn,direct' "Makefile"
 
 sed -i 's/compile: check_environment versions_prepare compile_core compile_jobservice compile_registryctl/compile: versions_prepare compile_core compile_jobservice compile_registryctl/g' "Makefile"
 echo "AMD64 after change the Makefile is "
@@ -53,11 +53,11 @@ sed -i 's/$(IMAGENAMESPACE)\//$(IMAGENAMESPACE)\/goharbor-/g' "make/photon/Makef
 echo "AMD64 after change the make/photon/Makefile is "
 cat make/photon/Makefile
 
-sed -i 's/golang:1.23.2/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "make/photon/trivy-adapter/Dockerfile.binary"
+sed -i 's/golang:1.23.8/docker-mirrors.alauda.cn\/library\/golang:1.23.8 /g' "make/photon/trivy-adapter/Dockerfile.binary"
 echo "AMD64 after change the make/photon/trivy-adapter/Dockerfile.binary "
 cat make/photon/trivy-adapter/Dockerfile.binary
 
-sed -i 's/golang:1.23.2/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "make/photon/registry/Dockerfile.binary"
+sed -i 's/golang:1.23.8/docker-mirrors.alauda.cn\/library\/golang:1.23.8 /g' "make/photon/registry/Dockerfile.binary"
 echo "AMD64 after change the make/photon/registry/Dockerfile.binary "
 cat make/photon/registry/Dockerfile.binary
 
