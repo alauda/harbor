@@ -34,6 +34,7 @@ go get github.com/docker/distribution@v2.8.2+incompatible
 go get github.com/docker/docker@v25.0.6+incompatible
 go get golang.org/x/crypto@v0.35.0
 go get github.com/golang-jwt/jwt/v4@v4.5.2
+go get github.com/chartmuseum/auth@v0.5.1-0.20220324032459-8c5beb78aaba
 go get golang.org/x/net@v0.33.0
 go get google.golang.org/grpc@v1.58.3
 go get gopkg.in/yaml.v3@v3.0.1
