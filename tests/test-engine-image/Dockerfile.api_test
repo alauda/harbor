@@ -1,5 +1,5 @@
 # photon based image
-FROM photon:4.0
+FROM build-harbor.alauda.cn/ops/photon:5.0
 ENV LANG C.UTF-8
 ENV HELM_EXPERIMENTAL_OCI=1
 ENV COSIGN_PASSWORD=Harbor12345
@@ -7,12 +7,14 @@ ENV COSIGN_EXPERIMENTAL=1
 ENV COSIGN_OCI_EXPERIMENTAL=1
 ENV NOTATION_EXPERIMENTAL=1
 
+ARG ARCH=amd64
+
 COPY --from=tool_builder /tool/tools.tar.gz /usr/local/bin
 
-RUN tdnf update -y && tdnf install -y \
+RUN tdnf makecache && tdnf update -y && tdnf install -y \
     wget \
     git \
-    openjdk8 \
+    openjdk11 \
     iproute2 \
     iptables \
     build-essential \
@@ -31,8 +33,12 @@ RUN tdnf update -y && tdnf install -y \
     tdnf clean all
 
 RUN pwd && ls && \
-    # Install docker
-    DOCKER_VERSION=20.10.3 && wget https://download.docker.com/linux/static/stable/x86_64/docker-$DOCKER_VERSION.tgz && \
+    case "${ARCH}" in \
+      "amd64") DOCKER_ARCH="x86_64" ;; \
+      "arm64") DOCKER_ARCH="aarch64" ;; \
+      *) echo "Unsupported architecture: ${ARCH}" && exit 1 ;; \
+    esac && \
+    DOCKER_VERSION=28.1.1 && wget https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/docker-$DOCKER_VERSION.tgz && \
     tar --strip-components=1 -xvzf docker-$DOCKER_VERSION.tgz -C /usr/bin &&  \
     rm docker-$DOCKER_VERSION.tgz
 
@@ -40,6 +46,8 @@ COPY containerd_config.toml /etc/containerd/config.toml
 COPY busybox.tar /
 # This container needs to be run in privileged mode(run with --privileged option) to make it work
 COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+
+COPY ./src /drone
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh && \
     mkdir -p $HOME/.pki/nssdb && \

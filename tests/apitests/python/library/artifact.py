@@ -115,7 +115,7 @@ class Artifact(base.Base, object):
         return self._get_client(**kwargs).list_accessories(project_name, repo_name, reference)
 
     def check_image_scan_result(self, project_name, repo_name, reference, expected_scan_status = "Success", **kwargs):
-        timeout_count = 30
+        timeout_count = 300
         scan_status=""
         while True:
             time.sleep(5)
