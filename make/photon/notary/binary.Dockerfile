@@ -33,7 +33,7 @@ RUN set -ex && \
     go get github.com/jackc/pgx/v4@v4.18.2 && \
     go get google.golang.org/protobuf@v1.33.0 && \
     go get golang.org/x/net@v0.33.0 && \
-    go get golang.org/x/crypto@v0.31.0 && \
+    go get golang.org/x/crypto@v0.35.0 && \
     go mod tidy
 
 RUN CGO_ENABLED=0 go install -tags "$DATABASES $SOURCES" -ldflags="-w -extldflags '-static' -X main.Version=${MIGRATE_VERSION}" ./cli && mv /go/bin/cli /go/bin/migrate

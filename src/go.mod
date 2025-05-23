@@ -30,7 +30,7 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gocarina/gocsv v0.0.0-20210516172204-ca9e8a8ddea8
 	github.com/gocraft/work v0.5.1
-	github.com/golang-jwt/jwt/v4 v4.5.1
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/uuid v1.6.0
@@ -65,7 +65,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.19.0
 	go.opentelemetry.io/otel/trace v1.19.0
 	go.uber.org/ratelimit v0.2.0
-	golang.org/x/crypto v0.31.0
+	golang.org/x/crypto v0.35.0
 	golang.org/x/net v0.33.0
 	golang.org/x/oauth2 v0.20.0
 	golang.org/x/time v0.3.0
