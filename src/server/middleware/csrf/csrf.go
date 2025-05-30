@@ -79,12 +79,14 @@ func Middleware() func(handler http.Handler) http.Handler {
 			csrf.Path("/"))
 	})
 	return middleware.New(func(rw http.ResponseWriter, req *http.Request, next http.Handler) {
-		log.Infof("***** secureFlag: %t", secureFlag)
-		if !secureFlag {
-			req = csrf.PlaintextHTTPRequest(req)
-		}
-		log.Infof("***** req value: %v", req.Context().Value(csrf.PlaintextHTTPContextKey))
-		protect(attach(next)).ServeHTTP(rw, req)
+		protect(func(handler http.Handler) http.Handler {
+			return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				if !secureFlag {
+					req = csrf.PlaintextHTTPRequest(req)
+				}
+				handler.ServeHTTP(rw, req)
+			})
+		}(attach(next))).ServeHTTP(rw, req)
 	}, csrfSkipper)
 }
 
@@ -105,7 +107,5 @@ func secureCookie() bool {
 		log.Warningf("Failed to get external endpoint: %v, set cookie secure flag to true", err)
 		return true
 	}
-	log.Infof("***** External endpoint: %s", ep)
-	log.Infof("***** External endpoint has prefix: %t", !strings.HasPrefix(strings.ToLower(ep), "http://"))
 	return !strings.HasPrefix(strings.ToLower(ep), "http://")
 }
