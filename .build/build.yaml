@@ -172,7 +172,7 @@ spec:
             cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} ${REGISTRY_SRC} && cd -
 
             # compile trivy
-            TRIVYADAPTERVERSION=v0.32.3
+            TRIVYADAPTERVERSION=v0.33.1
             mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
             cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
 
@@ -229,7 +229,7 @@ spec:
             cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} ${REGISTRY_SRC} && cd -
 
             # compile trivy
-            TRIVYADAPTERVERSION=v0.32.0
+            TRIVYADAPTERVERSION=v0.33.1
             mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
             cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
 
