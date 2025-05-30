@@ -88,7 +88,7 @@ func Middleware() func(handler http.Handler) http.Handler {
 			csrf.Path("/"))
 	})
 	return middleware.New(func(rw http.ResponseWriter, req *http.Request, next http.Handler) {
-		// TODO remove this after harbor community upgrade gorilla/csrf to v1.7.3 or higher. See DEVOPS-40524
+		// TODO remove 'withSetPlaintext' wrapper after harbor community upgrade gorilla/csrf to v1.7.3 or higher. See DEVOPS-40524
 		withSetPlaintext(!secureFlag, protect(attach(next))).ServeHTTP(rw, req)
 	}, csrfSkipper)
 }
