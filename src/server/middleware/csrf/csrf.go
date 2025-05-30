@@ -63,6 +63,15 @@ func attach(handler http.Handler) http.Handler {
 	})
 }
 
+func withSetPlaintext(plaintext bool, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if plaintext {
+			r = csrf.PlaintextHTTPRequest(r)
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
 // Middleware initialize the middleware to apply csrf selectively
 func Middleware() func(handler http.Handler) http.Handler {
 	once.Do(func() {
@@ -79,15 +88,8 @@ func Middleware() func(handler http.Handler) http.Handler {
 			csrf.Path("/"))
 	})
 	return middleware.New(func(rw http.ResponseWriter, req *http.Request, next http.Handler) {
-		// TODO remove this after harbor community upgrade gorilla/csrf to v1.7.3 or higher
-		func(handler http.Handler) http.Handler {
-			return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-				if !secureFlag {
-					req = csrf.PlaintextHTTPRequest(req)
-				}
-				handler.ServeHTTP(rw, req)
-			})
-		}(protect(attach(next))).ServeHTTP(rw, req)
+		// TODO remove this after harbor community upgrade gorilla/csrf to v1.7.3 or higher. See DEVOPS-40524
+		withSetPlaintext(!secureFlag, protect(attach(next))).ServeHTTP(rw, req)
 	}, csrfSkipper)
 }
 
