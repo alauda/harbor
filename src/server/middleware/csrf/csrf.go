@@ -79,14 +79,15 @@ func Middleware() func(handler http.Handler) http.Handler {
 			csrf.Path("/"))
 	})
 	return middleware.New(func(rw http.ResponseWriter, req *http.Request, next http.Handler) {
-		protect(func(handler http.Handler) http.Handler {
+		// TODO remove this after harbor community upgrade gorilla/csrf to v1.7.3 or higher
+		func(handler http.Handler) http.Handler {
 			return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 				if !secureFlag {
 					req = csrf.PlaintextHTTPRequest(req)
 				}
 				handler.ServeHTTP(rw, req)
 			})
-		}(attach(next))).ServeHTTP(rw, req)
+		}(protect(attach(next))).ServeHTTP(rw, req)
 	}, csrfSkipper)
 }
 
