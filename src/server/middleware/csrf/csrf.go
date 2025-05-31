@@ -73,11 +73,6 @@ func withSetPlaintext(plaintext bool, h http.Handler) http.Handler {
 	})
 }
 
-func sameOrigin(a, b *url.URL) bool {
-	log.Infof("***** 7 same origin, scheme: %t, host: %t", a.Scheme == b.Scheme, a.Host == b.Host)
-	return (a.Scheme == b.Scheme && a.Host == b.Host)
-}
-
 // Middleware initialize the middleware to apply csrf selectively
 func Middleware() func(handler http.Handler) http.Handler {
 	once.Do(func() {
