@@ -69,47 +69,6 @@ func withSetPlaintext(plaintext bool, h http.Handler) http.Handler {
 		if plaintext {
 			r = csrf.PlaintextHTTPRequest(r)
 		}
-
-		var isPlaintext bool
-		val := r.Context().Value(csrf.PlaintextHTTPContextKey)
-		if val != nil {
-			isPlaintext, _ = val.(bool)
-			log.Infof("***** 1 Plaintext HTTP request: %v", isPlaintext)
-		}
-		log.Infof("***** 2 Plaintext HTTP request: %v", isPlaintext)
-
-		requestURL := *r.URL // shallow clone
-		log.Infof("***** 3 requestURL: %s, scheme: %s, host: %s", requestURL.String(), requestURL.Scheme, requestURL.Host)
-
-		requestURL.Scheme = "https"
-		if isPlaintext {
-			requestURL.Scheme = "http"
-		}
-		if requestURL.Host == "" {
-			requestURL.Host = r.Host
-		}
-		log.Infof("***** 4 requestURL: %s, scheme: %s, host: %s", requestURL.String(), requestURL.Scheme, requestURL.Host)
-
-		origin := r.Header.Get("Origin")
-		log.Infof("***** 5 origin: %s", origin)
-
-		if origin != "" {
-			parsedOrigin, err := url.Parse(origin)
-			if err != nil {
-				log.Errorf("Failed to parse origin: %v", err)
-				h.ServeHTTP(w, r)
-				return
-			}
-			log.Infof("***** 6 originURL: %s, scheme: %s, host: %s", parsedOrigin.String(), parsedOrigin.Scheme, parsedOrigin.Host)
-			if !sameOrigin(&requestURL, parsedOrigin) {
-				log.Error("not same origin")
-				h.ServeHTTP(w, r)
-				return
-			}
-		} else {
-			log.Error("origin is empty")
-		}
-
 		h.ServeHTTP(w, r)
 	})
 }
