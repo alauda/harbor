@@ -16,7 +16,6 @@ package csrf
 
 import (
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"sync"
