@@ -4,7 +4,7 @@
 # then export $FILE_NAME=$FILE_CONTENT
 # if file content has multi line, will just skip it.
 
-set -ex
+set -e
 
 export_env() {
     export TEST_VAR="hello"
@@ -26,9 +26,9 @@ export_env() {
       return 1
     fi
 
-    # range all files and set environment
-    for file in "$directory"/*; do
-        if [ -f "$file" ] && [ -r "$file" ]; then
+    # range all files (recursively) and set environment
+    for file in $(find "$directory" -type f); do
+        if [ -r "$file" ]; then
             if ([ $(wc -l < "$file") -eq 0 ] && [ $(wc -w < "$file") -gt 0 ]) || [ $(wc -l < "$file") -eq 1 ] ; then
                 filename=$(basename "$file")
                 content=$(cat "$file")
