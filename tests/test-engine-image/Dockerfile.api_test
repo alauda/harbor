@@ -54,6 +54,6 @@ RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh && \
     echo Harbor12345 > password.ca && \
     certutil -d sql:$HOME/.pki/nssdb -N -f password.ca
 
-RUN tdnf install -y podman
+RUN tdnf makecache && tdnf install -y podman && tdnf clean all
 
 VOLUME /var/lib/docker
