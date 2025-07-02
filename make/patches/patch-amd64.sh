@@ -33,7 +33,7 @@ sed -i 's/TRIVYFLAG=false/TRIVYFLAG=true/g' "Makefile"
 sed -i 's/=goharbor\//=build-harbor.alauda.cn\/devops\/goharbor-/g' "Makefile"
 sed -i 's/--pull / /g' "Makefile"
 sed -i 's/$(IMAGENAMESPACE)\//$(IMAGENAMESPACE)\/goharbor-/g' "Makefile"
-sed -i 's/golang:1.23.2/docker-mirrors.alauda.cn\/library\/golang:1.23.7 /g' "Makefile"
+sed -i 's/golang:1.24.4/docker-mirrors.alauda.cn\/library\/golang:1.24.4 /g' "Makefile"
 sed -i 's/-v \$(BUILDPATH):\$(GOBUILDPATHINCONTAINER)/-v \$(BUILDPATH):\$(GOBUILDPATHINCONTAINER) -e GOPROXY=\$(GOPROXY)/' "Makefile"
 sed -i '1 a GOPROXY=https://build-nexus.alauda.cn/repository/golang/,https://goproxy.cn,direct' "Makefile"
 
