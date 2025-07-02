@@ -53,11 +53,11 @@ sed -i 's/$(IMAGENAMESPACE)\//$(IMAGENAMESPACE)\/goharbor-/g' "make/photon/Makef
 echo "AMD64 after change the make/photon/Makefile is "
 cat make/photon/Makefile
 
-sed -i 's/golang:1.23.8/docker-mirrors.alauda.cn\/library\/golang:1.23.8 /g' "make/photon/trivy-adapter/Dockerfile.binary"
+sed -i 's/golang:1.24.4/docker-mirrors.alauda.cn\/library\/golang:1.24.4 /g' "make/photon/trivy-adapter/Dockerfile.binary"
 echo "AMD64 after change the make/photon/trivy-adapter/Dockerfile.binary "
 cat make/photon/trivy-adapter/Dockerfile.binary
 
-sed -i 's/golang:1.23.8/docker-mirrors.alauda.cn\/library\/golang:1.23.8 /g' "make/photon/registry/Dockerfile.binary"
+sed -i 's/golang:1.24.4/docker-mirrors.alauda.cn\/library\/golang:1.24.4 /g' "make/photon/registry/Dockerfile.binary"
 echo "AMD64 after change the make/photon/registry/Dockerfile.binary "
 cat make/photon/registry/Dockerfile.binary
 
