@@ -172,8 +172,10 @@ spec:
             cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} ${REGISTRY_SRC} && cd -
 
             # compile trivy
+            TRIVYVERSION=v0.62.1
             TRIVYADAPTERVERSION=v0.33.1
             mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
+            cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.trivy.sh ${TRIVYVERSION} && cd -
             cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
 
     - name: compile-arm64-harbor
@@ -229,8 +231,10 @@ spec:
             cd ${BUILDPATH}/make/photon/registry && ./builder ${REGISTRY_SRC_TAG} ${REGISTRY_SRC} && cd -
 
             # compile trivy
+            TRIVYVERSION=v0.62.1
             TRIVYADAPTERVERSION=v0.33.1
             mkdir -p ${BUILDPATH}/make/photon/trivy-adapter/binary
+            cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.trivy.sh ${TRIVYVERSION} && cd -
             cd ${BUILDPATH}/make/photon/trivy-adapter && ./builder.sh ${TRIVYADAPTERVERSION} && cd -
 
     ##########
