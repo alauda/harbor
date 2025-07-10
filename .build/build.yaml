@@ -242,7 +242,7 @@ spec:
     #########
     - name: build-image-amd64
       timeout: 2.5h
-      retries: 3
+      retries: 7
       runAfter:
         - compile-amd64-harbor
         - compile-amd64-thirdparty
@@ -287,7 +287,7 @@ spec:
             echo "==== build metadata"
     - name: build-image-arm64
       timeout: 2.5h
-      retries: 3
+      retries: 7
       runAfter:
         - compile-arm64-harbor
         - compile-arm64-thirdparty
@@ -339,7 +339,7 @@ spec:
         - build-image-arm64
         - build-image-amd64
       timeout: 30m
-      retries: 3
+      retries: 7
       taskRef:
         kind: ClusterTask
         name: merge-image-buildkit
