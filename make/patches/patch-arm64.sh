@@ -19,6 +19,10 @@ sed -i 's/CGO_ENABLED=0/GOOS=linux GOARCH=arm64 CGO_ENABLED=0/g' "make/photon/tr
 echo "ARM64 after change make/photon/trivy-adapter/Dockerfile.binary is "
 cat make/photon/trivy-adapter/Dockerfile.binary
 
+sed -i 's/CGO_ENABLED=0/GOOS=linux GOARCH=arm64 CGO_ENABLED=0/g' "make/photon/trivy-adapter/Dockerfile.trivy.binary"
+echo "ARM64 after change make/photon/trivy-adapter/Dockerfile.trivy.binary is "
+cat make/photon/trivy-adapter/Dockerfile.trivy.binary
+
 sed -i 's#_Linux-64bit.tar.gz#_Linux-ARM64.tar.gz#g' "Makefile"
 echo "after change trivy download alauda url"
 cat Makefile
